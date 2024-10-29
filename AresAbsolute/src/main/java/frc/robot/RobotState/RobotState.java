@@ -5,12 +5,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.BiFunction;
 
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
-import edu.wpi.first.math.geometry.Transform3d;
-import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.geometry.Translation3d;
-import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.interpolation.*;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.UnitBuilder;
@@ -29,6 +26,7 @@ import frc.lib.AccelerationIntegrator;
 import frc.lib.Interpolating.InterpolatingDouble;
 import frc.lib.Interpolating.InterpolatingTreeMap;
 import frc.lib.Interpolating.Geometry.InterpolablePose2d;
+import frc.lib.Interpolating.Geometry.InterpolableTransform2d;
 import frc.lib.Interpolating.Interpolable;
 
 import org.photonvision.EstimatedRobotPose;
@@ -71,7 +69,7 @@ public class RobotState { //will estimate pose with odometry and correct drift w
     Pigeon2 pigeon = drivetrain.getPigeon2(); //getting the already constructed pigeon in swerve
 
     private InterpolatingTreeMap<InterpolatingDouble, InterpolablePose2d> odometry_to_vehicle;
-	// private InterpolatingTreeMap<InterpolatingDouble, Translation2d> field_to_odometry;
+	private InterpolatingTreeMap<InterpolatingDouble, InterpolableTransform2d> field_to_odometry;
     private ExtendedKalmanFilter<N2, N2, N2> EKF;
 
     private static final double dt = 0.002;
@@ -79,7 +77,7 @@ public class RobotState { //will estimate pose with odometry and correct drift w
     private final static Matrix<N2, N1> stateStdDevs = VecBuilder.fill(0.05,0.05); // obtained from noise when sensor is at rest
     private final static Matrix<N2, N1> measurementStdDevs = VecBuilder.fill(0.02,0.02); // idk how to find this but ill figure  it out
 
-	private Optional<Translation2d> initial_field_to_odom = Optional.empty(); //got to fill dis
+	private Optional<InterpolablePose2d> initial_field_to_odom = Optional.empty(); //got to fill dis
 
     private double velocityMagnitude;
 
@@ -106,9 +104,8 @@ public class RobotState { //will estimate pose with odometry and correct drift w
         // Update Kalman filter state with odometry pose
         EKF.setXhat(0, pose.getTranslation().getX());
         EKF.setXhat(1, pose.getTranslation().getY());
-    } //propagate error
+    }
 
-    // still need to save our pose somewhere lol (prop use a interpolated tree map) (guess what!!)
 
     public void initKalman() {
         EKF = new ExtendedKalmanFilter<>(Nat.N2(), Nat.N2(), Nat.N2(),
@@ -136,7 +133,7 @@ public class RobotState { //will estimate pose with odometry and correct drift w
         public void reset(double time, Pose2d initial_Pose2d) { //basically init the robot state
             odometry_to_vehicle = new InterpolatingTreeMap<>(observationSize);
             // odometry_to_vehicle.put(new InterpolatingDouble(time), initial_odom_to_vehicle);
-            // field_to_odometry = new InterpolatingTreeMap<>(observationSize);
+            field_to_odometry = new InterpolatingTreeMap<>(observationSize);
             // field_to_odometry.put(new InterpolatingDouble(time), getInitialFieldToOdom());
         }
 

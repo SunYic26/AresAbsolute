@@ -1,4 +1,4 @@
-package frc.lib.Interpolating;
+package frc.lib.Interpolating.Geometry;
 
 import frc.lib.Interpolating.*;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -9,9 +9,9 @@ public class InterpolablePose2d implements Interpolable<InterpolablePose2d> {
     private final double y;
     private final Rotation2d rotation;
 
-    protected static final Pose2d kIdentity = new Pose2d();
+     protected static final InterpolablePose2d kIdentity = new InterpolablePose2d(0.0, 0.0, new Rotation2d());
 
-    public static Pose2d identity() {
+    public static InterpolablePose2d identity() {
         return kIdentity;
     }
 

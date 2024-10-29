@@ -1,50 +1,84 @@
-package frc.lib.Interpolating;
+package frc.lib.Interpolating.Geometry;
 
 import frc.lib.Interpolating.*;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 
-public class InterpolablePose2d implements Interpolable<InterpolablePose2d> {
-    private final double x;
-    private final double y;
-    private final Rotation2d rotation;
+public class InterpolableTransform2d implements Interpolable<InterpolableTransform2d> {
 
-    protected static final Pose2d kIdentity = new Pose2d();
+    protected static final InterpolableTransform2d kIdentity = new InterpolableTransform2d();
 
-    public static Pose2d identity() {
+    public static InterpolableTransform2d identity() {
         return kIdentity;
     }
 
-    public InterpolablePose2d(double x, double y, Rotation2d rotation) {
-        this.x = x;
-        this.y = y;
-        this.rotation = rotation;
+    protected final double x_;
+    protected final double y_;
+
+    public InterpolableTransform2d() {
+        x_ = 0;
+        y_ = 0;
     }
 
-    @Override
-    public InterpolablePose2d interpolate(InterpolablePose2d other, double ratio) {
-        if (ratio < 0 || ratio > 1) {
-            throw new IllegalArgumentException("Ratio must be between 0 and 1");
-        }
+    public InterpolableTransform2d(double x, double y) {
+        x_ = x;
+        y_ = y;
+    }
+
+    public InterpolableTransform2d(final InterpolableTransform2d other) {
+        x_ = other.x_;
+        y_ = other.y_;
+    }
+
+    public InterpolableTransform2d(final InterpolableTransform2d start, final InterpolableTransform2d end) {
+        x_ = end.x_ - start.x_;
+        y_ = end.y_ - start.y_;
+    }
+
+    public InterpolableTransform2d(final edu.wpi.first.math.geometry.Translation2d other) {
+        x_= other.getX();
+        y_ = other.getY();
+    }
+
         
-        // Interpolate x, y, and rotation
-        double newX = this.x + (other.x - this.x) * ratio;
-        double newY = this.y + (other.y - this.y) * ratio;
-        Rotation2d newRotation = this.rotation.interpolate(other.rotation, ratio);
-
-        return new InterpolablePose2d(newX, newY, newRotation);
+    public static InterpolableTransform2d fromPolar(Rotation2d direction, double magnitude){
+    	return new InterpolableTransform2d(direction.getCos() * magnitude, direction.getSin() * magnitude);
     }
 
-    // Getters for x, y, rotation if needed
-    public double getX() {
-        return x;
+    /**
+     * The "norm" of a transform is the Euclidean distance in x and y.
+     *
+     * @return sqrt(x ^ 2 + y ^ 2)
+     */
+    public double norm() {
+        return Math.hypot(x_, y_);
     }
 
-    public double getY() {
-        return y;
+    public double norm2() {
+        return x_ * x_ + y_ * y_;
     }
 
-    public Rotation2d getRotation() {
-        return rotation;
+    public double x() {
+        return x_;
+    }
+
+    public double y() {
+        return y_;
+    }
+
+
+        @Override
+    public InterpolableTransform2d interpolate(final InterpolableTransform2d other, double x) {
+        if (x <= 0) {
+            return new InterpolableTransform2d(this);
+        } else if (x >= 1) {
+            return new InterpolableTransform2d(other);
+        }
+        return extrapolate(other, x);
+    }
+
+    public InterpolableTransform2d extrapolate(final InterpolableTransform2d other, double x) {
+        return new InterpolableTransform2d(x * (other.x_ - x_) + x_, x * (other.y_ - y_) + y_);
     }
 }
