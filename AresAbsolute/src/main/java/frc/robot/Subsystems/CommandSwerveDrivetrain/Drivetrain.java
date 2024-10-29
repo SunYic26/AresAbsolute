@@ -36,8 +36,8 @@ import frc.robot.Constants;
 import frc.robot.generated.TunerConstants;
 import frc.robot.RobotContainer;
 import frc.robot.Constants.robotPIDs.HeadingControlPID;
+import frc.robot.RobotState.RobotState;
 import frc.robot.Subsystems.CommandSwerveDrivetrain.DriveControlSystems;
-import frc.robot.Subsystems.RobotState.RobotState;
 
 /**
  * Class that extends the Phoenix SwerveDrivetrain class and implements subsystem

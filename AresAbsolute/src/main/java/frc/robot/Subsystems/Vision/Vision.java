@@ -7,8 +7,8 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Robot;
 import frc.robot.Constants.VisionConstants.VisionLimits;
+import frc.robot.RobotState.RobotState;
 import frc.robot.Subsystems.CommandSwerveDrivetrain.Drivetrain;
-import frc.robot.Subsystems.RobotState.RobotState;
 
 import java.io.ObjectInputStream.GetField;
 import java.util.List;

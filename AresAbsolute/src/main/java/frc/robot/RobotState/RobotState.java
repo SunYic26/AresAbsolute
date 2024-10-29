@@ -1,6 +1,4 @@
-package frc.robot.Subsystems.RobotState;
-
-import frc.robot.Subsystems.RobotState.RobotState;
+package frc.robot.RobotState;
 
 import java.io.ObjectInputStream.GetField;
 import java.util.List;
@@ -27,7 +25,13 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import frc.lib.AccelerationIntegrator;
+import frc.lib.InterpolatingDouble;
+import edu.wpi.first.math.interpolation.Interpolatable;
+import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
+import edu.wpi.first.math.interpolation.InterpolatingTreeMap;
+import edu.wpi.first.math.interpolation.Interpolator;
 
+import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
 import org.photonvision.PhotonPoseEstimator.PoseStrategy;
@@ -39,8 +43,11 @@ import org.photonvision.targeting.PhotonTrackedTarget;
 import frc.robot.Constants;
 import frc.robot.Subsystems.Vision.Vision;
 import org.opencv.video.KalmanFilter;
+
+import com.ctre.phoenix6.Timestamp;
 import com.ctre.phoenix6.hardware.Pigeon2;
 import frc.robot.Subsystems.CommandSwerveDrivetrain.Drivetrain;
+
 import com.ctre.phoenix6.mechanisms.swerve.SwerveDrivetrain;
 
 import edu.wpi.first.math.numbers.N1;
@@ -63,9 +70,12 @@ public class RobotState { //will estimate pose with odometry and correct drift w
     Drivetrain drivetrain;
     Pigeon2 pigeon = drivetrain.getPigeon2(); //getting the already constructed pigeon in swerve
 
-    ExtendedKalmanFilter<N2, N2, N2> EKF;
+    private InterpolatingTreeMap<InterpolatingDouble, Pose2d> odometry_to_vehicle;
+	private InterpolatingTreeMap<InterpolatingDouble, Translation2d> field_to_odometry;
+    private ExtendedKalmanFilter<N2, N2, N2> EKF;
 
-    private final double dt = 0.002;
+    private static final double dt = 0.002;
+    private static final double observationSize = 50; //how many poses we keep our tree
     private final static Matrix<N2, N1> stateStdDevs = VecBuilder.fill(0.05,0.05); // obtained from noise when sensor is at rest
     private final static Matrix<N2, N1> measurementStdDevs = VecBuilder.fill(0.02,0.02); // idk how to find this but ill figure  it out
 
@@ -78,19 +88,30 @@ public class RobotState { //will estimate pose with odometry and correct drift w
 
     public RobotState() {
         drivetrain = Drivetrain.getInstance();
-        resetKalman();
+        initKalman();
+        // reset(0, ); NEED AN INITIAL POSE 
     }
 
-    public synchronized void visionUpdate(Pose2d pose, double timestamp) {}
-    public synchronized void odometryUpdate(Pose2d pose, double timestamp) {} //propagate error
-    // still need to save our pose somewhere lol (prop use a interpolated tree map)
-
-    public void updateAccel() {
-        double[] newAccel = rawRobotAcceleration();
-        velocityMagnitude = accelIntegrator.update(newAccel[0], newAccel[1]);
+    public synchronized void visionUpdate(Pose2d pose, double timestamp) {
+        //check if first update or if old pose is empty
+        //pull corrosponding odo pose to vision pose
+        //set x hats of kalman
     }
 
-    public void resetKalman() {
+    //dont need any of the velocity values from odo bc our pigeon is prop more accurate than encoders
+    public synchronized void odometryUpdate(Pose2d pose, double timestamp) {
+        odometry_to_vehicle.put(new InterpolatingDouble(timestamp), pose);
+
+        // Update Kalman filter state with odometry pose
+        EKF.setXhat(0, pose.getTranslation().getX());
+        EKF.setXhat(1, pose.getTranslation().getY());
+
+    } //propagate error
+
+    // still need to save our pose somewhere lol (prop use a interpolated tree map) (guess what!!)
+
+
+    public void initKalman() {
         EKF = new ExtendedKalmanFilter<>(Nat.N2(), Nat.N2(), Nat.N2(),
         (x,u) -> u, // return input as the output (f)
         (x,u) -> x, // return states as the output (h)
@@ -112,6 +133,23 @@ public class RobotState { //will estimate pose with odometry and correct drift w
          */
         }
 
+
+        public void reset(double time, Pose2d initial_Pose2d) { //basically init the robot state
+            // need to init as a interpolate tree and set initial values
+        }
+
+
+        public void updateAccel() {
+            double[] newAccel = rawRobotAcceleration();
+            velocityMagnitude = accelIntegrator.update(newAccel[0], newAccel[1]);
+        }
+
+
+        public double getVelocity() {
+            return velocityMagnitude;
+        }
+
+
         public double[] rawRobotAngularVelocity(){
             double angularX = pigeon.getAngularVelocityXDevice().getValue();
             double angularY = pigeon.getAngularVelocityYDevice().getValue();
@@ -120,6 +158,7 @@ public class RobotState { //will estimate pose with odometry and correct drift w
             
             return new double[] {(Math.signum(Math.atan2(angularY, angularX)) * Math.sqrt((Math.pow(angularX, 2)) + Math.pow(angularY, 2))), timestamp};
         }
+
     
         public double[] rawRobotAcceleration() {
             double accelerationX = pigeon.getAccelerationX().getValue() - pigeon.getGravityVectorX().getValue();
@@ -129,6 +168,10 @@ public class RobotState { //will estimate pose with odometry and correct drift w
 
             return new double[] {Math.signum(Math.atan2(accelerationX, accelerationY)) * Math.sqrt((Math.pow(accelerationX, 2)) + Math.pow(accelerationY, 2)), timestamp};
         }
+
+
+
+
 
         // -----------------------------------------------------------
                 // BiFunction<Matrix<N3, N1>, Matrix<N2, N1>, Matrix<N3, N1>> f = (state, input) -> {
