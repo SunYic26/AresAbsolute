@@ -56,8 +56,6 @@ public class Drivetrain extends SwerveDrivetrain implements Subsystem {
 
     Optional<DriverStation.Alliance> alliance = DriverStation.getAlliance();
 
-    //Vision m_Camera;
-
     private Field2d m_field = new Field2d();
 
     public static Drivetrain getInstance(){
