@@ -90,7 +90,7 @@ public class RobotState { //will estimate pose with odometry and correct drift w
         // reset(0, ); NEED AN INITIAL POSE 
     }
 
-    public synchronized void visionUpdate(Pose2d pose, double timestamp) {
+    public synchronized void visionUpdate(EstimatedRobotPose updatePose) {
         //check if first update or if old pose is empty
         //pull corrosponding odo pose to vision pose
         //set x hats of kalman
@@ -101,9 +101,8 @@ public class RobotState { //will estimate pose with odometry and correct drift w
     public synchronized void odometryUpdate(Pose2d pose, double timestamp) {
         odometry_to_vehicle.put(new InterpolatingDouble(timestamp), new InterpolablePose2d(pose.getX(),pose.getY(), pose.getRotation()));
 
-        // Update Kalman filter state with odometry pose
-        EKF.setXhat(0, pose.getTranslation().getX());
-        EKF.setXhat(1, pose.getTranslation().getY());
+        // Keep the EKF ahead (no inputs)
+		EKF.predict(VecBuilder.fill(0.0, 0.0), dt);
     }
 
 

@@ -149,24 +149,29 @@ public class Vision extends SubsystemBase {
         if(cameraResult.getTimestampSeconds() != lastProcessedTimestamp) {
                 if(Math.abs(robotState.rawRobotAngularVelocity()[0]) > VisionLimits.k_rotationLimitDPS) {
 
-                    if(cameraResult.getMultiTagResult().estimatedPose.isPresent && shouldUseMultiTag()) {
-                        EstimatedRobotPose newPose = photonPoseEstimator.update().get();
-                        robotState.visionUpdate(newPose.estimatedPose.toPose2d(), newPose.timestampSeconds); //send this to pose estimator in the future
-                                                                                    // IT HAS BECOME THE FUTURE AHAHAHHA
-                    } else if (hasValidTarget(cameraResult)) {
-
-                        Pose3d targetPose = aprilTagFieldLayout.getTagPose(cameraResult.getBestTarget().getFiducialId()).orElse(null);
-                        Pose3d newPose = PhotonUtils.estimateFieldToRobotAprilTag(
+                    if(!cameraResult.getMultiTagResult().estimatedPose.isPresent) {
+                        if(hasValidTarget(cameraResult)) { //using fallback tag
+                            EstimatedRobotPose newPose = photonPoseEstimator.update().get();
+                            robotState.visionUpdate(newPose); 
+                            return;
+                        }
+                    } else if (shouldUseMultiTag()) { //using multitag
+                            EstimatedRobotPose newPose = photonPoseEstimator.update().get();
+                            robotState.visionUpdate(newPose); 
+                            return;
+                    } else if (hasValidTarget(cameraResult)){ // manually making the pose
+                            Pose3d targetPose = aprilTagFieldLayout.getTagPose(cameraResult.getBestTarget().getFiducialId()).orElse(null);
+                            Pose3d newPose = PhotonUtils.estimateFieldToRobotAprilTag(
                             cameraResult.getBestTarget().getBestCameraToTarget(), targetPose, cameraToRobotTransform);
-                        
-                        robotState.visionUpdate(newPose.toPose2d(), cameraResult.getTimestampSeconds());
-                    } else { System.out.println("Vision failed: no targets");}
-
+                            robotState.visionUpdate(new EstimatedRobotPose(newPose, cameraResult.getTimestampSeconds(),
+                            cameraResult.getTargets(), PoseStrategy.CLOSEST_TO_LAST_POSE));
+                    } else { System.out.println("Vision failed: no targets"); } //less nesting! 
             } else { System.out.println("Vision failed: high rotation"); }
         } else { System.out.println("Vision failed: old"); }
 
         lastProcessedTimestamp = cameraResult.getTimestampSeconds();
     }
+
 
     @Override
     public void periodic() {
