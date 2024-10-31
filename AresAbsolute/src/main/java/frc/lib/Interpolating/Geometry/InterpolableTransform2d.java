@@ -33,8 +33,8 @@ public class InterpolableTransform2d implements Interpolable<InterpolableTransfo
     }
 
     public InterpolableTransform2d(Pose2d pose) {
-        this.x = pose.getX();
-        this.y = pose.getY();
+        this.x_ = pose.getX();
+        this.y_ = pose.getY();
     }
 
 
