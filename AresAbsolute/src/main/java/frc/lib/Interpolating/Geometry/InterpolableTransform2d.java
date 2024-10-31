@@ -3,6 +3,7 @@ package frc.lib.Interpolating.Geometry;
 import frc.lib.Interpolating.*;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Transform2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 
 public class InterpolableTransform2d implements Interpolable<InterpolableTransform2d> {
@@ -20,6 +21,22 @@ public class InterpolableTransform2d implements Interpolable<InterpolableTransfo
         x_ = 0;
         y_ = 0;
     }
+
+    public InterpolableTransform2d(Transform2d transform) {
+        this.x_ = transform.getX();
+        this.y_ = transform.getY();
+    }
+
+    public InterpolableTransform2d(InterpolablePose2d pose) {
+        this.x_ = pose.getX();
+        this.y_ = pose.getY();
+    }
+
+    public InterpolableTransform2d(Pose2d pose) {
+        this.x = pose.getX();
+        this.y = pose.getY();
+    }
+
 
     public InterpolableTransform2d(double x, double y) {
         x_ = x;
@@ -46,27 +63,25 @@ public class InterpolableTransform2d implements Interpolable<InterpolableTransfo
     	return new InterpolableTransform2d(direction.getCos() * magnitude, direction.getSin() * magnitude);
     }
 
-    /**
-     * The "norm" of a transform is the Euclidean distance in x and y.
-     *
-     * @return sqrt(x ^ 2 + y ^ 2)
-     */
-    public double norm() {
-        return Math.hypot(x_, y_);
-    }
-
-    public double norm2() {
-        return x_ * x_ + y_ * y_;
-    }
-
-    public double x() {
+    public double getX() {
         return x_;
     }
 
-    public double y() {
+    public double getY() {
         return y_;
     }
 
+    public InterpolableTransform2d translateBy(final InterpolableTransform2d other) {
+        return new InterpolableTransform2d(x_ + other.x_, y_ + other.y_);
+    }
+
+    public InterpolableTransform2d plus(InterpolableTransform2d other) {
+        return new InterpolableTransform2d(x_ + other.getX(), y_ + other.getY());
+    }
+
+    public InterpolableTransform2d minus(InterpolableTransform2d other) {
+        return new InterpolableTransform2d(x_ - other.getX(), y_ - other.getY());
+    }
 
         @Override
     public InterpolableTransform2d interpolate(final InterpolableTransform2d other, double x) {

@@ -4,6 +4,7 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.lib.VisionOutput;
 import frc.robot.Constants;
 import frc.robot.Robot;
 import frc.robot.Constants.VisionConstants.VisionLimits;
@@ -146,28 +147,41 @@ public class Vision extends SubsystemBase {
      */
     public void updateVision() throws Exception{
 
-        if(cameraResult.getTimestampSeconds() != lastProcessedTimestamp) {
-                if(Math.abs(robotState.rawRobotAngularVelocity()[0]) > VisionLimits.k_rotationLimitDPS) {
+        if(cameraResult.getTimestampSeconds() == lastProcessedTimestamp) {
+            SmartDashboard.putString("Vision accepter", "Vision failed: old");
+            return;
+        }
+        
+        if(Math.abs(robotState.rawRobotAngularVelocity()[0]) > VisionLimits.k_rotationLimitDPS) {
+            SmartDashboard.putString("Vision accepter", "Vision failed: High rotation");
+            return;
+        } 
 
-                    if(!cameraResult.getMultiTagResult().estimatedPose.isPresent) {
-                        if(hasValidTarget(cameraResult)) { //using fallback tag
-                            EstimatedRobotPose newPose = photonPoseEstimator.update().get();
-                            robotState.visionUpdate(newPose); 
-                            return;
-                        }
-                    } else if (shouldUseMultiTag()) { //using multitag
-                            EstimatedRobotPose newPose = photonPoseEstimator.update().get();
-                            robotState.visionUpdate(newPose); 
-                            return;
-                    } else if (hasValidTarget(cameraResult)){ // manually making the pose
-                            Pose3d targetPose = aprilTagFieldLayout.getTagPose(cameraResult.getBestTarget().getFiducialId()).orElse(null);
-                            Pose3d newPose = PhotonUtils.estimateFieldToRobotAprilTag(
-                            cameraResult.getBestTarget().getBestCameraToTarget(), targetPose, cameraToRobotTransform);
-                            robotState.visionUpdate(new EstimatedRobotPose(newPose, cameraResult.getTimestampSeconds(),
-                            cameraResult.getTargets(), PoseStrategy.CLOSEST_TO_LAST_POSE));
-                    } else { System.out.println("Vision failed: no targets"); } //less nesting! 
-            } else { System.out.println("Vision failed: high rotation"); }
-        } else { System.out.println("Vision failed: old"); }
+        if(!cameraResult.getMultiTagResult().estimatedPose.isPresent) {
+
+            if(hasValidTarget(cameraResult)) { //using fallback tag
+                VisionOutput newPose = new VisionOutput(photonPoseEstimator.update().get());
+                robotState.visionUpdate(newPose); 
+                return;
+            }
+            
+        } else if (shouldUseMultiTag()) { //using multitag
+
+            VisionOutput newPose = new VisionOutput(photonPoseEstimator.update().get());
+            robotState.visionUpdate(newPose); 
+            return;
+
+        } else if (hasValidTarget(cameraResult)){ // manually making the pose
+
+
+                Pose3d targetPose = aprilTagFieldLayout.getTagPose(cameraResult.getBestTarget().getFiducialId()).orElse(null);
+                Pose3d newPose = PhotonUtils.estimateFieldToRobotAprilTag(
+                cameraResult.getBestTarget().getBestCameraToTarget(), targetPose, cameraToRobotTransform);
+                robotState.visionUpdate(new VisionOutput(newPose, cameraResult.getTimestampSeconds(),
+                cameraResult.getBestTarget(), PoseStrategy.CLOSEST_TO_LAST_POSE));
+
+        } else { SmartDashboard.putString("Vision accepter", "Vision failed: no targets");} 
+        //less nesting! 
 
         lastProcessedTimestamp = cameraResult.getTimestampSeconds();
     }
@@ -182,7 +196,6 @@ public class Vision extends SubsystemBase {
             } catch (Exception e){}
         }
     }
-
 }
 
 //potential Kalman implementation: get a sequence of camera readings, run line

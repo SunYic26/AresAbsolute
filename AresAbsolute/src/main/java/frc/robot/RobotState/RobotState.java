@@ -11,10 +11,13 @@ import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.interpolation.*;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.UnitBuilder;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.math.MatBuilder;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.Nat;
+import edu.wpi.first.math.StateSpaceUtil;
 import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.math.Vector;
 import edu.wpi.first.math.estimator.ExtendedKalmanFilter;
 import edu.wpi.first.math.estimator.PoseEstimator;
 import edu.wpi.first.math.estimator.UnscentedKalmanFilter;
@@ -23,6 +26,7 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import frc.lib.AccelerationIntegrator;
+import frc.lib.VisionOutput;
 import frc.lib.Interpolating.InterpolatingDouble;
 import frc.lib.Interpolating.InterpolatingTreeMap;
 import frc.lib.Interpolating.Geometry.InterpolablePose2d;
@@ -68,16 +72,17 @@ public class RobotState { //will estimate pose with odometry and correct drift w
     Drivetrain drivetrain;
     Pigeon2 pigeon = drivetrain.getPigeon2(); //getting the already constructed pigeon in swerve
 
-    private InterpolatingTreeMap<InterpolatingDouble, InterpolablePose2d> odometry_to_vehicle;
-	private InterpolatingTreeMap<InterpolatingDouble, InterpolableTransform2d> field_to_odometry;
+    private InterpolatingTreeMap<InterpolatingDouble, InterpolablePose2d> odometryToVehicle;
+	private InterpolatingTreeMap<InterpolatingDouble, InterpolableTransform2d> fieldToOdometry;
     private ExtendedKalmanFilter<N2, N2, N2> EKF;
 
     private static final double dt = 0.002;
     private static final int observationSize = 50; //how many poses we keep our tree
     private final static Matrix<N2, N1> stateStdDevs = VecBuilder.fill(0.05,0.05); // obtained from noise when sensor is at rest
-    private final static Matrix<N2, N1> measurementStdDevs = VecBuilder.fill(0.02,0.02); // idk how to find this but ill figure  it out
+    private final static Matrix<N2, N1> measurementStdDevs = VecBuilder.fill(0.02,0.02); // idk how to find this but ill figure it out
 
-	private Optional<InterpolablePose2d> initial_field_to_odom = Optional.empty(); //got to fill dis
+	private Optional<InterpolableTransform2d> initialFieldToOdo = Optional.empty();
+    private Optional<EstimatedRobotPose> prevVisionPose;
 
     private double velocityMagnitude;
 
@@ -87,19 +92,50 @@ public class RobotState { //will estimate pose with odometry and correct drift w
     public RobotState() {
         drivetrain = Drivetrain.getInstance();
         initKalman();
-        // reset(0, ); NEED AN INITIAL POSE 
+        reset(0, InterpolablePose2d.identity());
     }
 
-    public synchronized void visionUpdate(EstimatedRobotPose updatePose) {
-        //check if first update or if old pose is empty
-        //pull corrosponding odo pose to vision pose
-        //set x hats of kalman
+    public synchronized void visionUpdate(VisionOutput updatePose) {
+        if (prevVisionPose.isEmpty() || initialFieldToOdo.isEmpty()) { //TODO make sure odo and vis pose are in same frame of ref
+            double timestamp = updatePose.timestampSeconds;
+
+            // merge poses
+            //TODO this is wrong (i will fix later)
+            InterpolableTransform2d visionTransform = new InterpolableTransform2d(updatePose.estimatedPose.getTranslation().toTranslation2d());
+            InterpolableTransform2d proximateOdoTranslation = new InterpolableTransform2d(odometryToVehicle.getInterpolated(new InterpolatingDouble(timestamp)));
+            InterpolableTransform2d mergedPose = visionTransform.translateBy(proximateOdoTranslation);
+            fieldToOdometry.put(new InterpolatingDouble(timestamp),  mergedPose);
+                
+            //update kalman
+            EKF.setXhat(0, mergedPose.getX());
+            EKF.setXhat(1, mergedPose.getY());
+
+            initialFieldToOdo = Optional.of(fieldToOdometry.lastEntry().getValue());
+            prevVisionPose = Optional.ofNullable(updatePose); 
+        } else {
+            double timestamp = updatePose.timestampSeconds;
+            InterpolablePose2d proximateOdoTranslation = odometryToVehicle.getInterpolated(new InterpolatingDouble(timestamp));
+            prevVisionPose = Optional.ofNullable(updatePose);
+            InterpolableTransform2d visionTransform = new InterpolableTransform2d(prevVisionPose.get().estimatedPose.toPose2d());
+            InterpolableTransform2d mergedPose = visionTransform.translateBy(new InterpolableTransform2d(proximateOdoTranslation));
+
+            Vector<N2> stdevs = VecBuilder.fill(Math.pow(updatePose.getStandardDeviation(), 1), Math.pow(updatePose.getStandardDeviation(), 1));
+					EKF.correct(
+							VecBuilder.fill(0.0, 0.0),
+							VecBuilder.fill(
+									mergedPose.getX(),
+									mergedPose.getY()),
+							StateSpaceUtil.makeCovarianceMatrix(Nat.N2(), stdevs));
+					fieldToOdometry.put(
+							new InterpolatingDouble(timestamp),
+							new InterpolableTransform2d(EKF.getXhat(0), EKF.getXhat(1)));
+        } //my head hurts
     }
 
 
     //dont need any of the velocity values from odo bc our pigeon is prop more accurate than encoders
     public synchronized void odometryUpdate(Pose2d pose, double timestamp) {
-        odometry_to_vehicle.put(new InterpolatingDouble(timestamp), new InterpolablePose2d(pose.getX(),pose.getY(), pose.getRotation()));
+        odometryToVehicle.put(new InterpolatingDouble(timestamp), new InterpolablePose2d(pose.getX(),pose.getY(), pose.getRotation()));
 
         // Keep the EKF ahead (no inputs)
 		EKF.predict(VecBuilder.fill(0.0, 0.0), dt);
@@ -129,11 +165,20 @@ public class RobotState { //will estimate pose with odometry and correct drift w
         }
 
 
-        public void reset(double time, Pose2d initial_Pose2d) { //basically init the robot state
-            odometry_to_vehicle = new InterpolatingTreeMap<>(observationSize);
-            // odometry_to_vehicle.put(new InterpolatingDouble(time), initial_odom_to_vehicle);
-            field_to_odometry = new InterpolatingTreeMap<>(observationSize);
+        public void reset(double time, InterpolablePose2d initial_Pose2d) { //basically init the robot state
+            odometryToVehicle = new InterpolatingTreeMap<>(observationSize);
+            odometryToVehicle.put(new InterpolatingDouble(time), initial_Pose2d);
+            fieldToOdometry = new InterpolatingTreeMap<>(observationSize);
             // field_to_odometry.put(new InterpolatingDouble(time), getInitialFieldToOdom());
+            prevVisionPose = Optional.empty();
+        }
+
+
+        // wawawawa
+
+        public synchronized InterpolableTransform2d getInitialFieldToOdom() {
+            if (initialFieldToOdo.isEmpty()) return InterpolableTransform2d.identity();
+            return initialFieldToOdo.get();
         }
 
 

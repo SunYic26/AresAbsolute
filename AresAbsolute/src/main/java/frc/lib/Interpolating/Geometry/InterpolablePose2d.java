@@ -21,6 +21,12 @@ public class InterpolablePose2d implements Interpolable<InterpolablePose2d> {
         this.rotation = rotation;
     }
 
+    public InterpolablePose2d(Pose2d pose) {
+        this.x = pose.getX();
+        this.y = pose.getY();
+        this.rotation = pose.getRotation();
+    }
+
     @Override
     public InterpolablePose2d interpolate(InterpolablePose2d other, double ratio) {
         if (ratio < 0 || ratio > 1) {
