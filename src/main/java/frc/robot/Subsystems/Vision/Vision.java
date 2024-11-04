@@ -158,7 +158,6 @@ public class Vision extends SubsystemBase {
         } 
 
         if(!cameraResult.getMultiTagResult().estimatedPose.isPresent) {
-
             if(hasValidTarget(cameraResult)) { //using fallback tag
                 VisionOutput newPose = new VisionOutput(photonPoseEstimator.update().get());
                 robotState.visionUpdate(newPose); 
@@ -172,7 +171,6 @@ public class Vision extends SubsystemBase {
             return;
 
         } else if (hasValidTarget(cameraResult)){ // manually making the pose
-
 
                 Pose3d targetPose = aprilTagFieldLayout.getTagPose(cameraResult.getBestTarget().getFiducialId()).orElse(null);
                 Pose3d newPose = PhotonUtils.estimateFieldToRobotAprilTag(

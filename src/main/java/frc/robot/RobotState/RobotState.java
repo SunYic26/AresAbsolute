@@ -30,7 +30,7 @@ import frc.lib.VisionOutput;
 import frc.lib.Interpolating.InterpolatingDouble;
 import frc.lib.Interpolating.InterpolatingTreeMap;
 import frc.lib.Interpolating.Geometry.InterpolablePose2d;
-import frc.lib.Interpolating.Geometry.InterpolableTransform2d;
+import frc.lib.Interpolating.Geometry.InterpolableTranslation2d;
 import frc.lib.Interpolating.Interpolable;
 
 import org.photonvision.EstimatedRobotPose;
@@ -72,8 +72,8 @@ public class RobotState { //will estimate pose with odometry and correct drift w
     Drivetrain drivetrain;
     Pigeon2 pigeon = drivetrain.getPigeon2(); //getting the already constructed pigeon in swerve
 
-    private InterpolatingTreeMap<InterpolatingDouble, InterpolablePose2d> odometryToVehicle;
-	private InterpolatingTreeMap<InterpolatingDouble, InterpolableTransform2d> fieldToOdometry;
+    private InterpolatingTreeMap<InterpolatingDouble, InterpolablePose2d> odometryPoses;
+	private InterpolatingTreeMap<InterpolatingDouble, InterpolableTranslation2d> filteredPoses;
     private ExtendedKalmanFilter<N2, N2, N2> EKF;
 
     private static final double dt = 0.002;
@@ -81,44 +81,46 @@ public class RobotState { //will estimate pose with odometry and correct drift w
     private final static Matrix<N2, N1> stateStdDevs = VecBuilder.fill(0.05,0.05); // obtained from noise when sensor is at rest
     private final static Matrix<N2, N1> measurementStdDevs = VecBuilder.fill(0.02,0.02); // idk how to find this but ill figure it out
 
-	private Optional<InterpolableTransform2d> initialFieldToOdo = Optional.empty();
+	private Optional<InterpolableTranslation2d> initialFieldToOdo = Optional.empty(); //TODO make sure this gets filled (by auto or smth)
     private Optional<EstimatedRobotPose> prevVisionPose;
 
     private double velocityMagnitude;
 
-	private boolean firstUpdate = false;
-	private boolean inAuto = false;
+	private boolean inAuto = false; //need to configure with auto but we dont have an auto yet
 
     public RobotState() {
         drivetrain = Drivetrain.getInstance();
         initKalman();
-        reset(0, InterpolablePose2d.identity());
+        reset(0, InterpolablePose2d.identity()); //init
     }
 
     public synchronized void visionUpdate(VisionOutput updatePose) {
-        if (prevVisionPose.isEmpty() || initialFieldToOdo.isEmpty()) { //TODO make sure odo and vis pose are in same frame of ref
+        if (prevVisionPose.isEmpty() || initialFieldToOdo.isEmpty()) { //first update
             double timestamp = updatePose.timestampSeconds;
 
-            // merge poses
-            //TODO this is wrong (i will fix later)
-            InterpolableTransform2d visionTransform = new InterpolableTransform2d(updatePose.estimatedPose.getTranslation().toTranslation2d());
-            InterpolableTransform2d proximateOdoTranslation = new InterpolableTransform2d(odometryToVehicle.getInterpolated(new InterpolatingDouble(timestamp)));
-            InterpolableTransform2d mergedPose = visionTransform.translateBy(proximateOdoTranslation);
-            fieldToOdometry.put(new InterpolatingDouble(timestamp),  mergedPose);
-                
+            //merge odom and vision
+            InterpolableTranslation2d visionTranslation = new InterpolableTranslation2d(updatePose.estimatedPose.getTranslation().toTranslation2d());
+            InterpolableTranslation2d proximateOdoTranslation = new InterpolableTranslation2d(odometryPoses.getInterpolated(new InterpolatingDouble(timestamp)));
+            InterpolableTranslation2d mergedPose = visionTranslation.weightedAverageBy(proximateOdoTranslation, 0.80); //trust vision more, should tune
+            filteredPoses.put(new InterpolatingDouble(timestamp),  mergedPose);
+            
             //update kalman
             EKF.setXhat(0, mergedPose.getX());
             EKF.setXhat(1, mergedPose.getY());
-
-            initialFieldToOdo = Optional.of(fieldToOdometry.lastEntry().getValue());
+            
+            //set our initial pose from first update
+            initialFieldToOdo = Optional.of(filteredPoses.lastEntry().getValue());
             prevVisionPose = Optional.ofNullable(updatePose); 
-        } else {
+        } else { //after first update
             double timestamp = updatePose.timestampSeconds;
-            InterpolablePose2d proximateOdoTranslation = odometryToVehicle.getInterpolated(new InterpolatingDouble(timestamp));
-            prevVisionPose = Optional.ofNullable(updatePose);
-            InterpolableTransform2d visionTransform = new InterpolableTransform2d(prevVisionPose.get().estimatedPose.toPose2d());
-            InterpolableTransform2d mergedPose = visionTransform.translateBy(new InterpolableTransform2d(proximateOdoTranslation));
 
+            //obtain odometry from interpolation and use the prev pose for the kalman
+            InterpolableTranslation2d proximateOdoTranslation = new InterpolableTranslation2d(odometryPoses.getInterpolated(new InterpolatingDouble(timestamp)));
+            InterpolableTranslation2d visionTranslation = new InterpolableTranslation2d(updatePose.estimatedPose.toPose2d());
+            InterpolableTranslation2d mergedPose = visionTranslation.weightedAverageBy(proximateOdoTranslation, 0.80); //trust vision more, should tune
+            prevVisionPose = Optional.ofNullable(updatePose);
+
+            //calculate std of vision estimate for EKF
             Vector<N2> stdevs = VecBuilder.fill(Math.pow(updatePose.getStandardDeviation(), 1), Math.pow(updatePose.getStandardDeviation(), 1));
 					EKF.correct(
 							VecBuilder.fill(0.0, 0.0),
@@ -126,18 +128,17 @@ public class RobotState { //will estimate pose with odometry and correct drift w
 									mergedPose.getX(),
 									mergedPose.getY()),
 							StateSpaceUtil.makeCovarianceMatrix(Nat.N2(), stdevs));
-					fieldToOdometry.put(
+					filteredPoses.put(
 							new InterpolatingDouble(timestamp),
-							new InterpolableTransform2d(EKF.getXhat(0), EKF.getXhat(1)));
-        } //my head hurts
+							new InterpolableTranslation2d(EKF.getXhat(0), EKF.getXhat(1)));
+        }
     }
 
-
-    //dont need any of the velocity values from odo bc our pigeon is prop more accurate than encoders
+    //Dont need velocity values from odom bc our pigeon is more accurate than slipping wheel encoders
     public synchronized void odometryUpdate(Pose2d pose, double timestamp) {
-        odometryToVehicle.put(new InterpolatingDouble(timestamp), new InterpolablePose2d(pose.getX(),pose.getY(), pose.getRotation()));
+        odometryPoses.put(new InterpolatingDouble(timestamp), new InterpolablePose2d(pose.getX(),pose.getY(), pose.getRotation()));
 
-        // Keep the EKF ahead (no inputs)
+        // propagate the EKF (with no inputs)
 		EKF.predict(VecBuilder.fill(0.0, 0.0), dt);
     }
 
@@ -166,18 +167,16 @@ public class RobotState { //will estimate pose with odometry and correct drift w
 
 
         public void reset(double time, InterpolablePose2d initial_Pose2d) { //basically init the robot state
-            odometryToVehicle = new InterpolatingTreeMap<>(observationSize);
-            odometryToVehicle.put(new InterpolatingDouble(time), initial_Pose2d);
-            fieldToOdometry = new InterpolatingTreeMap<>(observationSize);
+            odometryPoses = new InterpolatingTreeMap<>(observationSize);
+            odometryPoses.put(new InterpolatingDouble(time), initial_Pose2d);
+            filteredPoses = new InterpolatingTreeMap<>(observationSize);
             // field_to_odometry.put(new InterpolatingDouble(time), getInitialFieldToOdom());
             prevVisionPose = Optional.empty();
         }
 
 
-        // wawawawa
-
-        public synchronized InterpolableTransform2d getInitialFieldToOdom() {
-            if (initialFieldToOdo.isEmpty()) return InterpolableTransform2d.identity();
+        public synchronized InterpolableTranslation2d getInitialFieldToOdom() {
+            if (initialFieldToOdo.isEmpty()) return InterpolableTranslation2d.identity();
             return initialFieldToOdo.get();
         }
 
@@ -211,9 +210,6 @@ public class RobotState { //will estimate pose with odometry and correct drift w
 
             return new double[] {Math.signum(Math.atan2(accelerationX, accelerationY)) * Math.sqrt((Math.pow(accelerationX, 2)) + Math.pow(accelerationY, 2)), timestamp};
         }
-
-
-
 
 
         // -----------------------------------------------------------

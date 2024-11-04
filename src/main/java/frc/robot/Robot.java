@@ -20,6 +20,7 @@ public class Robot extends TimedRobot {
 
     public Robot() { //need stuff for logger at some point
     super();
+    initKalman();
     s_Vision = Vision.getInstance();
   }
 
