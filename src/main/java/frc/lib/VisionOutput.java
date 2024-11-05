@@ -11,6 +11,7 @@ import org.photonvision.PhotonPoseEstimator.PoseStrategy;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
 import edu.wpi.first.math.geometry.Pose3d;
+import frc.lib.Interpolating.Geometry.*;
 
 /**
  * VisionOutput
@@ -41,5 +42,11 @@ public class VisionOutput extends EstimatedRobotPose {
 
         return (Math.sqrt(varAmbiguity) + Math.sqrt(varArea))/2;
     }
+
+    public ITranslation2d getInterpolatableTransform2d() {
+        return new ITranslation2d(estimatedPose.getTranslation().toTranslation2d().getX(), estimatedPose.getTranslation().toTranslation2d().getY());
+    }
+
+
 
 }

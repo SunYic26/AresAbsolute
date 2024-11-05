@@ -195,5 +195,3 @@ public class Vision extends SubsystemBase {
         }
     }
 }
-
-//potential Kalman implementation: get a sequence of camera readings, run line

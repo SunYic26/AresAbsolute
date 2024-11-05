@@ -1,34 +1,33 @@
 package frc.lib.Interpolating.Geometry;
 
 import frc.lib.Interpolating.*;
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 
-public class InterpolablePose2d implements Interpolable<InterpolablePose2d> {
+public class IPose2d implements Interpolable<IPose2d> {
     private final double x;
     private final double y;
     private final Rotation2d rotation;
 
-     protected static final InterpolablePose2d kIdentity = new InterpolablePose2d(0.0, 0.0, new Rotation2d());
+     protected static final IPose2d kIdentity = new IPose2d(0.0, 0.0, new Rotation2d());
 
-    public static InterpolablePose2d identity() {
+    public static IPose2d identity() {
         return kIdentity;
     }
 
-    public InterpolablePose2d(double x, double y, Rotation2d rotation) {
+    public IPose2d(double x, double y, Rotation2d rotation) {
         this.x = x;
         this.y = y;
         this.rotation = rotation;
     }
 
-    public InterpolablePose2d(Pose2d pose) {
+    public IPose2d(IPose2d pose) {
         this.x = pose.getX();
         this.y = pose.getY();
         this.rotation = pose.getRotation();
     }
 
     @Override
-    public InterpolablePose2d interpolate(InterpolablePose2d other, double ratio) {
+    public IPose2d interpolate(IPose2d other, double ratio) {
         if (ratio < 0 || ratio > 1) {
             throw new IllegalArgumentException("Ratio must be between 0 and 1");
         }
@@ -38,7 +37,7 @@ public class InterpolablePose2d implements Interpolable<InterpolablePose2d> {
         double newY = this.y + (other.y - this.y) * ratio;
         Rotation2d newRotation = this.rotation.interpolate(other.rotation, ratio);
 
-        return new InterpolablePose2d(newX, newY, newRotation);
+        return new IPose2d(newX, newY, newRotation);
     }
 
     // Getters for x, y, rotation if needed

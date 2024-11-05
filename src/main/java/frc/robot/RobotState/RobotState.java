@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.BiFunction;
 
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.interpolation.*;
@@ -21,16 +20,18 @@ import edu.wpi.first.math.Vector;
 import edu.wpi.first.math.estimator.ExtendedKalmanFilter;
 import edu.wpi.first.math.estimator.PoseEstimator;
 import edu.wpi.first.math.estimator.UnscentedKalmanFilter;
+import frc.lib.Interpolating.Geometry.IPose2d;
+import frc.lib.Interpolating.Geometry.ITranslation2d;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.geometry.Twist2d;
 import frc.lib.AccelerationIntegrator;
 import frc.lib.VisionOutput;
 import frc.lib.Interpolating.InterpolatingDouble;
 import frc.lib.Interpolating.InterpolatingTreeMap;
-import frc.lib.Interpolating.Geometry.InterpolablePose2d;
-import frc.lib.Interpolating.Geometry.InterpolableTranslation2d;
 import frc.lib.Interpolating.Interpolable;
 
 import org.photonvision.EstimatedRobotPose;
@@ -72,16 +73,18 @@ public class RobotState { //will estimate pose with odometry and correct drift w
     Drivetrain drivetrain;
     Pigeon2 pigeon = drivetrain.getPigeon2(); //getting the already constructed pigeon in swerve
 
-    private InterpolatingTreeMap<InterpolatingDouble, InterpolablePose2d> odometryPoses;
-	private InterpolatingTreeMap<InterpolatingDouble, InterpolableTranslation2d> filteredPoses;
+    private InterpolatingTreeMap<InterpolatingDouble, IPose2d> odometryPoses;
+	private InterpolatingTreeMap<InterpolatingDouble, ITranslation2d> filteredPoses;
     private ExtendedKalmanFilter<N2, N2, N2> EKF;
 
     private static final double dt = 0.002;
     private static final int observationSize = 50; //how many poses we keep our tree
-    private final static Matrix<N2, N1> stateStdDevs = VecBuilder.fill(0.05,0.05); // obtained from noise when sensor is at rest
-    private final static Matrix<N2, N1> measurementStdDevs = VecBuilder.fill(0.02,0.02); // idk how to find this but ill figure it out
 
-	private Optional<InterpolableTranslation2d> initialFieldToOdo = Optional.empty(); //TODO make sure this gets filled (by auto or smth)
+    // TODO get more accurate values based on our pigeon std and odo std
+    private final static Matrix<N2, N1> stateStdDevs = VecBuilder.fill(0.05,0.05); // obtained from noise when sensor is at rest
+    private final static Matrix<N2, N1> measurementStdDevs = VecBuilder.fill(0.02,0.02); // idk how to find this but ill figure it out 
+
+	private Optional<ITranslation2d> initialFieldToOdo = Optional.empty(); //TODO make sure this gets filled (by auto or smth)
     private Optional<EstimatedRobotPose> prevVisionPose;
 
     private double velocityMagnitude;
@@ -91,7 +94,7 @@ public class RobotState { //will estimate pose with odometry and correct drift w
     public RobotState() {
         drivetrain = Drivetrain.getInstance();
         initKalman();
-        reset(0, InterpolablePose2d.identity()); //init
+        reset(0, IPose2d.identity()); //init
     }
 
     public synchronized void visionUpdate(VisionOutput updatePose) {
@@ -99,9 +102,9 @@ public class RobotState { //will estimate pose with odometry and correct drift w
             double timestamp = updatePose.timestampSeconds;
 
             //merge odom and vision
-            InterpolableTranslation2d visionTranslation = new InterpolableTranslation2d(updatePose.estimatedPose.getTranslation().toTranslation2d());
-            InterpolableTranslation2d proximateOdoTranslation = new InterpolableTranslation2d(odometryPoses.getInterpolated(new InterpolatingDouble(timestamp)));
-            InterpolableTranslation2d mergedPose = visionTranslation.weightedAverageBy(proximateOdoTranslation, 0.80); //trust vision more, should tune
+            ITranslation2d visionTranslation = updatePose.getInterpolatableTransform2d();
+            ITranslation2d proximateOdoTranslation = new ITranslation2d(odometryPoses.getInterpolated(new InterpolatingDouble(timestamp)));
+            ITranslation2d mergedPose = visionTranslation.weightedAverageBy(proximateOdoTranslation, 0.80); //trust vision more, should tune
             filteredPoses.put(new InterpolatingDouble(timestamp),  mergedPose);
             
             //update kalman
@@ -115,9 +118,9 @@ public class RobotState { //will estimate pose with odometry and correct drift w
             double timestamp = updatePose.timestampSeconds;
 
             //obtain odometry from interpolation and use the prev pose for the kalman
-            InterpolableTranslation2d proximateOdoTranslation = new InterpolableTranslation2d(odometryPoses.getInterpolated(new InterpolatingDouble(timestamp)));
-            InterpolableTranslation2d visionTranslation = new InterpolableTranslation2d(updatePose.estimatedPose.toPose2d());
-            InterpolableTranslation2d mergedPose = visionTranslation.weightedAverageBy(proximateOdoTranslation, 0.80); //trust vision more, should tune
+            ITranslation2d visionTranslation = updatePose.getInterpolatableTransform2d();
+            ITranslation2d proximateOdoTranslation = new ITranslation2d(odometryPoses.getInterpolated(new InterpolatingDouble(timestamp)));
+            ITranslation2d mergedPose = visionTranslation.weightedAverageBy(proximateOdoTranslation, 0.80); //trust vision more, should tune
             prevVisionPose = Optional.ofNullable(updatePose);
 
             //calculate std of vision estimate for EKF
@@ -130,13 +133,13 @@ public class RobotState { //will estimate pose with odometry and correct drift w
 							StateSpaceUtil.makeCovarianceMatrix(Nat.N2(), stdevs));
 					filteredPoses.put(
 							new InterpolatingDouble(timestamp),
-							new InterpolableTranslation2d(EKF.getXhat(0), EKF.getXhat(1)));
+							new ITranslation2d(EKF.getXhat(0), EKF.getXhat(1)));
         }
     }
 
     //Dont need velocity values from odom bc our pigeon is more accurate than slipping wheel encoders
     public synchronized void odometryUpdate(Pose2d pose, double timestamp) {
-        odometryPoses.put(new InterpolatingDouble(timestamp), new InterpolablePose2d(pose.getX(),pose.getY(), pose.getRotation()));
+        odometryPoses.put(new InterpolatingDouble(timestamp), new IPose2d(pose.getX(),pose.getY(), pose.getRotation()));
 
         // propagate the EKF (with no inputs)
 		EKF.predict(VecBuilder.fill(0.0, 0.0), dt);
@@ -166,17 +169,17 @@ public class RobotState { //will estimate pose with odometry and correct drift w
         }
 
 
-        public void reset(double time, InterpolablePose2d initial_Pose2d) { //basically init the robot state
+        public void reset(double time, IPose2d initial_Pose2d) { //init the robot state
             odometryPoses = new InterpolatingTreeMap<>(observationSize);
             odometryPoses.put(new InterpolatingDouble(time), initial_Pose2d);
             filteredPoses = new InterpolatingTreeMap<>(observationSize);
-            // field_to_odometry.put(new InterpolatingDouble(time), getInitialFieldToOdom());
+            filteredPoses.put(new InterpolatingDouble(time), getInitialFieldToOdom());
             prevVisionPose = Optional.empty();
         }
 
 
-        public synchronized InterpolableTranslation2d getInitialFieldToOdom() {
-            if (initialFieldToOdo.isEmpty()) return InterpolableTranslation2d.identity();
+        public synchronized ITranslation2d getInitialFieldToOdom() {
+            if (initialFieldToOdo.isEmpty()) return ITranslation2d.identity();
             return initialFieldToOdo.get();
         }
 
@@ -186,9 +189,51 @@ public class RobotState { //will estimate pose with odometry and correct drift w
             velocityMagnitude = accelIntegrator.update(newAccel[0], newAccel[1]);
         }
 
-
-        public double getVelocity() {
+        /**
+         * Gets velocity from integrated acceleration from Pigeon2
+         *
+         * @return velocity
+         */
+        public synchronized double getVelocity() {
             return velocityMagnitude;
+        }
+
+            
+        /**
+         * Gets odometry pose from history. Linearly interpolates between gaps.
+         *
+         * @param timestamp Timestamp to loop up.
+         * @return Odometry relative robot pose at timestamp.
+         */
+        public synchronized IPose2d getOdomToVehicle(double timestamp) {
+            return odometryPoses.getInterpolated(new InterpolatingDouble(timestamp));
+        }
+
+        // /**
+        //  * Gets interpolated odometry pose using predicted robot velocity from latest
+        //  * odometry update.
+        //  *
+        //  * @param lookahead_time Scalar for predicted velocity.
+        //  * @return Predcited odometry pose at lookahead time.
+        //  */
+        // public synchronized Pose2d getPredictedOdomToVehicle(double lookahead_time) {
+		//     return getLatestOdomToVehicle()
+		// 		.getValue()
+		// 		.transformBy(Pose2d.exp(vehicle_velocity_predicted.scaled(lookahead_time)));
+	    // } TODO lookahead for auto
+
+        public synchronized ITranslation2d getLatestFieldToOdom() {
+		    return getFieldToOdom(filteredPoses.lastKey().value);
+	    }
+
+        /**
+         * Gets odometry error translation at timestamp. Linearly interpolates between gaps.
+         * @param timestamp Timestamp to look up.
+         * @return Odometry error at timestamp.
+         */
+        public synchronized ITranslation2d getFieldToOdom(double timestamp) {
+            if (filteredPoses.isEmpty()) return ITranslation2d.identity();
+            return filteredPoses.getInterpolated(new InterpolatingDouble(timestamp));
         }
 
 
@@ -196,7 +241,7 @@ public class RobotState { //will estimate pose with odometry and correct drift w
             double angularX = pigeon.getAngularVelocityXDevice().getValue();
             double angularY = pigeon.getAngularVelocityYDevice().getValue();
 
-            double timestamp = 0;
+            double timestamp = pigeon.getAngularVelocityXDevice().getTimestamp().getTime();
             
             return new double[] {(Math.signum(Math.atan2(angularY, angularX)) * Math.sqrt((Math.pow(angularX, 2)) + Math.pow(angularY, 2))), timestamp};
         }
@@ -206,7 +251,7 @@ public class RobotState { //will estimate pose with odometry and correct drift w
             double accelerationX = pigeon.getAccelerationX().getValue() - pigeon.getGravityVectorX().getValue();
             double accelerationY = pigeon.getAccelerationY().getValue() - pigeon.getGravityVectorY().getValue();
             
-            double timestamp = 0; //TODO how to get pigeon accurate timestamp help
+            double timestamp = pigeon.getAccelerationX().getTimestamp().getTime();
 
             return new double[] {Math.signum(Math.atan2(accelerationX, accelerationY)) * Math.sqrt((Math.pow(accelerationX, 2)) + Math.pow(accelerationY, 2)), timestamp};
         }
