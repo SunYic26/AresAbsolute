@@ -1,4 +1,5 @@
 package frc.lib;
+import frc.lib.Interpolating.Geometry.Twist2d;
 
 public class AccelerationIntegrator {
     private double prevAccel = 0.0;
@@ -8,9 +9,9 @@ public class AccelerationIntegrator {
     private double filteredAccel = 0.0;
     private final double alpha = 0.9;  // TODO tune
 
-    public double lowPassFilter(double newAccel) {
-        filteredAccel = alpha * newAccel + (1 - alpha) * filteredAccel;
-        return filteredAccel;
+    public double lowPassFilter(double value) {
+        value = alpha * value + (1 - alpha) * filteredAccel;
+        return value;
     }
 
     // Trapezoidal integration for velocity estimation (LIKE A BOSS)
@@ -25,8 +26,9 @@ public class AccelerationIntegrator {
         return velocity;
     }
 
-    public double update(double rawAccel, double currentTime) {
-        double filteredAccel = lowPassFilter(rawAccel);  // Filter noisy input
-        return integrateAccel(filteredAccel, currentTime);  // Integrate for velocity
+    public Twist2d update(double x_AccelRaw, double y_AccelRaw, double currentTime) {
+        double x_AccelFiltered = lowPassFilter(x_AccelRaw);  // Filter noisy input
+        double y_AccelFiltered = lowPassFilter(y_AccelRaw);  // Filter noisy input
+        return new Twist2d (integrateAccel(x_AccelFiltered, currentTime), integrateAccel(y_AccelFiltered, currentTime));  // Integrate for velocity
     }
 }

@@ -10,6 +10,7 @@ import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.interpolation.*;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.UnitBuilder;
+import edu.wpi.first.units.Velocity;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.math.MatBuilder;
 import edu.wpi.first.math.Matrix;
@@ -27,7 +28,7 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.geometry.Twist2d;
+import frc.lib.Interpolating.Geometry.Twist2d;
 import frc.lib.AccelerationIntegrator;
 import frc.lib.VisionOutput;
 import frc.lib.Interpolating.InterpolatingDouble;
@@ -87,7 +88,7 @@ public class RobotState { //will estimate pose with odometry and correct drift w
 	private Optional<ITranslation2d> initialFieldToOdo = Optional.empty(); //TODO make sure this gets filled (by auto or smth)
     private Optional<EstimatedRobotPose> prevVisionPose;
 
-    private double velocityMagnitude;
+    private Twist2d robotVelocity;
 
 	private boolean inAuto = false; //need to configure with auto but we dont have an auto yet
 
@@ -186,7 +187,7 @@ public class RobotState { //will estimate pose with odometry and correct drift w
 
         public void updateAccel() {
             double[] newAccel = rawRobotAcceleration();
-            velocityMagnitude = accelIntegrator.update(newAccel[0], newAccel[1]);
+            robotVelocity = accelIntegrator.update(newAccel[0], newAccel[1], newAccel[2]);
         }
 
         /**
@@ -194,8 +195,8 @@ public class RobotState { //will estimate pose with odometry and correct drift w
          *
          * @return velocity
          */
-        public synchronized double getVelocity() {
-            return velocityMagnitude;
+        public synchronized double getRobotVelocity() {
+            return Math.signum(Math.atan2(robotVelocity.getX(), robotVelocity.getY())) * Math.sqrt((Math.pow(robotVelocity.getX(), 2)) + Math.pow(robotVelocity.getY(), 2));
         }
 
             
@@ -253,7 +254,7 @@ public class RobotState { //will estimate pose with odometry and correct drift w
             
             double timestamp = pigeon.getAccelerationX().getTimestamp().getTime();
 
-            return new double[] {Math.signum(Math.atan2(accelerationX, accelerationY)) * Math.sqrt((Math.pow(accelerationX, 2)) + Math.pow(accelerationY, 2)), timestamp};
+            return new double[] {accelerationX, accelerationY, timestamp};
         }
 
 
