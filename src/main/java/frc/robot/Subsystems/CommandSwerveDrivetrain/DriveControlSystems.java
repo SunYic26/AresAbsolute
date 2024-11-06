@@ -12,10 +12,9 @@ import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants;
 import frc.robot.RobotContainer;
+import frc.robot.RobotState.RobotState;
 
 public class DriveControlSystems {
-    
-    private double deadbandFactor = 0.8;
 
     private boolean slipControlOn = false;
     private boolean headingControl = false;
@@ -23,12 +22,18 @@ public class DriveControlSystems {
     private boolean aligning = false;
     private double lastHeading = 0;
 
+    // Can tune
+    private double deadbandFactor = 0.8; // higher is more linear joystick controls
+
+
     Drivetrain drivetrain;
+    RobotState robotState;
 
     PIDController pidHeading = new PIDController(0, 0, 0);
 
     public DriveControlSystems() {  
         drivetrain = Drivetrain.getInstance();
+        robotState = RobotState.getInstance();
     }
 
     //interface with modules
@@ -40,21 +45,22 @@ public class DriveControlSystems {
     public SwerveRequest drive(double driverLY, double driverLX, double driverRX){
         driverLX = scaledDeadBand(driverLX) * Constants.MaxSpeed;
         driverLY = scaledDeadBand(driverLY) * Constants.MaxSpeed;
-        driverRX = scaledDeadBand(driverRX) * Constants.MaxSpeed;
+        driverRX = scaledDeadBand(driverRX) * Constants.MaxAngularRate;
 
+        //heading control
         if (headingControl && driverRX < 0.1) {
             driverRX = headingControl(driverRX);
         }
 
-        //turn on slip control
+        //slip control
         if (slipControlOn) {
         slipCorrection(slipControl(drivetrain.robotAbsoluteVelocity())); 
         }
 
         return new SwerveRequest.FieldCentric()
-        .withVelocityX((driverLY))
-        .withVelocityY((driverLX))
-        .withRotationalRate(driverRX * Constants.MaxAngularRate)
+        .withVelocityX(driverLY)
+        .withVelocityY(driverLX)
+        .withRotationalRate(driverRX)
         .withDeadband(Constants.MaxSpeed * RobotContainer.translationDeadband)
         .withRotationalDeadband(Constants.MaxAngularRate * RobotContainer.rotDeadband)
         .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
@@ -70,7 +76,7 @@ public class DriveControlSystems {
             double velocity = drivetrain.robotAbsoluteVelocity();
             updateGains(velocity);
             
-            driverRX = pidHeading.calculate(drivetrain.getPose().getRotation().getRadians(), lastHeading);
+            driverRX = pidHeading.calculate(robotState.robotYaw(), lastHeading);
             SmartDashboard.putBoolean("headingON", true);
 
         } else {
@@ -86,6 +92,7 @@ public class DriveControlSystems {
         speedRatio = Math.max(0, Math.min(1, speedRatio));
         //clamp between 0 and 1
 
+        //can tune
         pidHeading.setPID(
             interpolate(Constants.robotPIDs.HeadingControlPID.lowP, Constants.robotPIDs.HeadingControlPID.highP, speedRatio), // P
             0, // I (we do not need I)

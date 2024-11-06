@@ -25,12 +25,14 @@ import org.opencv.core.Point;
  */
 public final class Constants {
 
-    public static double MaxSpeed = 12; //can be lowered during testing
+    public static double MaxSpeed = 10; //can be lowered during testing
     public static double MaxAngularRate = 3 * Math.PI; // 3/4 of a rotation per second max angular velocity
     
+    public static final int timeOutMs = 10;
+
     public static final double slipFactor = 65;
     public static final double slipThreshold = 0.15;
-    public static final int timeOutMs = 10;
+
     public static final double stickDeadband = 0.05;
     public static final double triggerDeadzone = 0.2;
 
@@ -53,7 +55,6 @@ public final class Constants {
         public static final double k_reprojectionLimit = 0.1;
         public static final double k_normThreshold = 0.1;
         public static final double k_ambiguityLimit = 0.9;
-
         }
 
         public static final class AprilTags {
@@ -84,34 +85,15 @@ public final class Constants {
         // motor id
     }
 
-
-
+    //change for next game
     AprilTagFieldLayout aprilTagFieldLayout = AprilTagFields.k2024Crescendo.loadAprilTagLayoutField();
 
     public static final class FieldConstants {
         //constants about the field
     }
 
-    /* Mechanism Current Limits */
-    public static final int intakeContinuousCurrentLimit = 30;
-    public static final int intakePeakCurrentLimit = 70;
-    public static final int serializationContinuousCurrentLimit = 30;
-    public static final int serializationPeakCurrentLimit = 70;
-    public static final int ampContinuousCurrentLimit = 30;
-    public static final int ampPeakCurrentLimit = 70;
-    public static final int shooterContinuousCurrentLimit = 30; //commented out because the shooters stop too fast t
-    public static final int shooterPeakCurrentLimit = 120;
-    public static final int pivotContinuousCurrentLimit = 30;
-    public static final int pivotPeakCurrentLimit = 60;
-    public static final int climbContinuousCurrentLimit = 30; //arbitrary, fix later
-    public static final int climbPeakCurrentLimit = 70; //arbitrary, fix later
-    
-
     public static final double FIELD_WIDTH_METERS = 8.21055;
     public static final double FIELD_LENGTH_METERS = 16.54175;
-
-    // public static final IdleMode intakeNeutralMode = IdleMode.kCoast;
-    // public static final IdleMode shooterNeutralMode = IdleMode.kBrake;
 
     public static final double openLoopRamp = 0.25;
 

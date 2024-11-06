@@ -45,22 +45,18 @@ public class Vision extends SubsystemBase {
 
     // private static PhotonCamera backRightCamera;
     private static PhotonPipelineResult cameraResult;
-    private static PhotonTrackedTarget lastValidTarget;
 
     private double lastProcessedTimestamp = -1;
 
     Drivetrain s_Swerve;
     RobotState robotState;
     
-    private double targetYaw;
-    private double targetDistance;
-    private int targetID;
-
     public double floorDistance;
 
     private Transform3d cameraToRobotTransform = new Transform3d(
+        //center cam
         new Translation3d(Units.inchesToMeters(0), Units.inchesToMeters(-5.67162), Units.inchesToMeters(-10.172538)),
-        new Rotation3d(Units.degreesToRadians(0),Units.degreesToRadians(40),Units.degreesToRadians(0))); //center cam
+        new Rotation3d(Units.degreesToRadians(0),Units.degreesToRadians(40),Units.degreesToRadians(0)));
 
     public static AprilTagFieldLayout aprilTagFieldLayout = AprilTagFields.k2024Crescendo.loadAprilTagLayoutField();
 
@@ -114,19 +110,19 @@ public class Vision extends SubsystemBase {
         MultiTargetPNPResult multiTagResult = cameraResult.getMultiTagResult();
 
         if(multiTagResult.estimatedPose.bestReprojErr > VisionLimits.k_reprojectionLimit) {
-            System.out.println("Rejected MultiTag: high error");
+            SmartDashboard.putString("Multitag updates", "high error");
             return false;
         }
         if(multiTagResult.fiducialIDsUsed.size() < 2 || multiTagResult.fiducialIDsUsed.isEmpty()) {
-            System.out.println("Rejected MultiTag: insufficient ids");
+            SmartDashboard.putString("Multitag updates", "insufficient ids");
             return false;
         } 
         if(multiTagResult.estimatedPose.best.getTranslation().getNorm() < VisionLimits.k_normThreshold) {
-            System.out.println("Rejected MultiTag: norm check failed");
+            SmartDashboard.putString("Multitag updates", "norm check failed");
             return false;
         } 
         if(multiTagResult.estimatedPose.ambiguity > VisionLimits.k_ambiguityLimit) {
-            System.out.println("Rejected MultiTag: high ambiguity");
+            SmartDashboard.putString("Multitag updates", "high ambiguity");
             return false;
         }
 
@@ -151,7 +147,7 @@ public class Vision extends SubsystemBase {
             return;
         }
         
-        if(Math.abs(robotState.rawRobotAngularVelocity()[0]) > VisionLimits.k_rotationLimitDPS) {
+        if(Math.abs(robotState.robotAngularVelocityMagnitude()[0]) > VisionLimits.k_rotationLimitDPS) {
             SmartDashboard.putString("Vision accepter", "Vision failed: High rotation");
             return;
         } 

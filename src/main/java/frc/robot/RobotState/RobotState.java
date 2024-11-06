@@ -192,16 +192,6 @@ public class RobotState { //will estimate pose with odometry and correct drift w
         }
 
         /**
-         * Gets velocity from integrated acceleration from Pigeon2
-         *
-         * @return velocity
-         */
-        public synchronized double getRobotVelocity() {
-            return Math.signum(Math.atan2(robotVelocity.getX(), robotVelocity.getY())) * Math.sqrt((Math.pow(robotVelocity.getX(), 2)) + Math.pow(robotVelocity.getY(), 2));
-        }
-
-            
-        /**
          * Gets odometry pose from history. Linearly interpolates between gaps.
          *
          * @param timestamp Timestamp to loop up.
@@ -238,18 +228,39 @@ public class RobotState { //will estimate pose with odometry and correct drift w
             return filteredPoses.getInterpolated(new InterpolatingDouble(timestamp));
         }
 
+        /**
+         * Gets velocity from integrated acceleration from Pigeon2
+         *
+         * @return velocity
+         */
+        public synchronized double robotVelocityMagnitude() {
+            return Math.signum(Math.atan2(robotVelocity.getX(), robotVelocity.getY())) * Math.hypot(robotVelocity.getX(), robotVelocity.getY());
+        }
 
-        public double[] rawRobotAngularVelocity(){
+        public synchronized double robotYaw() {
+            return pigeon.getYaw().getValue();
+        }
+
+        public synchronized double[] robotAngularVelocities(){
             double angularX = pigeon.getAngularVelocityXDevice().getValue();
             double angularY = pigeon.getAngularVelocityYDevice().getValue();
 
             double timestamp = pigeon.getAngularVelocityXDevice().getTimestamp().getTime();
             
-            return new double[] {(Math.signum(Math.atan2(angularY, angularX)) * Math.sqrt((Math.pow(angularX, 2)) + Math.pow(angularY, 2))), timestamp};
+            return new double[] {angularX, angularY, timestamp};
+        }
+
+        public synchronized double[] robotAngularVelocityMagnitude(){
+            double angularX = pigeon.getAngularVelocityXDevice().getValue();
+            double angularY = pigeon.getAngularVelocityYDevice().getValue();
+
+            double timestamp = pigeon.getAngularVelocityXDevice().getTimestamp().getTime();
+            
+            return new double[] {(Math.signum(Math.atan2(angularY, angularX)) * Math.hypot(angularX, angularY)), timestamp};
         }
 
     
-        public double[] rawRobotAcceleration() {
+        public synchronized double[] rawRobotAcceleration() {
             double accelerationX = pigeon.getAccelerationX().getValue() - pigeon.getGravityVectorX().getValue();
             double accelerationY = pigeon.getAccelerationY().getValue() - pigeon.getGravityVectorY().getValue();
             
