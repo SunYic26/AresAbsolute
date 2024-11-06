@@ -72,7 +72,7 @@ public class RobotState { //will estimate pose with odometry and correct drift w
     private static AccelerationIntegrator accelIntegrator = new AccelerationIntegrator();
     
     Drivetrain drivetrain;
-    Pigeon2 pigeon = drivetrain.getPigeon2(); //getting the already constructed pigeon in swerve
+    Pigeon2 pigeon; //getting the already constructed pigeon in swerve
 
     private InterpolatingTreeMap<InterpolatingDouble, IPose2d> odometryPoses;
 	private InterpolatingTreeMap<InterpolatingDouble, ITranslation2d> filteredPoses;
@@ -94,6 +94,7 @@ public class RobotState { //will estimate pose with odometry and correct drift w
 
     public RobotState() {
         drivetrain = Drivetrain.getInstance();
+        pigeon = drivetrain.getPigeon2();
         initKalman();
         reset(0, IPose2d.identity()); //init
     }
@@ -223,7 +224,7 @@ public class RobotState { //will estimate pose with odometry and correct drift w
 		// 		.transformBy(Pose2d.exp(vehicle_velocity_predicted.scaled(lookahead_time)));
 	    // } TODO lookahead for auto
 
-        public synchronized ITranslation2d getLatestFieldToOdom() {
+        public synchronized ITranslation2d getLatestFilteredPose() {
 		    return getFieldToOdom(filteredPoses.lastKey().value);
 	    }
 
@@ -256,6 +257,8 @@ public class RobotState { //will estimate pose with odometry and correct drift w
 
             return new double[] {accelerationX, accelerationY, timestamp};
         }
+
+        
 
 
         // -----------------------------------------------------------

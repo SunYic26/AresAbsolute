@@ -74,7 +74,6 @@ public class Vision extends SubsystemBase {
     }
     
     public Vision() {
-
         s_Swerve = Drivetrain.getInstance();
         robotState = RobotState.getInstance();
 

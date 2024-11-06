@@ -42,14 +42,11 @@ public class DriveControlSystems {
         driverLY = scaledDeadBand(driverLY) * Constants.MaxSpeed;
         driverRX = scaledDeadBand(driverRX) * Constants.MaxSpeed;
 
-        if (shooterMode) {
-            driverRX = shooterMode();
-            driverRX = shooterMode();
-        } else if (headingControl && driverRX < 0.1) {
+        if (headingControl && driverRX < 0.1) {
             driverRX = headingControl(driverRX);
-        } 
+        }
 
-        //TODO consistent pivot and drivetrain alignment to target
+        //turn on slip control
         if (slipControlOn) {
         slipCorrection(slipControl(drivetrain.robotAbsoluteVelocity())); 
         }
@@ -141,15 +138,6 @@ public class DriveControlSystems {
             } 
         }
     }
-
-
-    //shooter mode??
-    public double shooterMode() { // I WANT MODES FOR THE NEXT ROBOT!!!!
-        // continuously sets pivot to based on lookup table and aligns drivetrain
-        // only shoots when both systems return true
-        return -1;
-    }
-
 
     //toggling ----------------------------------------------------------------
     public void setLastHeading() {

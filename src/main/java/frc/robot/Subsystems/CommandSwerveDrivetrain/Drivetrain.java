@@ -32,6 +32,7 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Subsystem;
+import frc.lib.Interpolating.Geometry.ITranslation2d;
 import frc.robot.Constants;
 import frc.robot.generated.TunerConstants;
 import frc.robot.RobotContainer;
@@ -84,7 +85,7 @@ public class Drivetrain extends SwerveDrivetrain implements Subsystem {
     public Drivetrain(SwerveDrivetrainConstants driveTrainConstants, double OdometryUpdateFrequency, SwerveModuleConstants... modules) {
         super(driveTrainConstants, OdometryUpdateFrequency, modules); //look here for parent library methods
         robotState = RobotState.getInstance();
-
+        System.out.println(robotState + " AHHHHHHHHHHHHHHHHHHHHHH1");
         if (Utils.isSimulation()) {
             startSimThread();
         }
@@ -93,6 +94,8 @@ public class Drivetrain extends SwerveDrivetrain implements Subsystem {
 
     public Drivetrain(SwerveDrivetrainConstants driveTrainConstants, SwerveModuleConstants... modules) {
         super(driveTrainConstants, modules);
+        robotState = RobotState.getInstance();
+        System.out.println(robotState + " AHHHHHHHHHHHHHHHHHHHHHH2");
         if (Utils.isSimulation()) {
             startSimThread();
         }
@@ -176,29 +179,33 @@ public class Drivetrain extends SwerveDrivetrain implements Subsystem {
 
     @Override
     public void periodic() {
+        // System.out.println(robotState);
         Pose2d currPose = getPose();
-        robotState.odometryUpdate(m_odometry.getEstimatedPosition(), Timer.getFPGATimestamp());
+        // ITranslation2d currFilteredPose = robotState.getLatestFilteredPose();
+        // robotState.odometryUpdate(m_odometry.getEstimatedPosition(), Timer.getFPGATimestamp());
+        
 
         //allows driver to see if resetting worked
-        SmartDashboard.putBoolean("Odo Reset (last 5 sec)", lastTimeReset != -1 && Timer.getFPGATimestamp() - lastTimeReset < 5);
+        // SmartDashboard.putBoolean("Odo Reset (last 5 sec)", lastTimeReset != -1 && Timer.getFPGATimestamp() - lastTimeReset < 5);
         SmartDashboard.putNumber("ODO X", currPose.getX());
         SmartDashboard.putNumber("ODO Y", currPose.getY());
-        SmartDashboard.putNumber("ODO ROT", currPose.getRotation().getRadians());
-        SmartDashboard.putNumber("AUTO INIT X", autoStartPose.getX());
-        SmartDashboard.putNumber("AUTO INIT Y", autoStartPose.getY());
-        SmartDashboard.putNumber("current heading", getHeading());
-        SmartDashboard.putNumber("DT Vel", robotAbsoluteVelocity());
-        m_field.setRobotPose(m_odometry.getEstimatedPosition());
-        SmartDashboard.putData("field", m_field); 
+        // SmartDashboard.putNumber("EKF X", currFilteredPose.getX());
+        // SmartDashboard.putNumber("EKF Y", currFilteredPose.getY());
+        // SmartDashboard.putNumber("ODO ROT", currPose.getRotation().getRadians());
+        // SmartDashboard.putNumber("AUTO INIT X", autoStartPose.getX());
+        // SmartDashboard.putNumber("AUTO INIT Y", autoStartPose.getY());
+        // SmartDashboard.putNumber("current heading", getHeading());
+        // SmartDashboard.putNumber("DT Vel", robotAbsoluteVelocity());
+        // m_field.setRobotPose(m_odometry.getEstimatedPosition());
+        // SmartDashboard.putData("field", m_field); 
 
-        for(int i = 0; i < ModuleCount; i++){
-            // Logger.recordOutput("Swerve/DriveMotor" + i, Modules[i].getDriveMotor().getVelocity().getValueAsDouble());
-            //Logger.recordOutput("Swerve/CANcoder module " + i, Modules[i].getCANcoder().getAbsolutePosition().getValueAsDouble());
-            SmartDashboard.putNumber("CANcoder position module " + i, Modules[i].getCANcoder().getAbsolutePosition().getValueAsDouble());
-            SmartDashboard.putNumber("drive motor velocity mod " + i, Modules[i].getDriveMotor().getVelocity().getValueAsDouble());
-            SmartDashboard.putNumber("Angle motor velocity mod " + i, Modules[i].getSteerMotor().getVelocity().getValueAsDouble());
-        }
-
+        // for(int i = 0; i < ModuleCount; i++){
+        //     // Logger.recordOutput("Swerve/DriveMotor" + i, Modules[i].getDriveMotor().getVelocity().getValueAsDouble());
+        //     //Logger.recordOutput("Swerve/CANcoder module " + i, Modules[i].getCANcoder().getAbsolutePosition().getValueAsDouble());
+        //     SmartDashboard.putNumber("CANcoder position module " + i, Modules[i].getCANcoder().getAbsolutePosition().getValueAsDouble());
+        //     SmartDashboard.putNumber("drive motor velocity mod " + i, Modules[i].getDriveMotor().getVelocity().getValueAsDouble());
+        //     SmartDashboard.putNumber("Angle motor velocity mod " + i, Modules[i].getSteerMotor().getVelocity().getValueAsDouble());
+        // }
     }
 
 }
