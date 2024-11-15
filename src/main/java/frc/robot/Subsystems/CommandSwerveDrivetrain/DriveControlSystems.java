@@ -156,7 +156,7 @@ public class DriveControlSystems {
     }
 
     public void toggleAlignment() {
-        aligning = !aligning;
+        aligning = !aligning;   
     }
 
     public void toggleSlipControl() {

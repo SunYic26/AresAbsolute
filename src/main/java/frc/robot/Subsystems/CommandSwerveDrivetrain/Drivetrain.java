@@ -57,8 +57,6 @@ public class Drivetrain extends SwerveDrivetrain implements Subsystem {
 
     Optional<DriverStation.Alliance> alliance = DriverStation.getAlliance();
 
-    private Field2d m_field = new Field2d();
-
     public static Drivetrain getInstance(){
         if(s_Swerve == null){
             s_Swerve = new Drivetrain(TunerConstants.DrivetrainConstants, 250, TunerConstants.FrontLeft,
@@ -85,7 +83,6 @@ public class Drivetrain extends SwerveDrivetrain implements Subsystem {
     public Drivetrain(SwerveDrivetrainConstants driveTrainConstants, double OdometryUpdateFrequency, SwerveModuleConstants... modules) {
         super(driveTrainConstants, OdometryUpdateFrequency, modules); //look here for parent library methods
         robotState = RobotState.getInstance();
-        System.out.println(robotState + " AHHHHHHHHHHHHHHHHHHHHHH1");
         if (Utils.isSimulation()) {
             startSimThread();
         }
@@ -95,7 +92,6 @@ public class Drivetrain extends SwerveDrivetrain implements Subsystem {
     public Drivetrain(SwerveDrivetrainConstants driveTrainConstants, SwerveModuleConstants... modules) {
         super(driveTrainConstants, modules);
         robotState = RobotState.getInstance();
-        System.out.println(robotState + " AHHHHHHHHHHHHHHHHHHHHHH2");
         if (Utils.isSimulation()) {
             startSimThread();
         }
@@ -196,8 +192,6 @@ public class Drivetrain extends SwerveDrivetrain implements Subsystem {
         // SmartDashboard.putNumber("AUTO INIT Y", autoStartPose.getY());
         // SmartDashboard.putNumber("current heading", getHeading());
         // SmartDashboard.putNumber("DT Vel", robotAbsoluteVelocity());
-        // m_field.setRobotPose(m_odometry.getEstimatedPosition());
-        // SmartDashboard.putData("field", m_field); 
 
         // for(int i = 0; i < ModuleCount; i++){
         //     // Logger.recordOutput("Swerve/DriveMotor" + i, Modules[i].getDriveMotor().getVelocity().getValueAsDouble());
