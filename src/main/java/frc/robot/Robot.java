@@ -20,15 +20,16 @@ public class Robot extends LoggedRobot {
   private RobotContainer m_robotContainer;
   private DriveControlSystems controlSystem  = new DriveControlSystems();
 
-  private final Vision s_Vision;
-  // private final Drivetrain s_Drivetrain;
-  // private final RobotState s_RobotState;
+  private final Vision vision;
 
+  private Drivetrain drivetrain;
+  private RobotState robotState;
+ 
     public Robot() { //need stuff for logger at some point
-      // s_Drivetrain = Drivetrain.getInstance();
-      // s_RobotState = RobotState.getInstance();
-      s_Vision = Vision.getInstance();
-  }
+      drivetrain = Drivetrain.getInstance();
+      robotState = RobotState.getInstance();
+      vision = Vision.getInstance();
+    }
 
   @Override
   public void robotInit() {

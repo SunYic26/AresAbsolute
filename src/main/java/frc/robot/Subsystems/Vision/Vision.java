@@ -102,10 +102,6 @@ public class Vision extends SubsystemBase {
         } else {return false;}
     }
 
-    public double getDistanceToPose(Pose2d pose){
-        return PhotonUtils.getDistanceToPose(s_Swerve.getPose(), pose);
-    }
-
     private Boolean shouldUseMultiTag() {
         MultiTargetPNPResult multiTagResult = cameraResult.getMultiTagResult();
 

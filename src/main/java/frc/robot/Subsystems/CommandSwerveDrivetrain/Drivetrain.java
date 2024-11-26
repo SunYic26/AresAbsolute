@@ -63,22 +63,21 @@ public class Drivetrain extends SwerveDrivetrain implements Subsystem {
             TunerConstants.FrontRight, TunerConstants.BackLeft, TunerConstants.BackRight);  
         }
         return s_Swerve;
-        
     }
 
-    private void limit() {
-        for (SwerveModule module : Modules) {
-            CurrentLimitsConfigs configs = new CurrentLimitsConfigs();
-            configs.SupplyCurrentLimit = 20;
-            configs.SupplyCurrentLimitEnable = true;
-            configs.StatorCurrentLimit = 40;
-            configs.StatorCurrentLimitEnable = true;
+    // private void limit() {
+    //     for (SwerveModule module : Modules) {
+    //         CurrentLimitsConfigs configs = new CurrentLimitsConfigs();
+    //         configs.SupplyCurrentLimit = 20;
+    //         configs.SupplyCurrentLimitEnable = true;
+    //         configs.StatorCurrentLimit = 40;
+    //         configs.StatorCurrentLimitEnable = true;
             
 
-            module.getDriveMotor().getConfigurator().apply(configs);
-            module.getSteerMotor().getConfigurator().apply(configs);
-        }
-    }
+    //         module.getDriveMotor().getConfigurator().apply(configs);
+    //         module.getSteerMotor().getConfigurator().apply(configs);
+    //     }
+    // }
 
     public Drivetrain(SwerveDrivetrainConstants driveTrainConstants, double OdometryUpdateFrequency, SwerveModuleConstants... modules) {
         super(driveTrainConstants, OdometryUpdateFrequency, modules); //look here for parent library methods
@@ -86,7 +85,7 @@ public class Drivetrain extends SwerveDrivetrain implements Subsystem {
         if (Utils.isSimulation()) {
             startSimThread();
         }
-        limit();
+        // limit();
     }
 
     public Drivetrain(SwerveDrivetrainConstants driveTrainConstants, SwerveModuleConstants... modules) {
@@ -95,7 +94,7 @@ public class Drivetrain extends SwerveDrivetrain implements Subsystem {
         if (Utils.isSimulation()) {
             startSimThread();
         }
-        limit();
+        // limit();
     }
 
     public Command applyRequest(Supplier<SwerveRequest> requestSupplier) {

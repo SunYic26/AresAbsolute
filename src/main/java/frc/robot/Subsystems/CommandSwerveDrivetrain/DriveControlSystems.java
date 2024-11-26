@@ -32,8 +32,8 @@ public class DriveControlSystems {
     PIDController pidHeading = new PIDController(0, 0, 0);
 
     public DriveControlSystems() {  
-        drivetrain = Drivetrain.getInstance();
         robotState = RobotState.getInstance();
+        drivetrain = Drivetrain.getInstance();
     }
 
     //interface with modules
