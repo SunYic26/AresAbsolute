@@ -38,7 +38,7 @@ import frc.robot.generated.TunerConstants;
 import frc.robot.RobotContainer;
 import frc.robot.Constants.robotPIDs.HeadingControlPID;
 import frc.robot.RobotState.RobotState;
-import frc.robot.Subsystems.CommandSwerveDrivetrain.DriveControlSystems;
+// import frc.robot.Subsystems.CommandSwerveDrivetrain.DriveControlSystems;
 
 /**
  * Class that extends the Phoenix SwerveDrivetrain class and implements subsystem
@@ -90,7 +90,7 @@ public class Drivetrain extends SwerveDrivetrain implements Subsystem {
 
     public Drivetrain(SwerveDrivetrainConstants driveTrainConstants, SwerveModuleConstants... modules) {
         super(driveTrainConstants, modules);
-        robotState = RobotState.getInstance();
+        // robotState = RobotState.getInstance();
         if (Utils.isSimulation()) {
             startSimThread();
         }

@@ -12,7 +12,7 @@ import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants;
 import frc.robot.RobotContainer;
-import frc.robot.RobotState.RobotState;
+// import frc.robot.RobotState.RobotState;
 
 public class DriveControlSystems {
 
@@ -27,12 +27,12 @@ public class DriveControlSystems {
 
 
     Drivetrain drivetrain;
-    RobotState robotState;
+    // RobotState robotState;
 
     PIDController pidHeading = new PIDController(0, 0, 0);
 
     public DriveControlSystems() {  
-        robotState = RobotState.getInstance();
+        // robotState = RobotState.getInstance();
         drivetrain = Drivetrain.getInstance();
     }
 
@@ -76,7 +76,7 @@ public class DriveControlSystems {
             double velocity = drivetrain.robotAbsoluteVelocity();
             updateGains(velocity);
             
-            driverRX = pidHeading.calculate(robotState.robotYaw(), lastHeading);
+            // driverRX = pidHeading.calculate(robotState.robotYaw(), lastHeading);
             SmartDashboard.putBoolean("headingON", true);
 
         } else {
