@@ -143,33 +143,36 @@ public class Vision extends SubsystemBase {
             return;
         }
         
-        // if(Math.abs(robotState.robotAngularVelocityMagnitude()[0]) > VisionLimits.k_rotationLimitDPS) {
-        //     SmartDashboard.putString("Vision accepter", "Vision failed: High rotation");
-        //     return;
-        // } 
+        if(Math.abs(robotState.robotAngularVelocityMagnitude()[0]) > VisionLimits.k_rotationLimitDPS) {
+            SmartDashboard.putString("Vision accepter", "Vision failed: High rotation");
+            return;
+        } 
 
-        // if(!cameraResult.getMultiTagResult().estimatedPose.isPresent) {
-        //     if(hasValidTarget(cameraResult)) { //using fallback tag
-        //         VisionOutput newPose = new VisionOutput(photonPoseEstimator.update().get());
-        //         robotState.visionUpdate(newPose); 
-        //         return;
-        //     }
+        if(!cameraResult.getMultiTagResult().estimatedPose.isPresent) {
+            if(hasValidTarget(cameraResult)) { //using fallback tag
+                VisionOutput newPose = new VisionOutput(photonPoseEstimator.update().get());
+                robotState.visionUpdate(newPose); 
+                return;
+            }
             
-        // } else if (shouldUseMultiTag()) { //using multitag
+        } else if (shouldUseMultiTag()) { //using multitag
 
-        //     VisionOutput newPose = new VisionOutput(photonPoseEstimator.update().get());
-        //     robotState.visionUpdate(newPose); 
-        //     return;
+            VisionOutput newPose = new VisionOutput(photonPoseEstimator.update().get());
+            robotState.visionUpdate(newPose); 
+            return;
 
-        // } else if (hasValidTarget(cameraResult)){ // manually making the pose
+        } else if (hasValidTarget(cameraResult)){ // manually making the pose
 
-        //         Pose3d targetPose = aprilTagFieldLayout.getTagPose(cameraResult.getBestTarget().getFiducialId()).orElse(null);
-        //         Pose3d newPose = PhotonUtils.estimateFieldToRobotAprilTag(
-        //         cameraResult.getBestTarget().getBestCameraToTarget(), targetPose, cameraToRobotTransform);
-        //         robotState.visionUpdate(new VisionOutput(newPose, cameraResult.getTimestampSeconds(),
-        //         cameraResult.getBestTarget(), PoseStrategy.CLOSEST_TO_LAST_POSE));
+                Pose3d targetPose = aprilTagFieldLayout.getTagPose(cameraResult.getBestTarget().getFiducialId()).orElse(null);
+                Pose3d newPose = PhotonUtils.estimateFieldToRobotAprilTag(
+                cameraResult.getBestTarget().getBestCameraToTarget(), targetPose, cameraToRobotTransform);
+                robotState.visionUpdate(new VisionOutput(newPose, cameraResult.getTimestampSeconds(),
+                cameraResult.getBestTarget(), PoseStrategy.CLOSEST_TO_LAST_POSE));
 
         } 
+
+
+    }
         // else { SmartDashboard.putString("Vision accepter", "Vision failed: no targets");} 
         //less nesting! 
 

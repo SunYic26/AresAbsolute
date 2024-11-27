@@ -153,18 +153,18 @@ public class Drivetrain extends SwerveDrivetrain implements Subsystem {
         return roughVel/4.0;
     }
 
-    // public void updateOdometryByVision(Pose3d estimatedPose){
-    //     System.out.println("Pose received");
-    //     if(estimatedPose != null){
-    //         s_Swerve.m_odometry.addVisionMeasurement(estimatedPose.toPose2d(), Logger.getRealTimestamp()); //Timer.getFPGATimestamp()
-    //     }
-    // }
+    public void updateOdometryByVision(Pose3d estimatedPose){
+        System.out.println("Pose received");
+        if(estimatedPose != null){
+            s_Swerve.m_odometry.addVisionMeasurement(estimatedPose.toPose2d(), Logger.getRealTimestamp()); //Timer.getFPGATimestamp()
+        }
+    }
 
-    // public void updateOdometryByVision(Optional<EstimatedRobotPose> estimatedPose){
-    //     if(estimatedPose.isPresent()){
-    //         s_Swerve.m_odometry.addVisionMeasurement(estimatedPose.get().estimatedPose.toPose2d(), estimatedPose.get().timestampSeconds); 
-    //     }
-    // }
+    public void updateOdometryByVision(Optional<EstimatedRobotPose> estimatedPose){
+        if(estimatedPose.isPresent()){
+            s_Swerve.m_odometry.addVisionMeasurement(estimatedPose.get().estimatedPose.toPose2d(), estimatedPose.get().timestampSeconds); 
+        }
+    }
 
     private Pose2d autoStartPose = new Pose2d(2.0, 2.0, new Rotation2d());
 
