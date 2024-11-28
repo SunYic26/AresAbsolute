@@ -61,6 +61,7 @@ public class Drivetrain extends SwerveDrivetrain implements Subsystem {
         if(s_Swerve == null){
             s_Swerve = new Drivetrain(TunerConstants.DrivetrainConstants, 250, TunerConstants.FrontLeft,
             TunerConstants.FrontRight, TunerConstants.BackLeft, TunerConstants.BackRight);  
+            
         }
         return s_Swerve;
     }
@@ -81,7 +82,6 @@ public class Drivetrain extends SwerveDrivetrain implements Subsystem {
 
     public Drivetrain(SwerveDrivetrainConstants driveTrainConstants, double OdometryUpdateFrequency, SwerveModuleConstants... modules) {
         super(driveTrainConstants, OdometryUpdateFrequency, modules); //look here for parent library methods
-        robotState = RobotState.getInstance();
         if (Utils.isSimulation()) {
             startSimThread();
         }
@@ -90,7 +90,7 @@ public class Drivetrain extends SwerveDrivetrain implements Subsystem {
 
     public Drivetrain(SwerveDrivetrainConstants driveTrainConstants, SwerveModuleConstants... modules) {
         super(driveTrainConstants, modules);
-        // robotState = RobotState.getInstance();
+        //robotState = RobotState.getInstance();
         if (Utils.isSimulation()) {
             startSimThread();
         }
@@ -176,8 +176,17 @@ public class Drivetrain extends SwerveDrivetrain implements Subsystem {
     public void periodic() {
         // System.out.println(robotState);
         Pose2d currPose = getPose();
-        // ITranslation2d currFilteredPose = robotState.getLatestFilteredPose();
-        // robotState.odometryUpdate(m_odometry.getEstimatedPosition(), Timer.getFPGATimestamp());
+
+        if(robotState != null){
+             robotState.odometryUpdate(m_odometry.getEstimatedPosition(), Timer.getFPGATimestamp());
+
+            ITranslation2d currFilteredPose = robotState.getLatestFilteredPose();
+
+            SmartDashboard.putNumber("FILT X", currFilteredPose.getX());
+            SmartDashboard.putNumber("FILT Y", currFilteredPose.getY());
+        }else{
+            robotState = RobotState.getInstance();
+        }
         
 
         //allows driver to see if resetting worked
