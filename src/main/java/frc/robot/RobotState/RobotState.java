@@ -103,6 +103,8 @@ public class RobotState { //will estimate pose with odometry and correct drift w
         if (prevVisionPose.isEmpty() || initialFieldToOdo.isEmpty()) { //first update
             double timestamp = updatePose.timestampSeconds;
 
+            updatePose.updateStatistics();
+
             //merge odom and vision
             ITranslation2d visionTranslation = updatePose.getInterpolatableTransform2d();
             ITranslation2d proximateOdoTranslation = new ITranslation2d(odometryPoses.getInterpolated(new InterpolatingDouble(timestamp)));
@@ -118,6 +120,8 @@ public class RobotState { //will estimate pose with odometry and correct drift w
             prevVisionPose = Optional.ofNullable(updatePose); 
         } else { //after first update
             double timestamp = updatePose.timestampSeconds;
+
+            updatePose.updateStatistics();
 
             //obtain odometry from interpolation and use the prev pose for the kalman
             ITranslation2d visionTranslation = updatePose.getInterpolatableTransform2d();

@@ -143,10 +143,10 @@ public class Vision extends SubsystemBase {
             return;
         }
         
-        if(Math.abs(robotState.robotAngularVelocityMagnitude()[0]) > VisionLimits.k_rotationLimitDPS) {
-            SmartDashboard.putString("Vision accepter", "Vision failed: High rotation");
-            return;
-        } 
+        // if(Math.abs(robotState.robotAngularVelocityMagnitude()[0]) > VisionLimits.k_rotationLimitDPS) {
+        //     SmartDashboard.putString("Vision accepter", "Vision failed: High rotation");
+        //     return;
+        // } 
 
         if(!cameraResult.getMultiTagResult().estimatedPose.isPresent) {
             if(hasValidTarget(cameraResult)) { //using fallback tag
