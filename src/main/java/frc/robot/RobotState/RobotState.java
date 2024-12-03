@@ -56,6 +56,8 @@ import com.ctre.phoenix6.mechanisms.swerve.SwerveDrivetrain;
 
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N2;
+import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.math.numbers.N4;
 import edu.wpi.first.math.estimator.ExtendedKalmanFilter;
 
 
@@ -76,21 +78,18 @@ public class RobotState { //will estimate pose with odometry and correct drift w
 
     private InterpolatingTreeMap<InterpolatingDouble, IPose2d> odometryPoses;
 	private InterpolatingTreeMap<InterpolatingDouble, ITranslation2d> filteredPoses;
-    private ExtendedKalmanFilter<N2, N2, N2> EKF;
 
-    private static final double dt = 0.002;
+    private ExtendedKalmanFilter<N4, N2, N2> EKF;
+
+    private static final double dt = 0.020;
     private static final int observationSize = 50; //how many poses we keep our tree
 
-    // TODO get more accurate values based on our pigeon std and odo std
-    private final static Matrix<N2, N1> stateStdDevs = VecBuilder.fill(0.05,0.05); // obtained from noise when sensor is at rest
-    private final static Matrix<N2, N1> measurementStdDevs = VecBuilder.fill(0.02,0.02); // idk how to find this but ill figure it out 
-
-	private Optional<ITranslation2d> initialFieldToOdo = Optional.empty(); //TODO make sure this gets filled (by auto or smth)
+	private Optional<ITranslation2d> initialFieldToOdo = Optional.empty();
     private Optional<EstimatedRobotPose> prevVisionPose;
 
     private Twist2d robotVelocity;
 
-	private boolean inAuto = false; //need to configure with auto but we dont have an auto yet
+	private boolean inAuto = false; //need to configure with auto but we dont have an auto yet (lol)
 
     public RobotState() {
         drivetrain = Drivetrain.getInstance();
@@ -103,12 +102,10 @@ public class RobotState { //will estimate pose with odometry and correct drift w
         if (prevVisionPose.isEmpty() || initialFieldToOdo.isEmpty()) { //first update
             double timestamp = updatePose.timestampSeconds;
 
-            updatePose.updateStatistics();
-
-            //merge odom and vision
+            //merge odom and vision for first run
             ITranslation2d visionTranslation = updatePose.getInterpolatableTransform2d();
             ITranslation2d proximateOdoTranslation = new ITranslation2d(odometryPoses.getInterpolated(new InterpolatingDouble(timestamp)));
-            ITranslation2d mergedPose = visionTranslation.weightedAverageBy(proximateOdoTranslation, 0.80); //trust vision more, should tune
+            ITranslation2d mergedPose = visionTranslation.weightedAverageBy(proximateOdoTranslation, 0.70); //trust vision more, should tune
             filteredPoses.put(new InterpolatingDouble(timestamp),  mergedPose);
             
             //update kalman
@@ -118,15 +115,11 @@ public class RobotState { //will estimate pose with odometry and correct drift w
             //set our initial pose from first update
             initialFieldToOdo = Optional.of(filteredPoses.lastEntry().getValue());
             prevVisionPose = Optional.ofNullable(updatePose); 
+
         } else { //after first update
+
             double timestamp = updatePose.timestampSeconds;
 
-            updatePose.updateStatistics();
-
-            //obtain odometry from interpolation and use the prev pose for the kalman
-            ITranslation2d visionTranslation = updatePose.getInterpolatableTransform2d();
-            ITranslation2d proximateOdoTranslation = new ITranslation2d(odometryPoses.getInterpolated(new InterpolatingDouble(timestamp)));
-            ITranslation2d mergedPose = visionTranslation.weightedAverageBy(proximateOdoTranslation, 0.80); //trust vision more, should tune
             prevVisionPose = Optional.ofNullable(updatePose);
 
             //calculate std of vision estimate for EKF
@@ -134,8 +127,8 @@ public class RobotState { //will estimate pose with odometry and correct drift w
 					EKF.correct(
 							VecBuilder.fill(0.0, 0.0),
 							VecBuilder.fill(
-									mergedPose.getX(),
-									mergedPose.getY()),
+									updatePose.estimatedPose.getX(),
+									updatePose.estimatedPose.getY()),
 							StateSpaceUtil.makeCovarianceMatrix(Nat.N2(), stdevs));
 					filteredPoses.put(
 							new InterpolatingDouble(timestamp),
@@ -147,16 +140,54 @@ public class RobotState { //will estimate pose with odometry and correct drift w
     public synchronized void odometryUpdate(Pose2d pose, double timestamp) {
         odometryPoses.put(new InterpolatingDouble(timestamp), new IPose2d(pose.getX(),pose.getY(), pose.getRotation()));
 
-        // propagate the EKF (with no inputs)
-		EKF.predict(VecBuilder.fill(0.0, 0.0), dt);
+        EKF.predict(VecBuilder.fill(robotVelocity.getX(), robotVelocity.getY()), dt);
+
+        EKF.correct(
+            VecBuilder.fill(0,0),
+            VecBuilder.fill(
+                pose.getX(),
+                pose.getY()));
     }
 
 
     public void initKalman() {
-        EKF = new ExtendedKalmanFilter<>(Nat.N2(), Nat.N2(), Nat.N2(),
-        (x,u) -> u, // return input as the output (f)
-        (x,u) -> x, // return states as the output (h)
-        stateStdDevs, measurementStdDevs, dt);
+        double dt = 0.02;
+
+        BiFunction<Matrix<N4, N1>, Matrix<N2, N1>, Matrix<N4, N1>> f = (state, input) -> {
+            double x = state.get(0, 0);
+            double y = state.get(1, 0);
+            double velx = state.get(2, 0);
+            double vely = state.get(3, 0);
+
+            return VecBuilder.fill(
+                x + velx * dt,                // New x position
+                y + vely * dt,                // New y position
+                velx,
+                vely 
+                );
+        };
+
+
+        BiFunction<Matrix<N4, N1>, Matrix<N2, N1>, Matrix<N2, N1>> h = (state, input) -> {
+            double x = state.get(0, 0);
+            double y = state.get(1, 0);
+
+            return VecBuilder.fill(
+                x,                // New x position
+                y                // New y position
+                );
+        }; //same thing as (x,u) -> u
+
+        // TODO these need to be not guessed
+        Matrix<N4, N1> stateStdDevs = VecBuilder.fill(0.05,0.05,0.05,0.05); // obtained from noise when sensor is at rest
+        Matrix<N2, N1> measurementStdDevs = VecBuilder.fill(0.02,0.02); // idk how to find this but ill figure it out 
+
+        EKF = new ExtendedKalmanFilter<>(Nat.N4(), Nat.N2(), Nat.N2(),
+        f,
+        h,
+        stateStdDevs,
+        measurementStdDevs,
+        dt);
 
         // states - A Nat representing the number of states.
         // outputs - A Nat representing the number of outputs.
