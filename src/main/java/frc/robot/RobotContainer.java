@@ -48,8 +48,8 @@ public class RobotContainer {
           .withDeadband(Constants.MaxSpeed * translationDeadband).withRotationalDeadband(Constants.MaxAngularRate * rotDeadband)
           .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // I want field-centric
 
-          public static final double translationDeadband = 0.1;
-          public static final double rotDeadband = 0.1;
+          public static final double translationDeadband = 0.03;
+          public static final double rotDeadband = 0.03;
 
   /* Driver Buttons */
   private final Trigger driverBack = driver.back();
@@ -77,6 +77,8 @@ public class RobotContainer {
         drivetrain.applyRequest(() -> controlSystem.drive(-driver.getLeftY(), -driver.getLeftX(), -driver.getRightX()) // Drive counterclockwise with negative X (left)
     ));
     //bindings
+
+    driverBack.onTrue(new InstantCommand(() -> drivetrain.resetOdo()));
   }
 
   public Command getAutonomousCommand() {

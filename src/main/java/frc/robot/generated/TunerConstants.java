@@ -19,14 +19,14 @@ public class TunerConstants {
 
     // The steer motor uses any SwerveModule.SteerRequestType control request with the
     // output type specified by SwerveModuleConstants.SteerMotorClosedLoopOutput
-//     private static final Slot0Configs steerGains = new Slot0Configs()
-//         .withKP(40).withKI(0).withKD(0.2)
-//         .withKS(0).withKV(1.5).withKA(0);
-    // When using closed-loop control, the drive motor uses the control
-    // output type specified by SwerveModuleConstants.DriveMotorClosedLoopOutput
-//     private static final Slot0Configs driveGains = new Slot0Configs()
-//         .withKP(3).withKI(0).withKD(0)
-//         .withKS(0).withKV(0).withKA(0);
+    private static final Slot0Configs steerGains = new Slot0Configs()
+        .withKP(40).withKI(0).withKD(0.2)
+        .withKS(0).withKV(1.5).withKA(0);
+//     When using closed-loop control, the drive motor uses the control
+//     output type specified by SwerveModuleConstants.DriveMotorClosedLoopOutput
+    private static final Slot0Configs driveGains = new Slot0Configs()
+        .withKP(3).withKI(0).withKD(0)
+        .withKS(0).withKV(0).withKA(0);
 
     // The closed-loop output type to use for the steer motors;
     // This affects the PID/FF gains for the steer motors
@@ -74,9 +74,9 @@ public class TunerConstants {
             .withDriveMotorGearRatio(kDriveGearRatio)
             .withSteerMotorGearRatio(kSteerGearRatio)
             .withWheelRadius(kWheelRadiusInches)
-        //     .withSlipCurrent(kSlipCurrentA)
-        //     .withSteerMotorGains(steerGains)
-        //     .withDriveMotorGains(driveGains)
+            .withSlipCurrent(kSlipCurrentA)
+            .withSteerMotorGains(steerGains)
+            .withDriveMotorGains(driveGains)
             .withSteerMotorClosedLoopOutput(steerClosedLoopOutput)
             .withDriveMotorClosedLoopOutput(driveClosedLoopOutput)
             .withSpeedAt12VoltsMps(kSpeedAt12VoltsMps)
@@ -94,7 +94,7 @@ public class TunerConstants {
     private static final int kFrontLeftDriveMotorId = 10;
     private static final int kFrontLeftSteerMotorId = 11;
     private static final int kFrontLeftEncoderId = 3;
-    private static final double kFrontLeftEncoderOffset = -0.24023;//-0.24853; //-0.249267578125;
+    private static final double kFrontLeftEncoderOffset = -0.2458496;//-0.24023;//-0.24853; //-0.249267578125;
 
     private static final double kFrontLeftXPosInches = 8.5;
     private static final double kFrontLeftYPosInches = 10;
@@ -103,7 +103,7 @@ public class TunerConstants {
     private static final int kFrontRightDriveMotorId = 12;
     private static final int kFrontRightSteerMotorId = 13;
     private static final int kFrontRightEncoderId = 4;
-    private static final double kFrontRightEncoderOffset = 0.42260;//0.413818; //0.417724609375; 
+    private static final double kFrontRightEncoderOffset = 0.41796875;//0.42260;//0.413818; //0.417724609375; 
 
     private static final double kFrontRightXPosInches = 8.5;
     private static final double kFrontRightYPosInches = -10;
@@ -112,7 +112,7 @@ public class TunerConstants {
     private static final int kBackLeftDriveMotorId = 14;
     private static final int kBackLeftSteerMotorId = 15;
     private static final int kBackLeftEncoderId = 5;
-    private static final double kBackLeftEncoderOffset = 0.436767;//0.43725; //0.443115234375; 
+    private static final double kBackLeftEncoderOffset = 0.4365234;//0.436767;//0.43725; //0.443115234375; 
 
     private static final double kBackLeftXPosInches = -8.5;
     private static final double kBackLeftYPosInches = 10;
@@ -121,7 +121,7 @@ public class TunerConstants {
     private static final int kBackRightDriveMotorId = 16;
     private static final int kBackRightSteerMotorId = 17;
     private static final int kBackRightEncoderId = 6;
-    private static final double kBackRightEncoderOffset = 0.21020;//0.2041; //0.210693359375; 
+    private static final double kBackRightEncoderOffset = 0.2165527;//0.21020;//0.2041; //0.210693359375; 
 
     private static final double kBackRightXPosInches = -8.5;
     private static final double kBackRightYPosInches = -10;                   

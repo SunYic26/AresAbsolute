@@ -249,6 +249,8 @@ public class RobotState { //will estimate pose with odometry and correct drift w
 
         public void updateAccel() {
             double[] newAccel = rawRobotAcceleration();
+            SmartDashboard.putNumber("raw Accel X", newAccel[0]);
+            SmartDashboard.putNumber("raw Accel Y", newAccel[1]);
             robotVelocity = accelIntegrator.update(newAccel[0], newAccel[1], newAccel[2]);
         }
 
