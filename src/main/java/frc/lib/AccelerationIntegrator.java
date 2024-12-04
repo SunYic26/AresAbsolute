@@ -1,12 +1,12 @@
 package frc.lib;
-import frc.lib.Interpolating.Geometry.Twist2d;
+import frc.lib.Interpolating.Geometry.ITwist2d;
 
 import frc.robot.Subsystems.CommandSwerveDrivetrain.Drivetrain;
 
 public class AccelerationIntegrator {
     private double prevXAccel = 0.0;
     private double prevYAccel = 0.0;
-    private Twist2d velocity;
+    private ITwist2d velocity;
     private double xVelocity = 0;
     private double yVelocity = 0;
     private double lastTimestamp = 0;
@@ -48,7 +48,7 @@ public class AccelerationIntegrator {
         lastTimestamp = currentTime;
     }
 
-    public Twist2d update(double x_AccelRaw, double y_AccelRaw, double currentTime) {
+    public ITwist2d update(double x_AccelRaw, double y_AccelRaw, double currentTime) {
         double x_AccelFiltered = xLowPassFilter(x_AccelRaw);  // Filter noisy input
         double y_AccelFiltered = yLowPassFilter(y_AccelRaw);  // Filter noisy input
         integrateAccel(x_AccelFiltered, y_AccelFiltered, currentTime);
@@ -56,6 +56,6 @@ public class AccelerationIntegrator {
             xVelocity = 0;
             yVelocity = 0;
         } 
-        return new Twist2d(xVelocity, yVelocity); //double (integrateAccel(x_AccelFiltered, currentTime), integrateAccel(y_AccelFiltered, currentTime));  // Integrate for velocity
+        return new ITwist2d(xVelocity, yVelocity); //double (integrateAccel(x_AccelFiltered, currentTime), integrateAccel(y_AccelFiltered, currentTime));  // Integrate for velocity
     }
 }
