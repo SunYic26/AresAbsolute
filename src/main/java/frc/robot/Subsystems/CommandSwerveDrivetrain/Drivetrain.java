@@ -172,6 +172,13 @@ public class Drivetrain extends SwerveDrivetrain implements Subsystem {
         autoStartPose = pose;
     }
 
+    public double getWheelVelocity(){
+        return (Modules[0].getDriveMotor().getVelocity().getValueAsDouble() + 
+        Modules[1].getDriveMotor().getVelocity().getValueAsDouble() +
+        Modules[2].getDriveMotor().getVelocity().getValueAsDouble() +
+        Modules[3].getDriveMotor().getVelocity().getValueAsDouble())/4;
+    }
+
     @Override
     public void periodic() {
         // System.out.println(robotState);

@@ -1,13 +1,17 @@
 package frc.lib;
 import frc.lib.Interpolating.Geometry.Twist2d;
 
+import frc.robot.Subsystems.CommandSwerveDrivetrain.Drivetrain;
+
 public class AccelerationIntegrator {
     private double prevXAccel = 0.0;
     private double prevYAccel = 0.0;
     private Twist2d velocity;
     private double xVelocity = 0;
     private double yVelocity = 0;
-    private double lastTimestamp = -1;
+    private double lastTimestamp = 0;
+
+    private Drivetrain s_Swerve = Drivetrain.getInstance();
 
     public void initTimeStamp(double timestamp){
         lastTimestamp = timestamp;
@@ -28,7 +32,7 @@ public class AccelerationIntegrator {
     }
 
     // Trapezoidal integration for velocity estimation (LIKE A BOSS)
-    public double[] integrateAccel(double xAccel, double yAccel, double currentTime) {
+    public void integrateAccel(double xAccel, double yAccel, double currentTime) {
         // if(lastTimestamp == -1) lastTimestamp = currentTime;
 
         if(Math.abs(xAccel) < 0.002) xAccel = 0;
@@ -42,16 +46,16 @@ public class AccelerationIntegrator {
         prevXAccel = xAccel;
         prevYAccel = yAccel;
         lastTimestamp = currentTime;
-
-        return new double[] {xVelocity, yVelocity};
     }
 
     public Twist2d update(double x_AccelRaw, double y_AccelRaw, double currentTime) {
         double x_AccelFiltered = xLowPassFilter(x_AccelRaw);  // Filter noisy input
         double y_AccelFiltered = yLowPassFilter(y_AccelRaw);  // Filter noisy input
-        
-        return new Twist2d(integrateAccel(x_AccelFiltered, y_AccelFiltered, currentTime)[0],
-        integrateAccel(x_AccelFiltered, y_AccelFiltered, currentTime)[1]
-        ); //double (integrateAccel(x_AccelFiltered, currentTime), integrateAccel(y_AccelFiltered, currentTime));  // Integrate for velocity
+        integrateAccel(x_AccelFiltered, y_AccelFiltered, currentTime);
+        if(s_Swerve.getWheelVelocity() < 0.001){ //tune this threshold as needed
+            xVelocity = 0;
+            yVelocity = 0;
+        } 
+        return new Twist2d(xVelocity, yVelocity); //double (integrateAccel(x_AccelFiltered, currentTime), integrateAccel(y_AccelFiltered, currentTime));  // Integrate for velocity
     }
 }
