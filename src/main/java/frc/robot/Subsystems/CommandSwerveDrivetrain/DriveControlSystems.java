@@ -9,6 +9,7 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.interpolation.Interpolator;
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants;
 import frc.robot.RobotContainer;
@@ -48,14 +49,18 @@ public class DriveControlSystems {
         driverRX = scaledDeadBand(driverRX) * Constants.MaxAngularRate;
 
         //heading control
-        if (headingControl && driverRX < 0.1) {
-            driverRX = headingControl(driverRX);
-        }
+        // if (headingControl && driverRX < 0.1) {
+        //     driverRX = headingControl(driverRX);
+        // }
 
-        //slip control
-        if (slipControlOn) {
-        slipCorrection(slipControl(drivetrain.robotAbsoluteVelocity())); 
-        }
+        // //slip control
+        // if (slipControlOn) {
+        // slipCorrection(slipControl(drivetrain.robotAbsoluteVelocity())); 
+        // }
+
+        SmartDashboard.putNumber("requested velocity x", driverLX);
+        SmartDashboard.putNumber("requested velocity y", driverLY);
+
 
         return new SwerveRequest.FieldCentric()
         .withVelocityX(driverLY)

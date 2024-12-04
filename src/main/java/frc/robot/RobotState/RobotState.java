@@ -3,6 +3,7 @@ package frc.robot.RobotState;
 import java.io.ObjectInputStream.GetField;
 import java.util.List;
 import java.util.Optional;
+import java.util.TreeMap;
 import java.util.function.BiFunction;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
@@ -12,6 +13,7 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.UnitBuilder;
 import edu.wpi.first.units.Velocity;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.math.MatBuilder;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.Nat;
@@ -78,6 +80,7 @@ public class RobotState { //will estimate pose with odometry and correct drift w
 
     private InterpolatingTreeMap<InterpolatingDouble, IPose2d> odometryPoses;
 	private InterpolatingTreeMap<InterpolatingDouble, ITranslation2d> filteredPoses;
+    private TreeMap<Double, Twist2d> robotVelocities;
 
     private ExtendedKalmanFilter<N4, N2, N2> EKF;
 
@@ -86,6 +89,7 @@ public class RobotState { //will estimate pose with odometry and correct drift w
 
 	private Optional<ITranslation2d> initialFieldToOdo = Optional.empty();
     private Optional<EstimatedRobotPose> prevVisionPose;
+    private Optional<Double> prevOdomTimestamp;
 
     private Twist2d robotVelocity;
 
@@ -122,10 +126,14 @@ public class RobotState { //will estimate pose with odometry and correct drift w
 
             prevVisionPose = Optional.ofNullable(updatePose);
 
+            updateAccel();
+
+            EKF.predict(VecBuilder.fill(robotVelocity.getX(), robotVelocity.getY()), timestamp);
+
             //calculate std of vision estimate for EKF
             Vector<N2> stdevs = VecBuilder.fill(Math.pow(updatePose.getStandardDeviation(), 1), Math.pow(updatePose.getStandardDeviation(), 1));
 					EKF.correct(
-							VecBuilder.fill(0.0, 0.0),
+							VecBuilder.fill(robotVelocity.getX(), robotVelocity.getY()),
 							VecBuilder.fill(
 									updatePose.estimatedPose.getX(),
 									updatePose.estimatedPose.getY()),
@@ -140,13 +148,24 @@ public class RobotState { //will estimate pose with odometry and correct drift w
     public synchronized void odometryUpdate(Pose2d pose, double timestamp) {
         odometryPoses.put(new InterpolatingDouble(timestamp), new IPose2d(pose.getX(),pose.getY(), pose.getRotation()));
 
-        EKF.predict(VecBuilder.fill(robotVelocity.getX(), robotVelocity.getY()), dt);
+        updateAccel();
 
-        EKF.correct(
-            VecBuilder.fill(0,0),
-            VecBuilder.fill(
-                pose.getX(),
-                pose.getY()));
+        SmartDashboard.putNumber("robotVelocitie X", robotVelocity.getX());
+        SmartDashboard.putNumber("robotVelocitie Y", robotVelocity.getY());
+
+        //predict next state with our velocity measurement
+        // EKF.predict(VecBuilder.fill(robotVelocity.getX(), robotVelocity.getY()), timestamp);
+
+        // //correct our prediction with the odometry update
+        // EKF.correct(
+        //     VecBuilder.fill(robotVelocity.getX(), robotVelocity.getY()),
+        //     VecBuilder.fill(
+        //         pose.getX(),
+        //         pose.getY()));
+
+        // filteredPoses.put(
+        //     new InterpolatingDouble(timestamp),
+        //     new ITranslation2d(EKF.getXhat(0), EKF.getXhat(1)));
     }
 
 
@@ -179,8 +198,15 @@ public class RobotState { //will estimate pose with odometry and correct drift w
         }; //same thing as (x,u) -> u
 
         // TODO these need to be not guessed
-        Matrix<N4, N1> stateStdDevs = VecBuilder.fill(0.05,0.05,0.05,0.05); // obtained from noise when sensor is at rest
-        Matrix<N2, N1> measurementStdDevs = VecBuilder.fill(0.02,0.02); // idk how to find this but ill figure it out 
+        Matrix<N4, N1> stateStdDevs = VecBuilder.fill(
+            Math.pow(0.02, 2), //variance in position x
+            Math.pow(0.02, 2), //variance in position y
+            Math.pow(0.01, 2), //variance in velocity x
+            Math.pow(0.01, 2)); //variance in velocity y
+        
+        Matrix<N2, N1> measurementStdDevs = VecBuilder.fill(    
+            Math.pow(0.02, 2), //variance in measurement x
+            Math.pow(0.02, 2)); //variance in measurement y
 
         EKF = new ExtendedKalmanFilter<>(Nat.N4(), Nat.N2(), Nat.N2(),
         f,
@@ -300,42 +326,7 @@ public class RobotState { //will estimate pose with odometry and correct drift w
             double accelerationY = pigeon.getAccelerationY().getValue() - pigeon.getGravityVectorY().getValue();
             
             double timestamp = pigeon.getAccelerationX().getTimestamp().getTime();
-
+            SmartDashboard.putNumber("current timestamp", timestamp);
             return new double[] {accelerationX, accelerationY, timestamp};
         }
-
-        
-
-
-        // -----------------------------------------------------------
-                // BiFunction<Matrix<N3, N1>, Matrix<N2, N1>, Matrix<N3, N1>> f = (state, input) -> {
-        //     double x = state.get(0, 0);
-        //     double y = state.get(1, 0);
-        //     double velx = state.get(2, 0);
-        //     double vely = state.get(3, 0);
-        
-        //     double accelx = input.get(0, 0);
-        //     double accely = input.get(1, 0);
-
-        //     return VecBuilder.fill(
-        //         x + velx * dt,                // New x position
-        //         y + vely * dt,                // New y position
-        //         vely + accely * dt                // New y velocity
-        //         );
-        // };
-
-        // BiFunction<Matrix<N3, N1>, Matrix<N2, N1>, Matrix<N2, N1>> h = (stateEstimate, state) -> {
-        //     double x = stateEstimate.get(0, 0);
-        //     double y = stateEstimate.get(1, 0);
-        //     double velx = stateEstimate.get(2, 0);
-        //     double vely = stateEstimate.get(3, 0);
-
-        //     return VecBuilder.fill(
-        //         x,         //  x position
-        //         y,         //  y position
-        //         Math.hypot(velx, vely) // velocity magnitude
-        //         );
-        // };
-
-        // --------- if we ever need a more complicated filter, you can implement it with the code above ------ 
  }

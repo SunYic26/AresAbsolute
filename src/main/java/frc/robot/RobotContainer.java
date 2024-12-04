@@ -51,7 +51,7 @@ public class RobotContainer {
           public static final double translationDeadband = 0.1;
           public static final double rotDeadband = 0.1;
 
-      /* Driver Buttons */
+  /* Driver Buttons */
   private final Trigger driverBack = driver.back();
   private final Trigger driverStart = driver.start();
   private final Trigger driverA = driver.a();

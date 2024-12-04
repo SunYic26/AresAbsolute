@@ -4,11 +4,11 @@ import frc.lib.Interpolating.*;
 import edu.wpi.first.math.geometry.Rotation2d;
 
 public class IPose2d implements Interpolable<IPose2d> {
-    private final double x;
-    private final double y;
-    private final Rotation2d rotation;
+    protected final double x;
+    protected final double y;
+    protected final Rotation2d rotation;
 
-     protected static final IPose2d kIdentity = new IPose2d(0.0, 0.0, new Rotation2d());
+    protected static final IPose2d kIdentity = new IPose2d(0.0, 0.0, new Rotation2d());
 
     public static IPose2d identity() {
         return kIdentity;

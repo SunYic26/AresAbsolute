@@ -178,7 +178,6 @@ public class Drivetrain extends SwerveDrivetrain implements Subsystem {
         Pose2d currPose = getPose();
         
         if(robotState != null){
-             robotState.updateAccel();
              robotState.odometryUpdate(m_odometry.getEstimatedPosition(), Timer.getFPGATimestamp());
 
             ITranslation2d currFilteredPose = robotState.getLatestFilteredPose();

@@ -6,11 +6,15 @@ public class AccelerationIntegrator {
     private double velocity = 0.0;
     private double lastTimestamp = 0.0;
 
+    public void initTimeStamp(double timestamp){
+        lastTimestamp = timestamp;
+    }
+
     private double filteredAccel = 0.0;
     private final double alpha = 0.9;  // TODO tune
 
     public double lowPassFilter(double value) {
-        value = alpha * value + (1 - alpha) * filteredAccel;
+        // value = alpha * value + (1 - alpha) * filteredAccel;
         return value;
     }
 
