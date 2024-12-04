@@ -76,21 +76,22 @@ public class DriveControlSystems {
     }
 
     // =======---===[ ⚙ Heading control ]===---========
-    public double headingControl(double driverRX){ //TODO tune high and low PID values
-        if (!pidHeading.atSetpoint()) {
-            double velocity = drivetrain.robotAbsoluteVelocity();
-            updateGains(velocity);
+    // public double headingControl(double driverRX){ //TODO tune high and low PID values
+    //     if (!pidHeading.atSetpoint()) {
+    //         double velocity = drivetrain.robotWheelVelocity();
+    //         updateGains(velocity);
             
-            // driverRX = pidHeading.calculate(robotState.robotYaw(), lastHeading);
-            SmartDashboard.putBoolean("headingON", true);
+    //         // driverRX = pidHeading.calculate(robotState.robotYaw(), lastHeading);
+    //         SmartDashboard.putBoolean("headingON", true);
 
-        } else {
-            SmartDashboard.putBoolean("headingON", false);
-            SmartDashboard.putNumber("lastHeading", lastHeading);
-        }
+    //     } else {
+    //         SmartDashboard.putBoolean("headingON", false);
+    //         SmartDashboard.putNumber("lastHeading", lastHeading);
+    //     }
 
-        return driverRX;
-    }
+    //     return driverRX;
+    // } 
+    // TODO fix this later bruh
 
     public void updateGains(double velocity) {
         double speedRatio = Math.abs(Constants.MaxSpeed/velocity); //velocity is from wheels so could be off

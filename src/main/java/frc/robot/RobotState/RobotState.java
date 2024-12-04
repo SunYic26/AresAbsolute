@@ -146,7 +146,7 @@ public class RobotState { //will estimate pose with odometry and correct drift w
     }
 
     //Dont need velocity values from odom bc our pigeon is more accurate than slipping wheel encoders
-    public synchronized void odometryUpdate(Pose2d pose, double timestamp) {
+    public synchronized void odometryUpdate(Pose2d pose, double[] wheelVelocity, double timestamp) {
         odometryPoses.put(new InterpolatingDouble(timestamp), new IPose2d(pose.getX(),pose.getY(), pose.getRotation()));
 
         updateAccel();
@@ -256,7 +256,14 @@ public class RobotState { //will estimate pose with odometry and correct drift w
             double[] newAccel = rawRobotAcceleration();
             SmartDashboard.putNumber("raw Accel X", newAccel[0]);
             SmartDashboard.putNumber("raw Accel Y", newAccel[1]);
-            robotVelocities.put(new InterpolatingDouble(newAccel[2]), accelIntegrator.update(newAccel[0], newAccel[1], newAccel[2]));
+            robotVelocities.put(new InterpolatingDouble(newAccel[2]), accelIntegrator.update(newAccel));
+        }
+
+        public void updateAccel(double[] wheelVelocity) {
+            double[] newAccel = rawRobotAcceleration();
+            SmartDashboard.putNumber("raw Accel X", newAccel[0]);
+            SmartDashboard.putNumber("raw Accel Y", newAccel[1]);
+            robotVelocities.put(new InterpolatingDouble(newAccel[2]), accelIntegrator.update(newAccel, wheelVelocity));
         }
 
         // =======---===[ ⚙ Tree map helpers ]===---========

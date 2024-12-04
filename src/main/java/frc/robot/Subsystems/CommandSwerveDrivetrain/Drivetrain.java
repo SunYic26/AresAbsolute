@@ -25,6 +25,8 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.interpolation.Interpolator;
+import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.units.Velocity;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.RobotController;
@@ -145,12 +147,34 @@ public class Drivetrain extends SwerveDrivetrain implements Subsystem {
     public double getHeading() {
         return getPose().getRotation().getRadians();
     }
-    public double robotAbsoluteVelocity(){
-        double roughVel = 0.0;
+
+    /**
+     * Returns the current x and y velocities from the wheel encoders
+     * 
+     * @return double[] {VelocityX, VelocityY}
+     * 
+     */
+    public double[] getWheelVelocities(){
+        double roughVel[] = { 0.0, 0.0 }; // x and y
         for(int i = 0; i < ModuleCount; i++){
-            roughVel += Modules[i].getCurrentState().speedMetersPerSecond;
+            SwerveModuleState module = Modules[i].getCurrentState();
+
+            roughVel[0] += module.speedMetersPerSecond * module.angle.getCos();
+            roughVel[1] += module.speedMetersPerSecond * module.angle.getSin();
         }
-        return roughVel/4.0;
+        
+        roughVel[0] /= 4;
+        roughVel[1] /= 4;
+
+        return roughVel;
+    }
+
+    public double getAbsoluteWheelVelocity(){
+        double velocity = 0;
+        for(int i = 0; i < ModuleCount; i++){
+            velocity += Modules[i].getCurrentState().speedMetersPerSecond;
+        }
+        return velocity/4;
     }
 
     public void updateOdometryByVision(Pose3d estimatedPose){
@@ -172,12 +196,7 @@ public class Drivetrain extends SwerveDrivetrain implements Subsystem {
         autoStartPose = pose;
     }
 
-    public double getWheelVelocity(){
-        return (Modules[0].getDriveMotor().getVelocity().getValueAsDouble() + 
-        Modules[1].getDriveMotor().getVelocity().getValueAsDouble() +
-        Modules[2].getDriveMotor().getVelocity().getValueAsDouble() +
-        Modules[3].getDriveMotor().getVelocity().getValueAsDouble())/4;
-    }
+
 
     @Override
     public void periodic() {
@@ -185,7 +204,7 @@ public class Drivetrain extends SwerveDrivetrain implements Subsystem {
         Pose2d currPose = getPose();
         
         if(robotState != null){
-             robotState.odometryUpdate(m_odometry.getEstimatedPosition(), Timer.getFPGATimestamp());
+             robotState.odometryUpdate(m_odometry.getEstimatedPosition(), getWheelVelocities(), Timer.getFPGATimestamp());
 
             ITranslation2d currFilteredPose = robotState.getLatestFilteredPose();
 
