@@ -21,7 +21,7 @@ public class AccelerationIntegrator {
         lastTimestamp = timestamp;
     }
 
-    private final double alpha_1 = 0.50;  // TODO tune
+    private final double alpha_1 = 0.80;  // TODO tune
 
     public void lowPassFilter(double[] update) {
         update[0] = alpha_1 * update[0] + (1-alpha_1) * prevAccel[0];
@@ -38,9 +38,6 @@ public class AccelerationIntegrator {
     // Trapezoidal integration for velocity estimation (LIKE A BOSS)
     private void integrateAccel(double xAccel, double yAccel, double currentTime) {
         // if(lastTimestamp == -1) lastTimestamp = currentTime;
-
-        if(Math.abs(xAccel) < 0.001) xAccel = 0;
-        if(Math.abs(yAccel) < 0.001) yAccel = 0;
 
         double dt = currentTime - lastTimestamp;
         xVelocity += 0.5 * (xAccel + prevXAccel) * dt;
@@ -78,7 +75,7 @@ public class AccelerationIntegrator {
 
         complimentaryFilter(accel, wheelVelocity);
 
-        if(s_Swerve.getAbsoluteWheelVelocity() < 0.001){ //tune this threshold as needed
+        if(Math.abs(s_Swerve.getAbsoluteWheelVelocity()) < 0.00001){ //tune this threshold as needed
             xVelocity = 0;
             yVelocity = 0;
         } 

@@ -32,9 +32,6 @@ public class VisionOutput extends EstimatedRobotPose {
     static private double sumSquareDiffArea = 0.0;
     static private double sumSquareDiffAmbiguity = 0.0;
 
-    // public void updateStatistics() {
-    // }
-
     public double getStandardDeviation() {
         //TODO i want to do more here
         for (PhotonTrackedTarget photonTrackedTarget : this.targetsUsed) {
