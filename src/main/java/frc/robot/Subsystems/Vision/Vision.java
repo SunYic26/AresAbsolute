@@ -169,6 +169,8 @@ public class Vision extends SubsystemBase {
                 cameraResult.getBestTarget().getBestCameraToTarget(), targetPose, cameraToRobotTransform);
                 robotState.visionUpdate(new VisionOutput(newPose, cameraResult.getTimestampSeconds(),
                 cameraResult.getBestTarget(), PoseStrategy.CLOSEST_TO_LAST_POSE));
+                
+                
 
         } 
 

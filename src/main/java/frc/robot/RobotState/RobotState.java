@@ -153,9 +153,8 @@ public class RobotState { //will estimate pose with odometry and correct drift w
 
         ITwist2d robotVelocity = getLatestRobotVelocity();
 
-        SmartDashboard.putNumber("robotVelocitie X", robotVelocity.getX());
-        SmartDashboard.putNumber("robotVelocitie Y", robotVelocity.getY());
-        SmartDashboard.putNumber("robotVelocitie MAG", Math.hypot(robotVelocity.getY(), robotVelocity.getX()));
+        SmartDashboard.putNumber("robotVelocity X", robotVelocity.getX());
+        SmartDashboard.putNumber("robotVelocity Y", robotVelocity.getY());
         //predict next state with our velocity measurement
         EKF.predict(VecBuilder.fill(robotVelocity.getX(), robotVelocity.getY()), timestamp);
 
@@ -166,9 +165,13 @@ public class RobotState { //will estimate pose with odometry and correct drift w
                 pose.getX(),
                 pose.getY()));
 
-        filteredPoses.put(
-            new InterpolatingDouble(timestamp),
-            new ITranslation2d(EKF.getXhat(0), EKF.getXhat(1)));
+        // filteredPoses.put(
+        //     new InterpolatingDouble(timestamp),
+        //     new ITranslation2d(EKF.getXhat(0), EKF.getXhat(1)));
+
+            SmartDashboard.putNumber("FILT X", EKF.getXhat(0));
+            SmartDashboard.putNumber("FILT Y", EKF.getXhat(1));
+            SmartDashboard.putNumber("COVARIANCE", EKF.getP(0,0));
     }
 
 
@@ -198,18 +201,36 @@ public class RobotState { //will estimate pose with odometry and correct drift w
                 x,                // New x position
                 y                // New y position
                 );
-        }; //same thing as (x,u) -> u
+            }; //same thing as (x,u) -> u
+
+
+                // Define your variances and add a small regularization value
+            double regularization = 1e-6; // Small value to ensure stability
+
+            Matrix<N4, N1> stateStdDevs = VecBuilder.fill(
+            Math.pow(0.4, 2) + regularization, // Variance in position x
+            Math.pow(0.4, 2) + regularization, // Variance in position y
+            Math.pow(0.25, 2) + regularization, // Variance in velocity x
+            Math.pow(0.25, 2) + regularization  // Variance in velocity y
+            );
+
+            Matrix<N2, N1> measurementStdDevs = VecBuilder.fill(
+            Math.pow(0.15, 2) + regularization, // Variance in measurement x
+            Math.pow(0.15, 2) + regularization  // Variance in measurement y
+            );
+
 
         // TODO these need to be not guessed
-        Matrix<N4, N1> stateStdDevs = VecBuilder.fill(
-            Math.pow(0.1, 2), //variance in position x
-            Math.pow(0.1, 2), //variance in position y
-            Math.pow(0.05, 2), //variance in velocity x
-            Math.pow(0.05, 2)); //variance in velocity y
+        // Matrix<N4, N1> stateStdDevs = VecBuilder.fill(
+        //     Math.pow(0.3, 2), //variance in position x
+        //     Math.pow(0.3, 2), //variance in position y
+        //     Math.pow(0.2, 2), //variance in velocity x
+        //     Math.pow(0.2, 2)); //variance in velocity y
+            
         
-        Matrix<N2, N1> measurementStdDevs = VecBuilder.fill(    
-            Math.pow(0.05, 2), //variance in measurement x
-            Math.pow(0.05, 2)); //variance in measurement y
+        // Matrix<N2, N1> measurementStdDevs = VecBuilder.fill(    
+        //     Math.pow(0.1, 2), //variance in measurement x
+        //     Math.pow(0.1, 2)); //variance in measurement y
 
         EKF = new ExtendedKalmanFilter<>(Nat.N4(), Nat.N2(), Nat.N2(),
         f,

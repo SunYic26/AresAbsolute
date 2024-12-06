@@ -206,11 +206,10 @@ public class Drivetrain extends SwerveDrivetrain implements Subsystem {
         if(robotState != null){
              robotState.odometryUpdate(m_odometry.getEstimatedPosition(), getWheelVelocities(), Timer.getFPGATimestamp());
 
-            ITranslation2d currFilteredPose = robotState.getLatestFilteredPose();
+            // ITranslation2d currFilteredPose = robotState.getLatestFilteredPose();
 
-            SmartDashboard.putNumber("FILT X", currFilteredPose.getX());
-            SmartDashboard.putNumber("FILT Y", currFilteredPose.getY());
-            SmartDashboard.putNumber("FILT MAG", Math.hypot(currFilteredPose.getX(), currFilteredPose.getY()));
+            // SmartDashboard.putNumber("FILT X", currFilteredPose.getX());
+            // SmartDashboard.putNumber("FILT Y", currFilteredPose.getY());
         }else{
             robotState = RobotState.getInstance();
         }
