@@ -49,6 +49,8 @@ import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
 import frc.robot.Constants;
 import frc.robot.Subsystems.Vision.Vision;
+
+import org.ejml.equation.MatrixConstructor;
 import org.opencv.video.KalmanFilter;
 
 import com.ctre.phoenix6.Timestamp;
@@ -83,7 +85,7 @@ public class RobotState { //will estimate pose with odometry and correct drift w
 	private InterpolatingTreeMap<InterpolatingDouble, ITranslation2d> filteredPoses;
     private InterpolatingTreeMap<InterpolatingDouble, ITwist2d> robotVelocities;
 
-    private ExtendedKalmanFilter<N4, N2, N2> EKF;
+    private ExtendedKalmanFilter<N2, N2, N2> EKF;
 
     private static final double dt = 0.020;
     private static final int observationSize = 50; //how many poses we keep our tree
@@ -171,29 +173,43 @@ public class RobotState { //will estimate pose with odometry and correct drift w
 
             SmartDashboard.putNumber("FILT X", EKF.getXhat(0));
             SmartDashboard.putNumber("FILT Y", EKF.getXhat(1));
-            SmartDashboard.putNumber("COVARIANCE", EKF.getP(0,0));
     }
 
 
     public void initKalman() {
         double dt = 0.020;
 
-        BiFunction<Matrix<N4, N1>, Matrix<N2, N1>, Matrix<N4, N1>> f = (state, input) -> {
+        BiFunction<Matrix<N2, N1>, Matrix<N2, N1>, Matrix<N2, N1>> f = (state, input) -> {
             double x = state.get(0, 0);
             double y = state.get(1, 0);
             double velx = input.get(0, 0);
             double vely = input.get(1, 0);
+            
+            // Implementing Runge-Kutta method for integration
+            double k1x = velx * dt;
+            double k1y = vely * dt;
+
+            double k2x = velx * (dt / 2);
+            double k2y = vely * (dt / 2);
+
+            double k3x = velx * (dt / 2);
+            double k3y = vely * (dt / 2);
+
+            double k4x = velx * dt;
+            double k4y = vely * dt;
+
+            double newX = x + (k1x + 2 * k2x + 2 * k3x + k4x) / 6;
+            double newY = y + (k1y + 2 * k2y + 2 * k3y + k4y) / 6;
+
 
             return VecBuilder.fill(
-                x + (velx * dt),                // New x position
-                y + (vely * dt),                // New y position
-                velx,
-                vely 
+                newX,                // New x position
+                newY                // New y position
                 );
         };
 
 
-        BiFunction<Matrix<N4, N1>, Matrix<N2, N1>, Matrix<N2, N1>> h = (state, input) -> {
+        BiFunction<Matrix<N2, N1>, Matrix<N2, N1>, Matrix<N2, N1>> h = (state, input) -> {
             double x = state.get(0, 0);
             double y = state.get(1, 0);
 
@@ -201,38 +217,29 @@ public class RobotState { //will estimate pose with odometry and correct drift w
                 x,                // New x position
                 y                // New y position
                 );
-            }; //same thing as (x,u) -> u
+            };
 
 
-                // Define your variances and add a small regularization value
             double regularization = 1e-6; // Small value to ensure stability
 
-            Matrix<N4, N1> stateStdDevs = VecBuilder.fill(
-            Math.pow(0.4, 2) + regularization, // Variance in position x
-            Math.pow(0.4, 2) + regularization, // Variance in position y
-            Math.pow(0.25, 2) + regularization, // Variance in velocity x
-            Math.pow(0.25, 2) + regularization  // Variance in velocity y
+            Matrix<N2, N1> stateStdDevs = VecBuilder.fill(
+            Math.pow(0.2, 2) + regularization, // Variance in position x
+            Math.pow(0.2, 2) + regularization // Variance in position y
             );
 
             Matrix<N2, N1> measurementStdDevs = VecBuilder.fill(
-            Math.pow(0.15, 2) + regularization, // Variance in measurement x
-            Math.pow(0.15, 2) + regularization  // Variance in measurement y
+            Math.pow(0.1, 2) + regularization, // Variance in measurement x
+            Math.pow(0.1, 2) + regularization  // Variance in measurement y
             );
 
+            // Set initial state and covariance
+            Matrix<N2, N2> initialCovariance = MatBuilder.fill(Nat.N2(), Nat.N2(),
+                0.1, 0.0,
+                0.0, 0.1
+            );
+            EKF.setP(initialCovariance);
 
-        // TODO these need to be not guessed
-        // Matrix<N4, N1> stateStdDevs = VecBuilder.fill(
-        //     Math.pow(0.3, 2), //variance in position x
-        //     Math.pow(0.3, 2), //variance in position y
-        //     Math.pow(0.2, 2), //variance in velocity x
-        //     Math.pow(0.2, 2)); //variance in velocity y
-            
-        
-        // Matrix<N2, N1> measurementStdDevs = VecBuilder.fill(    
-        //     Math.pow(0.1, 2), //variance in measurement x
-        //     Math.pow(0.1, 2)); //variance in measurement y
-
-        EKF = new ExtendedKalmanFilter<>(Nat.N4(), Nat.N2(), Nat.N2(),
+        EKF = new ExtendedKalmanFilter<>(Nat.N2(), Nat.N2(), Nat.N2(),
         f,
         h,
         stateStdDevs,
