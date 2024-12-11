@@ -21,9 +21,8 @@ import edu.wpi.first.math.Nat;
 import edu.wpi.first.math.StateSpaceUtil;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.Vector;
-import edu.wpi.first.math.estimator.ExtendedKalmanFilter;
-import edu.wpi.first.math.estimator.PoseEstimator;
 import edu.wpi.first.math.estimator.UnscentedKalmanFilter;
+import edu.wpi.first.math.estimator.PoseEstimator;
 import frc.lib.Interpolating.Geometry.IPose2d;
 import frc.lib.Interpolating.Geometry.ITranslation2d;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -63,8 +62,6 @@ import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N2;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.numbers.N4;
-import edu.wpi.first.math.estimator.ExtendedKalmanFilter;
-
 
 public class RobotState { //will estimate pose with odometry and correct drift with vision
     private static RobotState instance;
@@ -85,7 +82,7 @@ public class RobotState { //will estimate pose with odometry and correct drift w
 	private InterpolatingTreeMap<InterpolatingDouble, ITranslation2d> filteredPoses;
     private InterpolatingTreeMap<InterpolatingDouble, ITwist2d> robotVelocities;
 
-    private ExtendedKalmanFilter<N2, N2, N2> EKF;
+    private UnscentedKalmanFilter<N2, N2, N2> UKF;
 
     private static final double dt = 0.020;
     private static final int observationSize = 50; //how many poses we keep our tree
@@ -114,8 +111,8 @@ public class RobotState { //will estimate pose with odometry and correct drift w
             filteredPoses.put(new InterpolatingDouble(timestamp),  mergedPose);
             
             //update kalman
-            EKF.setXhat(0, mergedPose.getX());
-            EKF.setXhat(1, mergedPose.getY());
+            UKF.setXhat(0, mergedPose.getX());
+            UKF.setXhat(1, mergedPose.getY());
             
             //set our initial pose from first update
             initialFieldToOdo = Optional.of(filteredPoses.lastEntry().getValue());
@@ -131,19 +128,19 @@ public class RobotState { //will estimate pose with odometry and correct drift w
 
             ITwist2d robotVelocity = getInterpolatedValue(robotVelocities, timestamp, ITwist2d.identity());
 
-            // EKF.predict(VecBuilder.fill(robotVelocity.getX(), robotVelocity.getY()), timestamp);
+            UKF.predict(VecBuilder.fill(robotVelocity.getX(), robotVelocity.getY()), timestamp);
 
-            // //calculate std of vision estimate for EKF
-            // Vector<N2> stdevs = VecBuilder.fill(Math.pow(updatePose.getStandardDeviation(), 1), Math.pow(updatePose.getStandardDeviation(), 1));
-			// 		EKF.correct(
-			// 				VecBuilder.fill(robotVelocity.getX(), robotVelocity.getY()),
-			// 				VecBuilder.fill(
-			// 						updatePose.estimatedPose.getX(),
-			// 						updatePose.estimatedPose.getY()),
-			// 				StateSpaceUtil.makeCovarianceMatrix(Nat.N2(), stdevs));
-			// 		filteredPoses.put(
-			// 				new InterpolatingDouble(timestamp),
-			// 				new ITranslation2d(EKF.getXhat(0), EKF.getXhat(1)));
+            //calculate std of vision estimate for EKF
+            Vector<N2> stdevs = VecBuilder.fill(Math.pow(updatePose.getStandardDeviation(), 1), Math.pow(updatePose.getStandardDeviation(), 1));
+					UKF.correct(
+							VecBuilder.fill(robotVelocity.getX(), robotVelocity.getY()),
+							VecBuilder.fill(
+									updatePose.estimatedPose.getX(),
+									updatePose.estimatedPose.getY()),
+							StateSpaceUtil.makeCovarianceMatrix(Nat.N2(), stdevs));
+					filteredPoses.put(
+							new InterpolatingDouble(timestamp),
+							new ITranslation2d(UKF.getXhat(0), UKF.getXhat(1)));
         }
     }
 
@@ -158,10 +155,10 @@ public class RobotState { //will estimate pose with odometry and correct drift w
         SmartDashboard.putNumber("robotVelocity X", robotVelocity.getX());
         SmartDashboard.putNumber("robotVelocity Y", robotVelocity.getY());
         //predict next state with our velocity measurement
-        EKF.predict(VecBuilder.fill(robotVelocity.getX(), robotVelocity.getY()), timestamp);
+        UKF.predict(VecBuilder.fill(robotVelocity.getX(), robotVelocity.getY()), timestamp);
 
         //correct our prediction with the odometry update
-        EKF.correct(
+        UKF.correct(
             VecBuilder.fill(robotVelocity.getX(), robotVelocity.getY()),
             VecBuilder.fill(
                 pose.getX(),
@@ -171,8 +168,8 @@ public class RobotState { //will estimate pose with odometry and correct drift w
         //     new InterpolatingDouble(timestamp),
         //     new ITranslation2d(EKF.getXhat(0), EKF.getXhat(1)));
 
-            SmartDashboard.putNumber("FILT X", EKF.getXhat(0));
-            SmartDashboard.putNumber("FILT Y", EKF.getXhat(1));
+            SmartDashboard.putNumber("FILT X", UKF.getXhat(0));
+            SmartDashboard.putNumber("FILT Y", UKF.getXhat(1));
     }
 
 
@@ -237,9 +234,9 @@ public class RobotState { //will estimate pose with odometry and correct drift w
                 0.1, 0.0,
                 0.0, 0.1
             );
-            EKF.setP(initialCovariance);
+            UKF.setP(initialCovariance);
 
-        EKF = new ExtendedKalmanFilter<>(Nat.N2(), Nat.N2(), Nat.N2(),
+        UKF = new UnscentedKalmanFilter<>(Nat.N2(), Nat.N2(),
         f,
         h,
         stateStdDevs,
@@ -271,8 +268,8 @@ public class RobotState { //will estimate pose with odometry and correct drift w
             robotVelocities = new InterpolatingTreeMap<>(observationSize);
             robotVelocities.put(new InterpolatingDouble(time), initial_Twist2d);
             prevVisionPose = Optional.empty();
-            EKF.setXhat(0, initial_Pose2d.getX());
-            EKF.setXhat(1, initial_Pose2d.getY());
+            UKF.setXhat(0, initial_Pose2d.getX());
+            UKF.setXhat(1, initial_Pose2d.getY());
         }
 
 
