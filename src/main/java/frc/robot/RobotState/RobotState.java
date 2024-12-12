@@ -7,6 +7,8 @@ import java.util.TreeMap;
 import java.util.function.BiFunction;
 import java.util.function.Supplier;
 
+import javax.swing.text.html.Option;
+
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.interpolation.*;
@@ -30,6 +32,7 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.geometry.Twist2d;
 import frc.lib.Interpolating.Geometry.ITwist2d;
 import frc.lib.AccelerationIntegrator;
 import frc.lib.VisionOutput;
@@ -89,7 +92,7 @@ public class RobotState { //will estimate pose with odometry and correct drift w
 
 	private Optional<ITranslation2d> initialFieldToOdo = Optional.empty();
     private Optional<EstimatedRobotPose> prevVisionPose;
-    private Optional<Double> prevOdomTimestamp;
+    private Optional<Double> prevOdomTimestamp = Optional.empty();
 
 	private boolean inAuto = false; //need to configure with auto but we dont have an auto yet (lol)
 
@@ -97,7 +100,7 @@ public class RobotState { //will estimate pose with odometry and correct drift w
         drivetrain = Drivetrain.getInstance();
         pigeon = drivetrain.getPigeon2();
         initKalman();
-        reset(0, IPose2d.identity(), ITwist2d.identity()); //init
+        reset(0.02, IPose2d.identity(), ITwist2d.identity()); //init
     }
 
     public synchronized void visionUpdate(VisionOutput updatePose) {
@@ -130,7 +133,7 @@ public class RobotState { //will estimate pose with odometry and correct drift w
 
             UKF.predict(VecBuilder.fill(robotVelocity.getX(), robotVelocity.getY()), timestamp);
 
-            //calculate std of vision estimate for EKF
+            //calculate std of vision estimate for UKF
             Vector<N2> stdevs = VecBuilder.fill(Math.pow(updatePose.getStandardDeviation(), 1), Math.pow(updatePose.getStandardDeviation(), 1));
 					UKF.correct(
 							VecBuilder.fill(robotVelocity.getX(), robotVelocity.getY()),
@@ -144,104 +147,75 @@ public class RobotState { //will estimate pose with odometry and correct drift w
         }
     }
 
+    int k = 0;
+
     //Dont need velocity values from odom bc our pigeon is more accurate than slipping wheel encoders
     public synchronized void odometryUpdate(Pose2d pose, double[] wheelVelocity, double timestamp) {
-        odometryPoses.put(new InterpolatingDouble(timestamp), new IPose2d(pose.getX(),pose.getY(), pose.getRotation()));
 
         updateAccel(wheelVelocity);
-
         ITwist2d robotVelocity = getLatestRobotVelocity();
 
-        SmartDashboard.putNumber("robotVelocity X", robotVelocity.getX());
-        SmartDashboard.putNumber("robotVelocity Y", robotVelocity.getY());
-        //predict next state with our velocity measurement
-        UKF.predict(VecBuilder.fill(robotVelocity.getX(), robotVelocity.getY()), timestamp);
+        if(Math.abs(robotVelocityMagnitude()) > 0) { //manually increase P
+             Matrix<N2,N2> P = UKF.getP();
+             P.set(0, 0, P.get(0, 0) + 0.002);
+             P.set(1, 1, P.get(1, 1) + 0.002);
+             UKF.setP(P);
+        }
 
-        //correct our prediction with the odometry update
-        UKF.correct(
-            VecBuilder.fill(robotVelocity.getX(), robotVelocity.getY()),
-            VecBuilder.fill(
-                pose.getX(),
-                pose.getY()));
+        if(prevOdomTimestamp.isEmpty()) {
+            Matrix<N2, N1> initialState = VecBuilder.fill(pose.getX(), pose.getY());
+            UKF.setXhat(initialState);
+        } else {
+            // robotVelocity = getInterpolatedValue(robotVelocities, prevOdomTimestamp.get(), ITwist2d.identity());
 
-        // filteredPoses.put(
-        //     new InterpolatingDouble(timestamp),
-        //     new ITranslation2d(EKF.getXhat(0), EKF.getXhat(1)));
+            UKF.predict(VecBuilder.fill(robotVelocity.getX(), robotVelocity.getY()), timestamp);
 
-            SmartDashboard.putNumber("FILT X", UKF.getXhat(0));
-            SmartDashboard.putNumber("FILT Y", UKF.getXhat(1));
+            UKF.correct(
+                VecBuilder.fill(
+                    robotVelocity.getX(),
+                    robotVelocity.getY()),
+                VecBuilder.fill(
+                    pose.getX(),
+                    pose.getY()));
+        }
+
+        odometryPoses.put(new InterpolatingDouble(timestamp), new IPose2d(pose.getX(),pose.getY(), pose.getRotation()));
+
+        prevOdomTimestamp.equals(timestamp);
+
+        System.out.println("P " + UKF.getP().toString());
+
+        SmartDashboard.putNumber("FILT X", UKF.getXhat(0));
+        SmartDashboard.putNumber("FILT Y", UKF.getXhat(1));
     }
 
 
     public void initKalman() {
-        double dt = 0.020;
 
-        BiFunction<Matrix<N2, N1>, Matrix<N2, N1>, Matrix<N2, N1>> f = (state, input) -> {
-            double x = state.get(0, 0);
-            double y = state.get(1, 0);
-            double velx = input.get(0, 0);
-            double vely = input.get(1, 0);
-            
-            // Implementing Runge-Kutta method for integration
-            double k1x = velx * dt;
-            double k1y = vely * dt;
+        Matrix<N2, N1> stateStdDevsQ = VecBuilder.fill(
+            Math.pow(0.0, 1), // Variance in position x
+            Math.pow(0.0, 1)  // Variance in position y
+        );
 
-            double k2x = velx * (dt / 2);
-            double k2y = vely * (dt / 2);
-
-            double k3x = velx * (dt / 2);
-            double k3y = vely * (dt / 2);
-
-            double k4x = velx * dt;
-            double k4y = vely * dt;
-
-            double newX = x + (k1x + 2 * k2x + 2 * k3x + k4x) / 6;
-            double newY = y + (k1y + 2 * k2y + 2 * k3y + k4y) / 6;
-
-
-            return VecBuilder.fill(
-                newX,                // New x position
-                newY                // New y position
-                );
-        };
-
-
-        BiFunction<Matrix<N2, N1>, Matrix<N2, N1>, Matrix<N2, N1>> h = (state, input) -> {
-            double x = state.get(0, 0);
-            double y = state.get(1, 0);
-
-            return VecBuilder.fill(
-                x,                // New x position
-                y                // New y position
-                );
-            };
-
-
-            double regularization = 1e-6; // Small value to ensure stability
-
-            Matrix<N2, N1> stateStdDevs = VecBuilder.fill(
-            Math.pow(0.2, 2) + regularization, // Variance in position x
-            Math.pow(0.2, 2) + regularization // Variance in position y
-            );
-
-            Matrix<N2, N1> measurementStdDevs = VecBuilder.fill(
-            Math.pow(0.1, 2) + regularization, // Variance in measurement x
-            Math.pow(0.1, 2) + regularization  // Variance in measurement y
-            );
-
-            // Set initial state and covariance
-            Matrix<N2, N2> initialCovariance = MatBuilder.fill(Nat.N2(), Nat.N2(),
-                0.1, 0.0,
-                0.0, 0.1
-            );
-            UKF.setP(initialCovariance);
+        Matrix<N2, N1> measurementStdDevsR = VecBuilder.fill(
+            Math.pow(0.003, 1), // Variance in measurement x
+            Math.pow(0.003, 1)   // Variance in measurement y
+        );
 
         UKF = new UnscentedKalmanFilter<>(Nat.N2(), Nat.N2(),
-        f,
-        h,
-        stateStdDevs,
-        measurementStdDevs,
+        (x,u) -> u,
+        (x,u) -> x,
+        stateStdDevsQ,
+        measurementStdDevsR,
         dt);
+
+        // Set initial state and covariance
+        Matrix<N2, N2> initialCovariance = MatBuilder.fill(Nat.N2(), Nat.N2(),
+            0.003, 0.0,
+            0.0, 0.003
+        );
+
+        UKF.setP(initialCovariance); 
 
         // states - A Nat representing the number of states.
         // outputs - A Nat representing the number of outputs.
@@ -268,8 +242,6 @@ public class RobotState { //will estimate pose with odometry and correct drift w
             robotVelocities = new InterpolatingTreeMap<>(observationSize);
             robotVelocities.put(new InterpolatingDouble(time), initial_Twist2d);
             prevVisionPose = Optional.empty();
-            UKF.setXhat(0, initial_Pose2d.getX());
-            UKF.setXhat(1, initial_Pose2d.getY());
         }
 
 
