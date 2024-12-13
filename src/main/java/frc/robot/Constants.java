@@ -25,7 +25,7 @@ import org.opencv.core.Point;
  */
 public final class Constants {
 
-    public static double MaxSpeed = 10; //can be lowered during testing
+    public static double MaxSpeed = 9; //can be lowered during testing
     public static double MaxAngularRate = 3 * Math.PI; // 3/4 of a rotation per second max angular velocity
     
     public static final int timeOutMs = 10;

@@ -53,6 +53,7 @@ import frc.robot.Constants;
 import frc.robot.Subsystems.Vision.Vision;
 
 import org.ejml.equation.MatrixConstructor;
+import org.littletonrobotics.junction.Logger;
 import org.opencv.video.KalmanFilter;
 
 import com.ctre.phoenix6.Timestamp;
@@ -91,7 +92,6 @@ public class RobotState { //will estimate pose with odometry and correct drift w
     private static final int observationSize = 50; //how many poses we keep our tree
 
 	private Optional<ITranslation2d> initialFieldToOdo = Optional.empty();
-    private Optional<EstimatedRobotPose> prevVisionPose;
     private Optional<Double> prevOdomTimestamp = Optional.empty();
 
 	private boolean inAuto = false; //need to configure with auto but we dont have an auto yet (lol)
@@ -104,32 +104,25 @@ public class RobotState { //will estimate pose with odometry and correct drift w
     }
 
     public synchronized void visionUpdate(VisionOutput updatePose) {
-        if (prevVisionPose.isEmpty() || initialFieldToOdo.isEmpty()) { //first update
+        if (prevOdomTimestamp.isEmpty()) { // if somehow our vision updates before odometry
             double timestamp = updatePose.timestampSeconds;
 
             //merge odom and vision for first run
-            ITranslation2d visionTranslation = updatePose.getInterpolatableTransform2d();
-            ITranslation2d proximateOdoTranslation = new ITranslation2d(odometryPoses.getInterpolated(new InterpolatingDouble(timestamp)));
-            ITranslation2d mergedPose = visionTranslation.weightedAverageBy(proximateOdoTranslation, 0.70); //trust vision more, should tune
-            filteredPoses.put(new InterpolatingDouble(timestamp),  mergedPose);
+            // ITranslation2d visionTranslation = updatePose.getInterpolatableTransform2d();
+            // ITranslation2d proximateOdoTranslation = new ITranslation2d(odometryPoses.getInterpolated(new InterpolatingDouble(timestamp)));
+            // ITranslation2d mergedPose = visionTranslation.weightedAverageBy(proximateOdoTranslation, 0.70); //trust vision more, should tune
+            // filteredPoses.put(new InterpolatingDouble(timestamp),  mergedPose);
             
             //update kalman
-            UKF.setXhat(0, mergedPose.getX());
-            UKF.setXhat(1, mergedPose.getY());
-            
+            // UKF
             //set our initial pose from first update
-            initialFieldToOdo = Optional.of(filteredPoses.lastEntry().getValue());
-            prevVisionPose = Optional.ofNullable(updatePose); 
+            // initialFieldToOdo = Optional.of(filteredPoses.lastEntry().getValue());
 
         } else { //after first update
 
             double timestamp = updatePose.timestampSeconds;
 
-            prevVisionPose = Optional.ofNullable(updatePose);
-
-            updateAccel();
-
-            ITwist2d robotVelocity = getInterpolatedValue(robotVelocities, timestamp, ITwist2d.identity());
+            ITwist2d robotVelocity = getInterpolatedValue(robotVelocities, prevOdomTimestamp.get(), ITwist2d.identity());
 
             UKF.predict(VecBuilder.fill(robotVelocity.getX(), robotVelocity.getY()), timestamp);
 
@@ -147,28 +140,40 @@ public class RobotState { //will estimate pose with odometry and correct drift w
         }
     }
 
-    int k = 0;
 
     //Dont need velocity values from odom bc our pigeon is more accurate than slipping wheel encoders
     public synchronized void odometryUpdate(Pose2d pose, double[] wheelVelocity, double timestamp) {
 
         updateAccel(wheelVelocity);
+
         ITwist2d robotVelocity = getLatestRobotVelocity();
 
-        if(Math.abs(robotVelocityMagnitude()) > 0) { //manually increase P
+        double robotVelocityMagnitude = Math.abs(robotVelocityMagnitude());
+
+        if(robotVelocityMagnitude > 0) { //manually increase P
              Matrix<N2,N2> P = UKF.getP();
-             P.set(0, 0, P.get(0, 0) + 0.002);
-             P.set(1, 1, P.get(1, 1) + 0.002);
+
+             double minimumFactor = 0.0003; // Base noise
+             double motionFactor = 0.0009 * robotVelocityMagnitude / Constants.MaxSpeed;
+
+             P.set(0, 0, P.get(0, 0) + minimumFactor + motionFactor);
+             P.set(1, 1, P.get(1, 1) + minimumFactor + motionFactor);
              UKF.setP(P);
         }
 
         if(prevOdomTimestamp.isEmpty()) {
+            // First time initialization of state
             Matrix<N2, N1> initialState = VecBuilder.fill(pose.getX(), pose.getY());
             UKF.setXhat(initialState);
         } else {
-            // robotVelocity = getInterpolatedValue(robotVelocities, prevOdomTimestamp.get(), ITwist2d.identity());
 
+            Logger.recordOutput("P", UKF.getP().toString());
+            Logger.recordOutput("X-HAT", UKF.getXhat().toString());
+            
             UKF.predict(VecBuilder.fill(robotVelocity.getX(), robotVelocity.getY()), timestamp);
+
+            //gets previous measurment
+            robotVelocity = getInterpolatedValue(robotVelocities, prevOdomTimestamp.get(), ITwist2d.identity());
 
             UKF.correct(
                 VecBuilder.fill(
@@ -198,8 +203,8 @@ public class RobotState { //will estimate pose with odometry and correct drift w
         );
 
         Matrix<N2, N1> measurementStdDevsR = VecBuilder.fill(
-            Math.pow(0.003, 1), // Variance in measurement x
-            Math.pow(0.003, 1)   // Variance in measurement y
+            Math.pow(0.001, 1), // Variance in measurement x
+            Math.pow(0.001, 1)   // Variance in measurement y
         );
 
         UKF = new UnscentedKalmanFilter<>(Nat.N2(), Nat.N2(),
@@ -241,7 +246,6 @@ public class RobotState { //will estimate pose with odometry and correct drift w
             filteredPoses.put(new InterpolatingDouble(time), getInitialFieldToOdom());
             robotVelocities = new InterpolatingTreeMap<>(observationSize);
             robotVelocities.put(new InterpolatingDouble(time), initial_Twist2d);
-            prevVisionPose = Optional.empty();
         }
 
 

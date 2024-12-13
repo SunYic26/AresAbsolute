@@ -217,8 +217,8 @@ public class Drivetrain extends SwerveDrivetrain implements Subsystem {
 
         //allows driver to see if resetting worked
         // SmartDashboard.putBoolean("Odo Reset (last 5 sec)", lastTimeReset != -1 && Timer.getFPGATimestamp() - lastTimeReset < 5);
-        SmartDashboard.putNumber("ODO X", currPose.getX());
-        SmartDashboard.putNumber("ODO Y", currPose.getY());
+        Logger.recordOutput("ODO X", currPose.getX());
+        Logger.recordOutput("ODO Y", currPose.getY());
         // SmartDashboard.putNumber("EKF X", currFilteredPose.getX());
         // SmartDashboard.putNumber("EKF Y", currFilteredPose.getY());
         // SmartDashboard.putNumber("ODO ROT", currPose.getRotation().getRadians());
