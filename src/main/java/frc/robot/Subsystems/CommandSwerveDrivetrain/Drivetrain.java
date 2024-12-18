@@ -20,6 +20,8 @@ import com.ctre.phoenix6.mechanisms.swerve.SwerveModuleConstants;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveModule.DriveRequestType;
 
+import edu.wpi.first.math.MatBuilder;
+import edu.wpi.first.math.Nat;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
@@ -34,7 +36,9 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Subsystem;
+import frc.lib.Interpolating.Geometry.IPose2d;
 import frc.lib.Interpolating.Geometry.ITranslation2d;
+import frc.lib.Interpolating.Geometry.ITwist2d;
 import frc.robot.Constants;
 import frc.robot.generated.TunerConstants;
 import frc.robot.RobotContainer;
@@ -142,6 +146,7 @@ public class Drivetrain extends SwerveDrivetrain implements Subsystem {
 
     public void resetOdo(Pose2d pose){
         resetOdoUtil(pose);
+        robotState.reset(0.02, new IPose2d(pose), ITwist2d.identity());
     }
 
     public double getHeading() {
@@ -217,10 +222,8 @@ public class Drivetrain extends SwerveDrivetrain implements Subsystem {
 
         //allows driver to see if resetting worked
         // SmartDashboard.putBoolean("Odo Reset (last 5 sec)", lastTimeReset != -1 && Timer.getFPGATimestamp() - lastTimeReset < 5);
-        Logger.recordOutput("ODO X", currPose.getX());
-        Logger.recordOutput("ODO Y", currPose.getY());
-        // SmartDashboard.putNumber("EKF X", currFilteredPose.getX());
-        // SmartDashboard.putNumber("EKF Y", currFilteredPose.getY());
+        SmartDashboard.putNumber("ODO X", currPose.getX());
+        SmartDashboard.putNumber("ODO Y", currPose.getY());
         // SmartDashboard.putNumber("ODO ROT", currPose.getRotation().getRadians());
         // SmartDashboard.putNumber("AUTO INIT X", autoStartPose.getX());
         // SmartDashboard.putNumber("AUTO INIT Y", autoStartPose.getY());
