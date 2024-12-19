@@ -13,6 +13,9 @@ import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants;
 import frc.robot.RobotContainer;
+
+import org.littletonrobotics.junction.Logger;
+
 // import frc.robot.RobotState.RobotState;
 
 public class DriveControlSystems {
@@ -58,10 +61,11 @@ public class DriveControlSystems {
         // slipCorrection(slipControl(drivetrain.robotAbsoluteVelocity())); 
         // }
 
-        SmartDashboard.putNumber("requested velocity x", driverLX);
-        SmartDashboard.putNumber("requested velocity y", driverLY);
-
-
+//        SmartDashboard.putNumber("requested velocity x", driverLX);
+//        SmartDashboard.putNumber("requested velocity y", driverLY);
+        Logger.recordOutput("JoystickProcessing/RequestedX", driverLX);
+        Logger.recordOutput("JoystickProcessing/RequestedY", driverLY);
+        
         return new SwerveRequest.FieldCentric()
         .withVelocityX(driverLY)
         .withVelocityY(driverLX)
@@ -83,10 +87,13 @@ public class DriveControlSystems {
             
     //         // driverRX = pidHeading.calculate(robotState.robotYaw(), lastHeading);
     //         SmartDashboard.putBoolean("headingON", true);
+//    Logger.recordOutput("HeadingControl/Active", true);
 
     //     } else {
     //         SmartDashboard.putBoolean("headingON", false);
     //         SmartDashboard.putNumber("lastHeading", lastHeading);
+//    Logger.recordOutput("HeadingControl/Active", false);
+//    Logger.recordOutput("HeadingControl/LastHeading", lastHeading);
     //     }
 
     //     return driverRX;
@@ -114,8 +121,8 @@ public class DriveControlSystems {
     public Double[] slipControl(double currentVelocity) {
 
     Double[] outputs = new Double[4]; // reset to null every call
-    SmartDashboard.putNumber("currentVelocity", currentVelocity);
-
+//    SmartDashboard.putNumber("currentVelocity", currentVelocity);
+        Logger.recordOutput("currentVelocity", currentVelocity);
         for (int i = 0; i < 4; i++) {  //4 is module count but i dont want to make a getter
         
         //gets the ratio between what the encoders think our velocity is and the real velocity
@@ -123,8 +130,8 @@ public class DriveControlSystems {
         if(currentVelocity == 0) { slipRatio = 1; } else {
             slipRatio = ((getModule(i).getCurrentState().speedMetersPerSecond) / currentVelocity); 
         }
-        SmartDashboard.putNumber("Module " + i + " slipratio", slipRatio);
-        
+//        SmartDashboard.putNumber("Module " + i + " slipratio", slipRatio);
+        Logger.recordOutput("SwerveModules/SlipRatios/Module " + i , slipRatio);
         //if over the upper or lower threshold save the value
         if (slipRatio > (Constants.slipThreshold + 1) || slipRatio < (1 - Constants.slipThreshold)) {
             outputs[i] = slipRatio;
@@ -145,10 +152,13 @@ public class DriveControlSystems {
                  (1 + (Math.signum(inputs[i] - 1)) * (inputs[i] - Constants.slipThreshold)) / Constants.slipFactor);
                 //https://www.desmos.com/calculator/afe5omf92p how slipfactor changes slip aggression
 
-                SmartDashboard.putBoolean("slipON", true);
+//                SmartDashboard.putBoolean("slipON", true);
+                Logger.recordOutput("SlipControl/Active", true);
             }  else {
-                SmartDashboard.putBoolean("slipON", false);
+//                SmartDashboard.putBoolean("slipON", false);
+                Logger.recordOutput("SlipControl/Active", false);
             } 
+            
         }
     }
 

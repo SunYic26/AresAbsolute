@@ -37,7 +37,14 @@ public class Robot extends LoggedRobot {
   @Override
   public void robotInit() {
 
-    
+    if(isReal()){
+      Logger.addDataReceiver(new WPILOGWriter()); // should be savig to usb
+      Logger.addDataReceiver(new NT4Publisher());
+    }
+    else {
+      Logger.addDataReceiver(new NT4Publisher());
+    }
+    Logger.start();
 
     //start the logger here
     m_robotContainer = new RobotContainer();
