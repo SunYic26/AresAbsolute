@@ -1,6 +1,7 @@
 package frc.lib.Interpolating.Geometry;
 
 import frc.lib.Interpolating.*;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 
 public class IPose2d implements Interpolable<IPose2d> {
@@ -21,6 +22,12 @@ public class IPose2d implements Interpolable<IPose2d> {
     }
 
     public IPose2d(IPose2d pose) {
+        this.x = pose.getX();
+        this.y = pose.getY();
+        this.rotation = pose.getRotation();
+    }
+
+    public IPose2d(Pose2d pose) {
         this.x = pose.getX();
         this.y = pose.getY();
         this.rotation = pose.getRotation();
