@@ -10,6 +10,8 @@ import org.littletonrobotics.junction.networktables.NT4Publisher;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.lib.AccelerationIntegrator;
@@ -17,9 +19,22 @@ import frc.robot.RobotState.RobotState;
 // import frc.robot.Subsystems.CommandSwerveDrivetrain.DriveControlSystems;
 import frc.robot.Subsystems.CommandSwerveDrivetrain.Drivetrain;
 import frc.robot.Subsystems.Vision.Vision;
+import frc.robot.commands.AutoCommand;
+import frc.robot.commands.Autos;
 
 public class Robot extends LoggedRobot {
   private Command m_autonomousCommand;
+  SendableChooser<AutoCommand> firstAuto = new SendableChooser<AutoCommand>();
+  SendableChooser<AutoCommand> secondAuto = new SendableChooser<AutoCommand>();
+  SendableChooser<AutoCommand> thirdAuto = new SendableChooser<AutoCommand>();
+  SendableChooser<AutoCommand> fourthAuto = new SendableChooser<AutoCommand>();
+  SendableChooser<AutoCommand> fifthAuto = new SendableChooser<AutoCommand>();
+
+  private AutoCommand firstSavedChoice;
+  private AutoCommand secondSavedChoice;
+  private AutoCommand thirdSavedChoice;
+  private AutoCommand fourthSavedChoice;
+  private AutoCommand fifthSavedChoice;
 
   private RobotContainer m_robotContainer;
 
@@ -36,8 +51,10 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void robotInit() {
-
-    
+    firstAuto.addOption(AutoCommand.Test1().name, AutoCommand.Test1());
+    firstAuto.addOption(AutoCommand.Test2().name, AutoCommand.Test2());
+    AutoCommand.loadAutos();
+    SmartDashboard.putData("first auto", firstAuto);
 
     //start the logger here
     m_robotContainer = new RobotContainer();
@@ -52,7 +69,12 @@ public class Robot extends LoggedRobot {
   public void disabledInit() {}
 
   @Override
-  public void disabledPeriodic() {}
+  public void disabledPeriodic() {
+    if(firstAuto.getSelected() != firstSavedChoice){ //Note: might be able to use the onchange() method in sendable chooser
+      firstSavedChoice = firstAuto.getSelected();
+      updateSecondAuto();
+    }
+  }
 
   @Override
   public void disabledExit() {}
@@ -95,4 +117,19 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void testExit() {}
+
+  private void updateSecondAuto(){
+    if(secondAuto != null){
+      secondAuto.close();
+    }
+    secondAuto = new SendableChooser<AutoCommand>();
+    firstSavedChoice = firstAuto.getSelected();
+    AutoCommand.clearContinuations();
+    AutoCommand.fillAutosList(firstSavedChoice);
+      for(int i = 0; i < firstAuto.getSelected().getPotentialContinuations().size(); i++){
+        secondAuto.addOption(firstAuto.getSelected().name, firstAuto.getSelected().getPotentialContinuations().get(i));
+      }
+      SmartDashboard.putData("second auto", secondAuto);
+  }
 }
+
