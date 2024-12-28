@@ -18,6 +18,7 @@ import frc.lib.AccelerationIntegrator;
 import frc.robot.RobotState.RobotState;
 // import frc.robot.Subsystems.CommandSwerveDrivetrain.DriveControlSystems;
 import frc.robot.Subsystems.CommandSwerveDrivetrain.Drivetrain;
+import frc.robot.Subsystems.Vision.Limelight;
 import frc.robot.Subsystems.Vision.Vision;
 import frc.robot.commands.AutoCommand;
 import frc.robot.commands.Autos;
@@ -39,6 +40,7 @@ public class Robot extends LoggedRobot {
   private RobotContainer m_robotContainer;
 
   private final Vision vision;
+  private final Limelight limelight;
 
   private Drivetrain drivetrain;
   private RobotState robotState;
@@ -47,6 +49,7 @@ public class Robot extends LoggedRobot {
       drivetrain = Drivetrain.getInstance();
       robotState = RobotState.getInstance();
       vision = Vision.getInstance();
+      limelight = Limelight.getInstance();
     }
 
   @Override

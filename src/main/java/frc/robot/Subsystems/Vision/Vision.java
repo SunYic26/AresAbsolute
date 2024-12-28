@@ -75,7 +75,7 @@ public class Vision extends SubsystemBase {
 
         centerCamera = new PhotonCamera(Constants.VisionConstants.cameraName);
         photonPoseEstimator.setMultiTagFallbackStrategy(PoseStrategy.CLOSEST_TO_LAST_POSE);
-        updateAprilTagResults();
+        // updateAprilTagResults();
     }
 
     public void updateAprilTagResults() {
@@ -83,7 +83,7 @@ public class Vision extends SubsystemBase {
     }
 
     public PhotonPipelineResult getLatestAprilTagResult(){
-        updateAprilTagResults();
+        // updateAprilTagResults();
         return cameraResult;
     }
 
@@ -142,40 +142,40 @@ public class Vision extends SubsystemBase {
      */
     public void updateVision() throws Exception{
 
-        if(cameraResult.getTimestampSeconds() == lastProcessedTimestamp) {
-            SmartDashboard.putString("Vision accepter", "Vision failed: old");
-            Logger.recordOutput("Vision/Vision accepter", "Vision failed: old");
-            return;
-        }
-        
-        // if(Math.abs(robotState.robotAngularVelocityMagnitude()[0]) > VisionLimits.k_rotationLimitDPS) {
-        //     SmartDashboard.putString("Vision accepter", "Vision failed: High rotation");
+        // if(cameraResult.getTimestampSeconds() == lastProcessedTimestamp) {
+        //     SmartDashboard.putString("Vision accepter", "Vision failed: old");
+        //     Logger.recordOutput("Vision/Vision accepter", "Vision failed: old");
         //     return;
-        // } 
-        //ensure this works before putting back into the code
+        // }
+        
+        // // if(Math.abs(robotState.robotAngularVelocityMagnitude()[0]) > VisionLimits.k_rotationLimitDPS) {
+        // //     SmartDashboard.putString("Vision accepter", "Vision failed: High rotation");
+        // //     return;
+        // // } 
+        // //ensure this works before putting back into the code
 
-        if(!cameraResult.getMultiTagResult().estimatedPose.isPresent) {
-            if(hasValidTarget(cameraResult)) { //using fallback tag
-                VisionOutput newPose = new VisionOutput(photonPoseEstimator.update().get());
-                robotState.visionUpdate(newPose); 
-                return;
-            }
+        // if(!cameraResult.getMultiTagResult().estimatedPose.isPresent) {
+        //     if(hasValidTarget(cameraResult)) { //using fallback tag
+        //         VisionOutput newPose = new VisionOutput(photonPoseEstimator.update().get());
+        //         robotState.visionUpdate(newPose); 
+        //         return;
+        //     }
             
-        } else if (shouldUseMultiTag()) { //using multitag
+        // } else if (shouldUseMultiTag()) { //using multitag
 
-            VisionOutput newPose = new VisionOutput(photonPoseEstimator.update().get());
-            robotState.visionUpdate(newPose); 
-            return;
+        //     VisionOutput newPose = new VisionOutput(photonPoseEstimator.update().get());
+        //     robotState.visionUpdate(newPose); 
+        //     return;
 
-        } else if (hasValidTarget(cameraResult)){ // manually making the pose
+        // } else if (hasValidTarget(cameraResult)){ // manually making the pose
 
-                Pose3d targetPose = aprilTagFieldLayout.getTagPose(cameraResult.getBestTarget().getFiducialId()).orElse(null);
-                Pose3d newPose = PhotonUtils.estimateFieldToRobotAprilTag(
-                cameraResult.getBestTarget().getBestCameraToTarget(), targetPose, cameraToRobotTransform);
-                robotState.visionUpdate(new VisionOutput(newPose, cameraResult.getTimestampSeconds(),
-                cameraResult.getBestTarget(), PoseStrategy.CLOSEST_TO_LAST_POSE));
+        //         Pose3d targetPose = aprilTagFieldLayout.getTagPose(cameraResult.getBestTarget().getFiducialId()).orElse(null);
+        //         Pose3d newPose = PhotonUtils.estimateFieldToRobotAprilTag(
+        //         cameraResult.getBestTarget().getBestCameraToTarget(), targetPose, cameraToRobotTransform);
+        //         robotState.visionUpdate(new VisionOutput(newPose, cameraResult.getTimestampSeconds(),
+        //         cameraResult.getBestTarget(), PoseStrategy.CLOSEST_TO_LAST_POSE));
                 
-        } 
+        // } 
 
 
     }
@@ -186,11 +186,11 @@ public class Vision extends SubsystemBase {
 
     @Override
     public void periodic() {
-        updateAprilTagResults();
-        if(!cameraResult.targets.isEmpty()) {
-            try {
-                updateVision();
-            } catch (Exception e){}
-        }
+        // updateAprilTagResults();
+        // if(!cameraResult.targets.isEmpty()) {
+        //     try {
+        //         updateVision();
+        //     } catch (Exception e){}
+        // }
     }
 }
