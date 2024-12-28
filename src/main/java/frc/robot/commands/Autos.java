@@ -71,4 +71,12 @@ public class Autos {
   public static Command Test2() {
     return Commands.waitSeconds(0);
   }
+
+  public static Command Test3() {
+    return Commands.waitSeconds(0);
+  }
+  
+  public static Command Test4() {
+    return Commands.waitSeconds(0);
+  }
 }

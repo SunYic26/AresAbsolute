@@ -154,9 +154,9 @@ public class RobotState { //will estimate pose with odometry and correct drift w
             }
         }
 
-        odometryPoses.put(new InterpolatingDouble(timestamp), new IPose2d(pose.getX(),pose.getY(), pose.getRotation()));
+        // odometryPoses.put(new InterpolatingDouble(timestamp), new IPose2d(pose.getX(),pose.getY(), pose.getRotation()));
 
-        prevOdomTimestamp = Optional.of(timestamp);
+        // prevOdomTimestamp = Optional.of(timestamp);
 
         SmartDashboard.putNumber("P MATRIX ", UKF.getP().get(0, 0));
         SmartDashboard.putNumber("FILT X", UKF.getXhat(0));
