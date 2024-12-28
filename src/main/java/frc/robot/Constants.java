@@ -62,6 +62,26 @@ public final class Constants {
         }
     }
 
+    public static class LimelightConstants{
+        
+        // TODO these are all from the example person but idk how many we will need and ofc they need to change for our design and new game (this is charged up i think)
+        public static final int pipeNu_megatag = 0;
+        public static final int pipeNu_node18_april = 1 ;
+        public static final int pipeNu_node27_april = 2 ;
+        public static final int pipeNu_node36_april = 3 ;
+        public static final int pipeNu_hp45_april = 4;
+        public static final int pipeNu_lower_reflective = 5;
+        public static final int pipeNu_higher_reflective = 6;
+        public static final int pipeNu_normal = 7;
+        public static final double higher_reflective_heightCm = 111.0;
+        public static final double lower_reflective_heightCm = 61.0;
+        public static final double node_april_heightCm = 46.0;
+        public static final double hp_april_heightCm = 69.0;
+        public static final double limelightMountAngleDegrees = -19.5;
+        public static final double limelightLensHeightCm = 107.0;
+
+    }
+
 
     // hardware ports for all hardware components on the robot
     // these include CAN IDs, pneumatic hub ports, etc.
