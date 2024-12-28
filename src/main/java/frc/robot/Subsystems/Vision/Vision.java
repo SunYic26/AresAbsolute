@@ -107,18 +107,22 @@ public class Vision extends SubsystemBase {
 
         if(multiTagResult.estimatedPose.bestReprojErr > VisionLimits.k_reprojectionLimit) {
             SmartDashboard.putString("Multitag updates", "high error");
+            Logger.recordOutput("Vision/MultiTag updates", "high error");
             return false;
         }
         if(multiTagResult.fiducialIDsUsed.size() < 2 || multiTagResult.fiducialIDsUsed.isEmpty()) {
             SmartDashboard.putString("Multitag updates", "insufficient ids");
+            Logger.recordOutput("Vision/MultiTag updates", "insufficient ids");
             return false;
         } 
         if(multiTagResult.estimatedPose.best.getTranslation().getNorm() < VisionLimits.k_normThreshold) {
             SmartDashboard.putString("Multitag updates", "norm check failed");
+            Logger.recordOutput("Vision/MultiTag updates", "norm check failed");
             return false;
         } 
         if(multiTagResult.estimatedPose.ambiguity > VisionLimits.k_ambiguityLimit) {
             SmartDashboard.putString("Multitag updates", "high ambiguity");
+            Logger.recordOutput("Vision/MultiTag updates", "high ambiguity");
             return false;
         }
 
@@ -140,6 +144,7 @@ public class Vision extends SubsystemBase {
 
         if(cameraResult.getTimestampSeconds() == lastProcessedTimestamp) {
             SmartDashboard.putString("Vision accepter", "Vision failed: old");
+            Logger.recordOutput("Vision/Vision accepter", "Vision failed: old");
             return;
         }
         
