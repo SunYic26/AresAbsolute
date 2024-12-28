@@ -126,10 +126,13 @@ public class Robot extends LoggedRobot {
     firstSavedChoice = firstAuto.getSelected();
     AutoCommand.clearContinuations();
     AutoCommand.fillAutosList(firstSavedChoice);
-      for(int i = 0; i < firstAuto.getSelected().getPotentialContinuations().size(); i++){
-        secondAuto.addOption(firstAuto.getSelected().name, firstAuto.getSelected().getPotentialContinuations().get(i));
+      for(int i = 0; i < AutoCommand.getPotentialContinuations().size(); i++){
+        secondAuto.addOption(AutoCommand.getPotentialContinuations().get(i).name, 
+        AutoCommand.getPotentialContinuations().get(i));
       }
       SmartDashboard.putData("second auto", secondAuto);
   }
+
+  
 }
 

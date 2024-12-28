@@ -16,10 +16,14 @@ public class AutoCommand {
     private String[] potentialContinuations;   
     private static HashMap<String, AutoCommand> pathKeys = new HashMap<String, AutoCommand>();
     private static ArrayList<AutoCommand> autoList2 = new ArrayList<AutoCommand>();
+    //if you have questions ask ethan
     public static void loadAutos(){
         pathKeys.put("Test1", Test1());
         pathKeys.put("Test2", Test2());
+        pathKeys.put("Test3", Test3());
+        pathKeys.put("Test4", Test4());
     }
+
     public AutoCommand(String name, Command autoCommand, String[] potentialContinuations){
         this.name = name;
         this.autoCommand = autoCommand;
@@ -36,16 +40,24 @@ public class AutoCommand {
         }
     }
 
-    public ArrayList<AutoCommand> getPotentialContinuations() {
+    public static ArrayList<AutoCommand> getPotentialContinuations() {
         return autoList2;
     }
 
     public static AutoCommand Test1(){
-        return new AutoCommand("Test1", Autos.Test1(), new String[]{"Test1", "Test2"});
+        return new AutoCommand("Test1", Autos.Test1(), new String[]{"Test2", "Test3", "Test4"});
     }
 
     public static AutoCommand Test2(){
-        return new AutoCommand("Test2", Autos.Test2(), new String[]{"Test1", "Test2"});
+        return new AutoCommand("Test2", Autos.Test2(), new String[]{"Test1", "Test3", "Test4"});
+    }
+
+    public static AutoCommand Test3() {
+        return new AutoCommand("Test3", Autos.Test3(), new String[]{"Test1", "Test2", "Test4"});
+    }
+
+    public static AutoCommand Test4() {
+        return new AutoCommand("Test4", Autos.Test4(), new String[]{"Test1", "Test2", "Test3"});
     }
 
     public static AutoCommand getAuto(String name){
