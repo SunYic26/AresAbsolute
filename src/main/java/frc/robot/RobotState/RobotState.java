@@ -123,7 +123,7 @@ public class RobotState { //will estimate pose with odometry and correct drift w
                         new InterpolatingDouble(timestamp),
                         new ITranslation2d(UKF.getXhat(0), UKF.getXhat(1)));
                         
-//        SmartDashboard.putNumber("Vision std dev", updatePose.getStandardDeviation());
+        SmartDashboard.putNumber("Vision std dev", updatePose.getStandardDeviation());
         Logger.recordOutput("RobotState/Vision std dev", updatePose.getStandardDeviation());
     }
 
@@ -174,9 +174,9 @@ public class RobotState { //will estimate pose with odometry and correct drift w
 
         prevOdomTimestamp = Optional.of(timestamp);
 
-//        SmartDashboard.putNumber("P MATRIX", UKF.getP().get(0, 0));
-//        SmartDashboard.putNumber("FILT X", UKF.getXhat(0));
-//        SmartDashboard.putNumber("FILT Y", UKF.getXhat(1));
+        SmartDashboard.putNumber("P MATRIX", UKF.getP().get(0, 0));
+        SmartDashboard.putNumber("FILT X", UKF.getXhat(0));
+        SmartDashboard.putNumber("FILT Y", UKF.getXhat(1));
         Logger.recordOutput("RobotState/P MATRIX", UKF.getP().get(0, 0));
         Logger.recordOutput("RobotState/FILT X", UKF.getXhat(0));
         Logger.recordOutput("RobotState/FILT Y", UKF.getXhat(1));
@@ -252,8 +252,8 @@ public class RobotState { //will estimate pose with odometry and correct drift w
 
         public void updateAccel() {
             double[] newAccel = rawRobotAcceleration();
-//            SmartDashboard.putNumber("raw Accel X", newAccel[0]);
-//            SmartDashboard.putNumber("raw Accel Y", newAccel[1]);
+            SmartDashboard.putNumber("raw Accel X", newAccel[0]);
+            SmartDashboard.putNumber("raw Accel Y", newAccel[1]);
             Logger.recordOutput("RobotState/raw Accel X", newAccel[0]);
             Logger.recordOutput("RobotState/raw Accel Y", newAccel[1]);
             robotVelocities.put(new InterpolatingDouble(newAccel[2]), accelIntegrator.update(newAccel));
@@ -261,8 +261,8 @@ public class RobotState { //will estimate pose with odometry and correct drift w
 
         public void updateVelocity(double[] wheelVelocity) {
             double[] newAccel = rawRobotAcceleration();
-//            SmartDashboard.putNumber("raw Accel X", newAccel[0]);
-//            SmartDashboard.putNumber("raw Accel Y", newAccel[1]);
+            SmartDashboard.putNumber("raw Accel X", newAccel[0]);
+            SmartDashboard.putNumber("raw Accel Y", newAccel[1]);
             Logger.recordOutput("RobotState/raw Accel X", newAccel[0]);
             Logger.recordOutput("RobotState/raw Accel Y", newAccel[1]);
             robotVelocities.put(new InterpolatingDouble(newAccel[2]), accelIntegrator.update(newAccel, wheelVelocity));
@@ -388,7 +388,7 @@ public class RobotState { //will estimate pose with odometry and correct drift w
             double accelerationY = (pigeon.getAccelerationY().getValue() - pigeon.getGravityVectorY().getValue()) * 9.80665;
             
             double timestamp = pigeon.getAccelerationX().getTimestamp().getTime();
-//            SmartDashboard.putNumber("current timestamp", timestamp);
+            SmartDashboard.putNumber("current timestamp", timestamp);
             Logger.recordOutput("RobotState/current timestamp", timestamp);
             return new double[] {accelerationX, accelerationY, timestamp};
         }

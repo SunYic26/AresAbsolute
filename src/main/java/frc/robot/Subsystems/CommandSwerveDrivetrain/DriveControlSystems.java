@@ -61,8 +61,8 @@ public class DriveControlSystems {
         // slipCorrection(slipControl(drivetrain.robotAbsoluteVelocity())); 
         // }
 
-//        SmartDashboard.putNumber("requested velocity x", driverLX);
-//        SmartDashboard.putNumber("requested velocity y", driverLY);
+        SmartDashboard.putNumber("requested velocity x", driverLX);
+        SmartDashboard.putNumber("requested velocity y", driverLY);
         Logger.recordOutput("JoystickProcessing/RequestedX", driverLX);
         Logger.recordOutput("JoystickProcessing/RequestedY", driverLY);
         
@@ -121,7 +121,7 @@ public class DriveControlSystems {
     public Double[] slipControl(double currentVelocity) {
 
     Double[] outputs = new Double[4]; // reset to null every call
-//    SmartDashboard.putNumber("currentVelocity", currentVelocity);
+    SmartDashboard.putNumber("currentVelocity", currentVelocity);
         Logger.recordOutput("currentVelocity", currentVelocity);
         for (int i = 0; i < 4; i++) {  //4 is module count but i dont want to make a getter
         
@@ -130,7 +130,7 @@ public class DriveControlSystems {
         if(currentVelocity == 0) { slipRatio = 1; } else {
             slipRatio = ((getModule(i).getCurrentState().speedMetersPerSecond) / currentVelocity); 
         }
-//        SmartDashboard.putNumber("Module " + i + " slipratio", slipRatio);
+        SmartDashboard.putNumber("Module " + i + " slipratio", slipRatio);
         Logger.recordOutput("SwerveModules/SlipRatios/Module " + i , slipRatio);
         //if over the upper or lower threshold save the value
         if (slipRatio > (Constants.slipThreshold + 1) || slipRatio < (1 - Constants.slipThreshold)) {
@@ -152,10 +152,10 @@ public class DriveControlSystems {
                  (1 + (Math.signum(inputs[i] - 1)) * (inputs[i] - Constants.slipThreshold)) / Constants.slipFactor);
                 //https://www.desmos.com/calculator/afe5omf92p how slipfactor changes slip aggression
 
-//                SmartDashboard.putBoolean("slipON", true);
+                SmartDashboard.putBoolean("slipON", true);
                 Logger.recordOutput("SlipControl/Active", true);
             }  else {
-//                SmartDashboard.putBoolean("slipON", false);
+                SmartDashboard.putBoolean("slipON", false);
                 Logger.recordOutput("SlipControl/Active", false);
             } 
             
