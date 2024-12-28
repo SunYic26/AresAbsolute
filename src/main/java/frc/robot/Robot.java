@@ -67,15 +67,36 @@ public class Robot extends LoggedRobot {
           break;
       }
       // actual logging
+      // Automatically switch between sim and real deployment - to run REPLAY you must manually change Constants.deployMode
       if (isReal()) {
-        Logger.addDataReceiver(new WPILOGWriter()); // Log to a USB stick ("/U/logs")
-        Logger.addDataReceiver(new NT4Publisher()); // Publish data to NetworkTables
-        new PowerDistribution(1, ModuleType.kRev); // Enables power distribution logging
+        Constants.deployMode = Constants.Mode.REAL;
       } else {
-        setUseTiming(false); // Run as fast as possible
-        String logPath = LogFileUtil.findReplayLog(); // Pull the replay log from AdvantageScope (or prompt the user)
-        Logger.setReplaySource(new WPILOGReader(logPath)); // Read replay log
-        Logger.addDataReceiver(new WPILOGWriter(LogFileUtil.addPathSuffix(logPath, "_sim"))); // Save outputs to a new log
+        Constants.deployMode = Constants.Mode.SIM;
+      }
+
+      // Set up data receivers & replay source
+      switch (Constants.deployMode) {
+        case REAL:
+          // Running on a real robot, log to a USB stick ("/U/logs")
+          System.out.println("Running in REAL mode");
+          Logger.addDataReceiver(new WPILOGWriter());
+          Logger.addDataReceiver(new NT4Publisher());
+          break;
+
+        case SIM:
+          // Running a physics simulator, log to NT
+          System.out.println("Running in SIM mode");
+          Logger.addDataReceiver(new NT4Publisher());
+          break;
+
+        case REPLAY:
+          // Replaying a log, set up replay source
+          System.out.println("Running in REPLAY mode");
+          setUseTiming(false); // Run as fast as possible
+          String logPath = LogFileUtil.findReplayLog();
+          Logger.setReplaySource(new WPILOGReader(logPath));
+          Logger.addDataReceiver(new WPILOGWriter(LogFileUtil.addPathSuffix(logPath, "_sim")));
+          break;
       }
 
       Logger.start(); // Start logging! No more data receivers, replay sources, or metadata values may be added.
