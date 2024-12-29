@@ -3,15 +3,17 @@ package frc.robot.Subsystems.Vision;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.networktables.*;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.lib.vision.LimeLight;
 import frc.robot.LimelightHelpers;
 import frc.robot.Subsystems.CommandSwerveDrivetrain.Drivetrain;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
-public class Limelight extends SubsystemBase {
-    private static Limelight instance;
-    private NetworkTable nt;
-    private boolean driverMode = false;
+public class LimelightSubsystem extends SubsystemBase {
+    private static LimelightSubsystem instance;
+    private NetworkTable nt; // nt
+    
+    private LimeLight limeLight; // lib
 
     private final Drivetrain drivetrain;
 
@@ -21,9 +23,9 @@ public class Limelight extends SubsystemBase {
     // NetworkTableEntry ty = table.getEntry("ty");
     // NetworkTableEntry ta = table.getEntry("ta");
 
-    public static Limelight getInstance() {
+    public static LimelightSubsystem getInstance() {
         if (instance == null) {
-            instance = new Limelight();
+            instance = new LimelightSubsystem();
         }
         return instance;
     }
@@ -45,8 +47,8 @@ public class Limelight extends SubsystemBase {
         }
     }
 
-    private Limelight() {
-
+    private LimelightSubsystem() {
+        limeLight = new LimeLight(); // init lib
         nt = NetworkTableInstance.getDefault().getTable("limelight");
         drivetrain = Drivetrain.getInstance();
     }
@@ -55,11 +57,20 @@ public class Limelight extends SubsystemBase {
         return NetworkTableInstance.getDefault().getTable("limelight").containsKey("ledMode");
     }
 
-    @AutoLogOutput(key = "Limelight/hasTarget")
-    public boolean hasTarget() {
-       return nt.getEntry("tv").getDouble(0.0) == 1.0;
-        // return LimelightHelpers.getTV("camera");
+    @AutoLogOutput(key = "Limelight/hasTargetHelper")
+    public boolean hasTargetHelper() {
+         return LimelightHelpers.getTV("camera");
+    }    
+    @AutoLogOutput(key = "Limelight/hasTargetLib")
+    public boolean hasTargetLib() {
+         return limeLight.getIsTargetFound();
+    }    
+    @AutoLogOutput(key = "Limelight/hasTargetNT")
+    public boolean hasTargetNT() {
+               return nt.getEntry("tv").getDouble(0.0) == 1.0;
+
     }
+    
 
     @AutoLogOutput(key = "Limelight/TargetArea")
     public double getTargetArea() {

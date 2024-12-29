@@ -9,19 +9,16 @@ import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.NT4Publisher;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 
-import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import frc.lib.AccelerationIntegrator;
 import frc.robot.RobotState.RobotState;
 // import frc.robot.Subsystems.CommandSwerveDrivetrain.DriveControlSystems;
 import frc.robot.Subsystems.CommandSwerveDrivetrain.Drivetrain;
-import frc.robot.Subsystems.Vision.Limelight;
+import frc.robot.Subsystems.Vision.LimelightSubsystem;
 import frc.robot.Subsystems.Vision.Vision;
 import frc.robot.commands.AutoCommand;
-import frc.robot.commands.Autos;
 
 public class Robot extends LoggedRobot {
   private Command m_autonomousCommand;
@@ -40,7 +37,7 @@ public class Robot extends LoggedRobot {
   private RobotContainer m_robotContainer;
 
   private final Vision vision;
-  private final Limelight limelight;
+  private final LimelightSubsystem limelight;
 
   private Drivetrain drivetrain;
   private RobotState robotState;
@@ -49,7 +46,7 @@ public class Robot extends LoggedRobot {
       drivetrain = Drivetrain.getInstance();
       robotState = RobotState.getInstance();
       vision = Vision.getInstance();
-      limelight = Limelight.getInstance();
+      limelight = LimelightSubsystem.getInstance();
     }
 
   @Override
