@@ -11,12 +11,15 @@ import com.choreo.lib.ChoreoTrajectory;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest;
 
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.RobotContainer;
 import frc.robot.RobotState.RobotState;
 import frc.robot.Subsystems.CommandSwerveDrivetrain.Drivetrain;
@@ -65,7 +68,7 @@ public class Autos {
     }
 
   public static Command Test1() {
-    return Commands.waitSeconds(0);
+    return Commands.waitSeconds(1);
   }
 
   public static Command Test2() {
@@ -78,5 +81,19 @@ public class Autos {
   
   public static Command Test4() {
     return Commands.waitSeconds(0);
+  }
+
+  public static Command meterForwardTest(){
+    ChoreoTrajectory trajectory = Choreo.getTrajectory("1meterforward");
+    return new SequentialCommandGroup(
+      new InstantCommand(() -> {
+                    Pose2d initialPose;
+                    Optional<DriverStation.Alliance> alliance = DriverStation.getAlliance();
+                    initialPose = alliance.isPresent() && alliance.get() != Alliance.Red ? trajectory.getInitialPose() : trajectory.flipped().getInitialPose();
+                    drivetrain.resetOdo(initialPose);
+                    System.out.println(initialPose.getX() + " " + initialPose.getY());
+                }),
+      FollowChoreoTrajectory(Choreo.getTrajectory("1meterforward"))
+    );
   }
 }
