@@ -78,7 +78,10 @@ public class RobotContainer {
     ));
     //bindings
 
-    driverBack.onTrue(new InstantCommand(() -> drivetrain.resetOdo()));
+    driverBack.onTrue(new SequentialCommandGroup(
+      new InstantCommand(() -> drivetrain.resetOdo()),
+      new InstantCommand(() -> controlSystem.setLastHeading())
+    ));
   }
 
   public Command getAutonomousCommand() {

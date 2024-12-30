@@ -219,7 +219,7 @@ public class Drivetrain extends SwerveDrivetrain implements Subsystem {
             robotState = RobotState.getInstance();
         }
         
-
+        SmartDashboard.putNumber("absolute wheel velocity", getAbsoluteWheelVelocity());
         //allows driver to see if resetting worked
         // SmartDashboard.putBoolean("Odo Reset (last 5 sec)", lastTimeReset != -1 && Timer.getFPGATimestamp() - lastTimeReset < 5);
         SmartDashboard.putNumber("ODO X", currPose.getX());

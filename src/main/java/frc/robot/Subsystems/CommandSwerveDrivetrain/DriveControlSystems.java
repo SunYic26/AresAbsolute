@@ -5,6 +5,7 @@ import com.ctre.phoenix6.mechanisms.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveModule;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.interpolation.Interpolator;
@@ -14,6 +15,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants;
 import frc.robot.RobotContainer;
 // import frc.robot.RobotState.RobotState;
+import frc.robot.RobotState.RobotState;
 
 public class DriveControlSystems {
 
@@ -26,15 +28,17 @@ public class DriveControlSystems {
     // Can tune
     private double deadbandFactor = 0.8; // higher is more linear joystick controls
 
-
+    RobotState robotState;
     Drivetrain drivetrain;
     // RobotState robotState;
+    DriveControlSystems instance;
 
     PIDController pidHeading = new PIDController(0, 0, 0);
 
     public DriveControlSystems() {  
-        // robotState = RobotState.getInstance();
+        robotState = RobotState.getInstance();
         drivetrain = Drivetrain.getInstance();
+        setLastHeading();
     }
 
     //interface with modules
@@ -49,9 +53,11 @@ public class DriveControlSystems {
         driverRX = scaledDeadBand(driverRX) * Constants.MaxAngularRate;
 
         //heading control
-        // if (headingControl && driverRX < 0.1) {
-        //     driverRX = headingControl(driverRX);
-        // }
+        if (driverRX < 0.1 && drivetrain.getAbsoluteWheelVelocity() > 0.2) {
+            driverRX = headingControl(driverRX);
+        } else{
+            setLastHeading();
+        }
 
         // //slip control
         // if (slipControlOn) {
@@ -76,26 +82,26 @@ public class DriveControlSystems {
     }
 
     // =======---===[ ⚙ Heading control ]===---========
-    // public double headingControl(double driverRX){ //TODO tune high and low PID values
-    //     if (!pidHeading.atSetpoint()) {
-    //         double velocity = drivetrain.robotWheelVelocity();
-    //         updateGains(velocity);
+    public double headingControl(double driverRX){ //TODO tune high and low PID values
+        if (!pidHeading.atSetpoint()) {
+            double velocity = drivetrain.getAbsoluteWheelVelocity();
+            updateGains(velocity);
             
-    //         // driverRX = pidHeading.calculate(robotState.robotYaw(), lastHeading);
-    //         SmartDashboard.putBoolean("headingON", true);
+            driverRX = pidHeading.calculate(robotState.robotYaw(), lastHeading);
+            SmartDashboard.putBoolean("headingON", true);
 
-    //     } else {
-    //         SmartDashboard.putBoolean("headingON", false);
-    //         SmartDashboard.putNumber("lastHeading", lastHeading);
-    //     }
+        } else {
+            SmartDashboard.putBoolean("headingON", false);
+            SmartDashboard.putNumber("lastHeading", lastHeading);
+        }
 
-    //     return driverRX;
-    // } 
+        return driverRX;
+    } 
     // TODO fix this later bruh
 
     public void updateGains(double velocity) {
         double speedRatio = Math.abs(Constants.MaxSpeed/velocity); //velocity is from wheels so could be off
-        speedRatio = Math.max(0, Math.min(1, speedRatio));
+        speedRatio = MathUtil.clamp(speedRatio, 0, 1);
         //clamp between 0 and 1
 
         //can tune
