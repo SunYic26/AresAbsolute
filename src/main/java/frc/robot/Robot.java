@@ -18,6 +18,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.lib.AccelerationIntegrator;
 import frc.robot.RobotState.RobotState;
 // import frc.robot.Subsystems.CommandSwerveDrivetrain.DriveControlSystems;
@@ -27,7 +28,7 @@ import frc.robot.commands.AutoCommand;
 import frc.robot.commands.Autos;
 
 public class Robot extends LoggedRobot {
-  private Command m_autonomousCommand;
+  private SequentialCommandGroup m_autonomousCommand = new SequentialCommandGroup();
   SendableChooser<AutoCommand> firstAuto = new SendableChooser<AutoCommand>();
   SendableChooser<AutoCommand> secondAuto = new SendableChooser<AutoCommand>();
   SendableChooser<AutoCommand> thirdAuto = new SendableChooser<AutoCommand>();
@@ -110,6 +111,7 @@ public class Robot extends LoggedRobot {
   public void robotInit() {
     firstAuto.addOption(AutoCommand.Test1().name, AutoCommand.Test1());
     firstAuto.addOption(AutoCommand.Test2().name, AutoCommand.Test2());
+    firstAuto.addOption(AutoCommand.meterForwardTest().name, AutoCommand.meterForwardTest());
     AutoCommand.loadAutos();
     SmartDashboard.putData("first auto", firstAuto);
 
@@ -138,7 +140,17 @@ public class Robot extends LoggedRobot {
   public void disabledPeriodic() {
     if(firstAuto.getSelected() != firstSavedChoice){ //Note: might be able to use the onchange() method in sendable chooser
       firstSavedChoice = firstAuto.getSelected();
+      m_autonomousCommand.addCommands(firstSavedChoice.getCommand());
       updateSecondAuto();
+    }
+    if(secondAuto.getSelected() != secondSavedChoice){
+      secondSavedChoice = secondAuto.getSelected();
+      m_autonomousCommand.addCommands(secondSavedChoice.getCommand());
+      updateThirdAuto();
+    }
+    if(thirdAuto.getSelected() != thirdSavedChoice){
+      thirdSavedChoice = thirdAuto.getSelected();
+      m_autonomousCommand.addCommands(thirdSavedChoice.getCommand());
     }
   }
 
@@ -147,7 +159,6 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void autonomousInit() {
-    m_autonomousCommand = m_robotContainer.getAutonomousCommand();
 
     if (m_autonomousCommand != null) {
       m_autonomousCommand.schedule();
@@ -199,6 +210,20 @@ public class Robot extends LoggedRobot {
       SmartDashboard.putData("second auto", secondAuto);
   }
 
+  private void updateThirdAuto() {
+    if(thirdAuto != null){
+      thirdAuto.close();
+    }
+    thirdAuto = new SendableChooser<AutoCommand>();
+    secondSavedChoice = secondAuto.getSelected();
+    AutoCommand.clearContinuations();
+    AutoCommand.fillAutosList(secondSavedChoice);
+      for(int i = 0; i < AutoCommand.getPotentialContinuations().size(); i++){
+        thirdAuto.addOption(AutoCommand.getPotentialContinuations().get(i).name, 
+        AutoCommand.getPotentialContinuations().get(i));
+      }
+      SmartDashboard.putData("third auto", thirdAuto);
+  }
   
 }
 
