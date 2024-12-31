@@ -85,6 +85,7 @@ public class RobotState { //will estimate pose with odometry and correct drift w
     private InterpolatingTreeMap<InterpolatingDouble, IPose2d> odometryPoses;
 	private InterpolatingTreeMap<InterpolatingDouble, ITranslation2d> filteredPoses;
     private InterpolatingTreeMap<InterpolatingDouble, ITwist2d> robotVelocities;
+    private InterpolatingTreeMap<InterpolatingDouble, ITwist2d> filteredRobotVelocities;
 
     private UnscentedKalmanFilter<N2, N2, N2> UKF;
 
@@ -106,15 +107,13 @@ public class RobotState { //will estimate pose with odometry and correct drift w
 
         double timestamp = updatePose.timestampSeconds;
 
-        // IPose2d odometryPose = getInterpolatedValue(odometryPoses, prevOdomTimestamp.get(), IPose2d.identity());
-
-        // UKF.predict(VecBuilder.fill(robotVelocity.getX(), robotVelocity.getY()), timestamp);
+        ITwist2d filteredVelocity = getInterpolatedValue(filteredRobotVelocities, timestamp, ITwist2d.identity());
 
         //calculate std of vision estimate for UKF
         Vector<N2> stdevs = VecBuilder.fill(Math.pow(0.01, 2), Math.pow(0.01, 2));
 
                 UKF.correct(
-                        VecBuilder.fill(0,0),
+                        VecBuilder.fill(filteredVelocity.getX(),filteredVelocity.getY()),
                         VecBuilder.fill(
                                 updatePose.estimatedPose.getX(),
                                 updatePose.estimatedPose.getY()),
@@ -144,6 +143,8 @@ public class RobotState { //will estimate pose with odometry and correct drift w
                 .getVelocityBetween(new IPose2d(pose), timestamp - prevOdomTimestamp.get())
                 .complimentaryFilter(robotVelocity, 0.3);
 
+                
+
             double robotVelocityMagnitude = Math.abs(robotVelocityMagnitude());
 
             if(robotVelocityMagnitude > 0) { //manually increase P (our predicted error in pos)
@@ -160,6 +161,7 @@ public class RobotState { //will estimate pose with odometry and correct drift w
             //predict next state using our control input (velocity)
             try {
                 UKF.predict(VecBuilder.fill(filteredVelocity.getX(), filteredVelocity.getY()), dt);
+                filteredRobotVelocities.put(new InterpolatingDouble(timestamp), filteredVelocity);
             } catch (Exception e) {
                 DriverStation.reportError("QR Decomposition failed: ", e.getStackTrace());
             }
@@ -228,6 +230,8 @@ public class RobotState { //will estimate pose with odometry and correct drift w
             filteredPoses.put(new InterpolatingDouble(time), getInitialFieldToOdom());
             robotVelocities = new InterpolatingTreeMap<>(200);
             robotVelocities.put(new InterpolatingDouble(time), initial_Twist2d);
+            filteredRobotVelocities = new InterpolatingTreeMap<>(200);
+            filteredRobotVelocities.put(new InterpolatingDouble(time), initial_Twist2d);
         }
 
         public void resetUKF(IPose2d initial_Pose2d) {
