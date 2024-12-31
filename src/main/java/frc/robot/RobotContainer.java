@@ -7,6 +7,7 @@ package frc.robot;
 
 import java.time.Instant;
 
+import frc.robot.Subsystems.Vision.LimelightSubsystem;
 import org.opencv.core.Point;
 
 import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest;
@@ -27,6 +28,7 @@ import frc.robot.Subsystems.CommandSwerveDrivetrain.DriveControlSystems;
 public class RobotContainer {
 
   private static RobotContainer container;
+  private LimelightSubsystem limelight = LimelightSubsystem.getInstance();
 
   public static RobotContainer getInstance(){//so i can grab controller values lol
       if(container == null){
@@ -43,7 +45,6 @@ public class RobotContainer {
 
   //instances
   private final Drivetrain drivetrain = Drivetrain.getInstance(); // Drivetrain
-
   private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
           .withDeadband(Constants.MaxSpeed * translationDeadband).withRotationalDeadband(Constants.MaxAngularRate * rotDeadband)
           .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // I want field-centric
@@ -77,7 +78,6 @@ public class RobotContainer {
         drivetrain.applyRequest(() -> controlSystem.drive(-driver.getLeftY(), -driver.getLeftX(), -driver.getRightX()) // Drive counterclockwise with negative X (left)
     ));
     //bindings
-
     driverBack.onTrue(new InstantCommand(() -> drivetrain.resetOdo()));
   }
 

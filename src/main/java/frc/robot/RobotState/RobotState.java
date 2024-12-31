@@ -105,81 +105,81 @@ public class RobotState { //will estimate pose with odometry and correct drift w
 
     public synchronized void visionUpdate(VisionOutput updatePose) {
 
-        double timestamp = updatePose.timestampSeconds;
+        // double timestamp = updatePose.timestampSeconds;
 
-        ITwist2d robotVelocity = getInterpolatedValue(robotVelocities, prevOdomTimestamp.get(), ITwist2d.identity());
+        // ITwist2d robotVelocity = getInterpolatedValue(robotVelocities, prevOdomTimestamp.get(), ITwist2d.identity());
 
-        UKF.predict(VecBuilder.fill(robotVelocity.getX(), robotVelocity.getY()), timestamp);
-        //calculate std of vision estimate for UKF
-        Vector<N2> stdevs = VecBuilder.fill(Math.pow(0.001, 1), Math.pow(0.001, 1));
+        // UKF.predict(VecBuilder.fill(robotVelocity.getX(), robotVelocity.getY()), timestamp);
+        // //calculate std of vision estimate for UKF
+        // Vector<N2> stdevs = VecBuilder.fill(Math.pow(0.001, 1), Math.pow(0.001, 1));
 
-                UKF.correct(
-                        VecBuilder.fill(robotVelocity.getX(), robotVelocity.getY()),
-                        VecBuilder.fill(
-                                updatePose.estimatedPose.getX(),
-                                updatePose.estimatedPose.getY()),
-                        StateSpaceUtil.makeCovarianceMatrix(Nat.N2(), stdevs));
-                filteredPoses.put(
-                        new InterpolatingDouble(timestamp),
-                        new ITranslation2d(UKF.getXhat(0), UKF.getXhat(1)));
+        //         UKF.correct(
+        //                 VecBuilder.fill(robotVelocity.getX(), robotVelocity.getY()),
+        //                 VecBuilder.fill(
+        //                         updatePose.estimatedPose.getX(),
+        //                         updatePose.estimatedPose.getY()),
+        //                 StateSpaceUtil.makeCovarianceMatrix(Nat.N2(), stdevs));
+        //         filteredPoses.put(
+        //                 new InterpolatingDouble(timestamp),
+        //                 new ITranslation2d(UKF.getXhat(0), UKF.getXhat(1)));
                         
-        SmartDashboard.putNumber("Vision std dev", updatePose.getStandardDeviation());
-        Logger.recordOutput("RobotState/Vision std dev", updatePose.getStandardDeviation());
+        // SmartDashboard.putNumber("Vision std dev", updatePose.getStandardDeviation());
+        // Logger.recordOutput("RobotState/Vision std dev", updatePose.getStandardDeviation());
     }
 
 
     public synchronized void odometryUpdate(Pose2d pose, double[] wheelVelocity, double timestamp) {
 
-        //get the latest velocity
-        updateVelocity(wheelVelocity);
-        ITwist2d robotVelocity = getLatestRobotVelocity();
-        double robotVelocityMagnitude = Math.abs(robotVelocityMagnitude());
+        // //get the latest velocity
+        // updateVelocity(wheelVelocity);
+        // ITwist2d robotVelocity = getLatestRobotVelocity();
+        // double robotVelocityMagnitude = Math.abs(robotVelocityMagnitude());
 
-        if(robotVelocityMagnitude > 0) { //manually increase P (our predicted error in pos)
-             Matrix<N2,N2> P = UKF.getP();
+        // if(robotVelocityMagnitude > 0) { //manually increase P (our predicted error in pos)
+        //      Matrix<N2,N2> P = UKF.getP();
 
-             double minimumFactor = 0.00001; // Base noise
-             double motionFactor = 0.0001 * robotVelocityMagnitude / Constants.MaxSpeed;
+        //      double minimumFactor = 0.00001; // Base noise
+        //      double motionFactor = 0.0001 * robotVelocityMagnitude / Constants.MaxSpeed;
 
-             P.set(0, 0, P.get(0, 0) + minimumFactor + motionFactor);
-             P.set(1, 1, P.get(1, 1) + minimumFactor + motionFactor);
-             UKF.setP(P);
-        }
+        //      P.set(0, 0, P.get(0, 0) + minimumFactor + motionFactor);
+        //      P.set(1, 1, P.get(1, 1) + minimumFactor + motionFactor);
+        //      UKF.setP(P);
+        // }
 
-        if(prevOdomTimestamp.isEmpty()) {
-            // First time initialization of state
-            Matrix<N2, N1> initialState = VecBuilder.fill(pose.getX(), pose.getY());
-            UKF.setXhat(initialState);
-        } else {
-            //predict next state using our control input (velocity)
-            UKF.predict(VecBuilder.fill(robotVelocity.getX(), robotVelocity.getY()), timestamp);
+        // if(prevOdomTimestamp.isEmpty()) {
+        //     // First time initialization of state
+        //     Matrix<N2, N1> initialState = VecBuilder.fill(pose.getX(), pose.getY());
+        //     UKF.setXhat(initialState);
+        // } else {
+        //     //predict next state using our control input (velocity)
+        //     UKF.predict(VecBuilder.fill(robotVelocity.getX(), robotVelocity.getY()), timestamp);
 
-            //gets previous measurement to correct our prediction last timestep
-            robotVelocity = getInterpolatedValue(robotVelocities, prevOdomTimestamp.get(), ITwist2d.identity());
+        //     //gets previous measurement to correct our prediction last timestep
+        //     robotVelocity = getInterpolatedValue(robotVelocities, prevOdomTimestamp.get(), ITwist2d.identity());
 
-            //specify the standard deviation of our current pose estimate
-            Vector<N2> stdevs = VecBuilder.fill(Math.pow(0.01, 1) * 0.5, Math.pow(0.01, 1));
+        //     //specify the standard deviation of our current pose estimate
+        //     Vector<N2> stdevs = VecBuilder.fill(Math.pow(0.01, 1) * 0.5, Math.pow(0.01, 1));
 
-            UKF.correct(
-                VecBuilder.fill(
-                    robotVelocity.getX(),
-                    robotVelocity.getY()),
-                VecBuilder.fill(
-                    pose.getX(),
-                    pose.getY()),
-                    StateSpaceUtil.makeCovarianceMatrix(Nat.N2(), stdevs));
-        }
+        //     UKF.correct(
+        //         VecBuilder.fill(
+        //             robotVelocity.getX(),
+        //             robotVelocity.getY()),
+        //         VecBuilder.fill(
+        //             pose.getX(),
+        //             pose.getY()),
+        //             StateSpaceUtil.makeCovarianceMatrix(Nat.N2(), stdevs));
+        // }
 
-        odometryPoses.put(new InterpolatingDouble(timestamp), new IPose2d(pose.getX(),pose.getY(), pose.getRotation()));
+        // odometryPoses.put(new InterpolatingDouble(timestamp), new IPose2d(pose.getX(),pose.getY(), pose.getRotation()));
 
-        prevOdomTimestamp = Optional.of(timestamp);
+        // prevOdomTimestamp = Optional.of(timestamp);
 
-        SmartDashboard.putNumber("P MATRIX", UKF.getP().get(0, 0));
-        SmartDashboard.putNumber("FILT X", UKF.getXhat(0));
-        SmartDashboard.putNumber("FILT Y", UKF.getXhat(1));
-        Logger.recordOutput("RobotState/P MATRIX", UKF.getP().get(0, 0));
-        Logger.recordOutput("RobotState/FILT X", UKF.getXhat(0));
-        Logger.recordOutput("RobotState/FILT Y", UKF.getXhat(1));
+        // SmartDashboard.putNumber("P MATRIX", UKF.getP().get(0, 0));
+        // SmartDashboard.putNumber("FILT X", UKF.getXhat(0));
+        // SmartDashboard.putNumber("FILT Y", UKF.getXhat(1));
+        // Logger.recordOutput("RobotState/P MATRIX", UKF.getP().get(0, 0));
+        // Logger.recordOutput("RobotState/FILT X", UKF.getXhat(0));
+        // Logger.recordOutput("RobotState/FILT Y", UKF.getXhat(1));
     }
     
 
@@ -211,8 +211,8 @@ public class RobotState { //will estimate pose with odometry and correct drift w
 
         UKF.setP(initialCovariance); 
 
-        // states - A Nat representing the number of states.
-        // outputs - A Nat representing the number of outputs.
+        // states - A Nat representing the getValue of states.
+        // outputs - A Nat representing the getValue of outputs.
         // f - A vector-valued function of x and u that returns the derivative of the state vector.
         // h - A vector-valued function of x and u that returns the measurement vector.
         // stateStdDevs - Standard deviations of model states.

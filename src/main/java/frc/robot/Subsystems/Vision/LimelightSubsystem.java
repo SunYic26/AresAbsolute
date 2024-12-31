@@ -2,26 +2,24 @@ package frc.robot.Subsystems.Vision;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.networktables.*;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.lib.vision.LimeLight;
 import frc.robot.LimelightHelpers;
 import frc.robot.Subsystems.CommandSwerveDrivetrain.Drivetrain;
 import org.littletonrobotics.junction.AutoLogOutput;
-import org.littletonrobotics.junction.Logger;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class LimelightSubsystem extends SubsystemBase {
     private static LimelightSubsystem instance;
-    private NetworkTable nt; // nt
     
+    private NetworkTable nt;
+    // Two ways to get data: the Limelight Helpers class (preferred) and the limeLight object which provides access to a library someone else made and i thought would be useful
     private LimeLight limeLight; // lib
+    private String limelightName = "limelight"; // required for all LimelightHelpers method calls - or pass a blank string if the name is the default (limelight
 
     private final Drivetrain drivetrain;
 
-    
-    // NetworkTable table = NetworkTableInstance.getDefault().getTable("limelight");
-    // NetworkTableEntry tx = table.getEntry("tx");
-    // NetworkTableEntry ty = table.getEntry("ty");
-    // NetworkTableEntry ta = table.getEntry("ta");
 
     public static LimelightSubsystem getInstance() {
         if (instance == null) {
@@ -30,79 +28,124 @@ public class LimelightSubsystem extends SubsystemBase {
         return instance;
     }
 
-    public enum LEDControl {
-        LED_PipelineControlled(0),
-        LED_Off(1),
-        LED_Blink(2),
-        LED_On(3);
+    public enum LedMode {
+        pipeline(0),   //0	use the LED Mode set in the current pipeline
+        forceOff(1),   //1	force off
+        forceBlink(2), //2	force blink
+        forceOn(3);    //3	force on 
 
-        public int number() {
+        private static final Map<Double, LedMode> MY_MAP = new HashMap<Double, LedMode>();
+
+        static {
+            for (LedMode LedMode : values()) {
+                MY_MAP.put(LedMode.getValue(), LedMode);
+            }
+        }
+
+        private double value;
+
+        LedMode(double value) {
+            this.value = value;
+        }
+
+        public double getValue() {
             return value;
         }
 
-        int value;
-
-        LEDControl(int value) {
-            this.value = value;
+        public static LedMode getByValue(double value) {
+            return MY_MAP.get(value);
         }
+
+        public String toString() {
+            return name();
+        }
+
     }
 
+    public enum Pipeline{
+        Coral_Detector(0),
+        Color_Detection(1);
+        private static final Map<Integer, Pipeline> MY_MAP = new HashMap<Integer, Pipeline>();
+
+        static {
+            for (Pipeline Pipeline : values()) {
+                MY_MAP.put(Pipeline.getIndex(), Pipeline);
+            }
+        }
+
+        private int index;
+
+        Pipeline(int index) {
+            this.index = index;
+        }
+
+        public int getIndex() {
+            return index;
+        }
+
+        public static Pipeline getByIndex(int index) {
+            return MY_MAP.get(index);
+        }
+
+        public String toString() {
+            return name();
+        }
+
+    }
     private LimelightSubsystem() {
         limeLight = new LimeLight(); // init lib
-        nt = NetworkTableInstance.getDefault().getTable("limelight");
+        nt = NetworkTableInstance.getDefault().getTable(limelightName);
         drivetrain = Drivetrain.getInstance();
     }
     @AutoLogOutput(key = "Limelight/Connected")
     public boolean isConnected() {
-        return NetworkTableInstance.getDefault().getTable("limelight").containsKey("ledMode");
+        return NetworkTableInstance.getDefault().getTable(limelightName).containsKey("ledMode");
     }
 
-    @AutoLogOutput(key = "Limelight/hasTargetHelper")
-    public boolean hasTargetHelper() {
-         return LimelightHelpers.getTV("camera");
-    }    
-    @AutoLogOutput(key = "Limelight/hasTargetLib")
-    public boolean hasTargetLib() {
-         return limeLight.getIsTargetFound();
-    }    
-    @AutoLogOutput(key = "Limelight/hasTargetNT")
-    public boolean hasTargetNT() {
-               return nt.getEntry("tv").getDouble(0.0) == 1.0;
-
-    }
-    
-
+     @AutoLogOutput(key = "Limelight/hasTarget")
+     public boolean hasTarget() {
+          return LimelightHelpers.getTV(limelightName);
+     }
+     
     @AutoLogOutput(key = "Limelight/TargetArea")
     public double getTargetArea() {
-       return nt.getEntry("ta").getDouble(0.0);
-        // return LimelightHelpers.getTA("camera");
+         return LimelightHelpers.getTA(limelightName);
     }
     @AutoLogOutput(key = "Limelight/xOffset")
     public double getXOffset() {
-       return nt.getEntry("tx").getDouble(0.0);
-        // return LimelightHelpers.getTX("camera");
+         return LimelightHelpers.getTX(limelightName);
     }
-
     @AutoLogOutput(key = "Limelight/yOffset")
     public double getYOffset() {
-       return nt.getEntry("ty").getDouble(0.0);
-        // return LimelightHelpers.getTY("camera");
+         return LimelightHelpers.getTY(limelightName);
+    }
+    @AutoLogOutput(key = "Limelight/LEDMode")
+    public LedMode getLEDMode(){
+        return LedMode.getByValue( nt.getEntry("ledMode").getInteger(-1));
+    }
+    // note, cone cube etc
+    @AutoLogOutput(key = "Limelight/DetectorClass")
+    public String getDetectorClass(){
+        return LimelightHelpers.getDetectorClass(limelightName);
+    }
+    
+    @AutoLogOutput(key = "Limelight/PipelineLatency")
+    public double getPipelineLatency(){
+        return LimelightHelpers.getLatency_Pipeline(limelightName);
     }
 
-    // can just use the LimelightHelpers.set whatever method for this, just call that method from basically anywhere
-    public void setLEDMode(LEDControl mode) {
-        nt.getEntry("ledMode").setNumber(mode.number());
+    @AutoLogOutput(key = "Limelight/PipelineIndex")
+    public int getCurrentPipelineIndex(){
+        return (int) LimelightHelpers.getCurrentPipelineIndex(limelightName);
     }
     
-//    public LEDControl getLEDMode(){d
-//        return nt.getEntry("ledMode").getInteger(-1);
-//    }
-    
-    // note, cone cube etc
-    public String getDetectorClass(){
-        return LimelightHelpers.getDetectorClass("camera");
+    public void setLEDMode(LedMode mode) {
+        nt.getEntry("ledMode").setNumber(mode.getValue());
     }
-    
+
+    public void setPipeline(Pipeline pipeline){
+        LimelightHelpers.setPipelineIndex(limelightName, pipeline.getIndex());
+    }
     
     
     @Override
@@ -113,11 +156,11 @@ public class LimelightSubsystem extends SubsystemBase {
 
         //post to smart dashboard periodically
 
-       Logger.recordOutput("Limelight/xOffset", getXOffset());
-       Logger.recordOutput("Limelight/yOffset", getYOffset());
-    //    Logger.recordOutput("Limelight/Distance", getDistance());
-    //    SmartDashboard.putNumber("LimelightX", getXOffset());
-       SmartDashboard.putNumber("LimelightY", getYOffset());
+//       Logger.recordOutput("Limelight/xOffset", getXOffset());
+//       Logger.recordOutput("Limelight/yOffset", getYOffset());
+//    //    Logger.recordOutput("Limelight/Distance", getDistance());
+//    //    SmartDashboard.putNumber("LimelightX", getXOffset());
+//       SmartDashboard.putNumber("LimelightY", getYOffset());
 //        SmartDashboard.putNumber("Limelight Distance", getDistance());
 
 //        if(DriverStation.isTeleop()){
