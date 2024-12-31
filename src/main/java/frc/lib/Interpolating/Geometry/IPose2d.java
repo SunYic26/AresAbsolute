@@ -47,6 +47,12 @@ public class IPose2d implements Interpolable<IPose2d> {
         return new IPose2d(newX, newY, newRotation);
     }
 
+    public ITwist2d getVelocityBetween(IPose2d newPose, double deltaTime) {
+        return new ITwist2d(
+        (newPose.x - this.x)/deltaTime,
+        (newPose.y - this.y)/deltaTime);
+    }
+
     // Getters for x, y, rotation if needed
     public double getX() {
         return x;

@@ -57,7 +57,7 @@ public class AccelerationIntegrator {
 
         integrateAccel(accel[0], accel[1], accel[2]);
 
-        if(s_Swerve.getAbsoluteWheelVelocity() < 0.001){ //tune this threshold as needed
+        if(s_Swerve.getAbsoluteWheelVelocity() < 0.00001){ //tune this threshold as needed
             xVelocity = 0;
             yVelocity = 0;
         } 

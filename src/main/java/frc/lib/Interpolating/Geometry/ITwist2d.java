@@ -40,6 +40,17 @@ public class ITwist2d implements Interpolable<ITwist2d> {
         return dy;
     }
 
+    /**
+     * @param other Second ITwist2d to merge
+     * @param identity Trust in second ITwist2d from 0 - 1
+     * @return Interpolated value at timestep
+     */
+    public ITwist2d complimentaryFilter(ITwist2d other, double alpha) {
+        return new ITwist2d(
+            alpha * other.getX() + (1-alpha) * this.getX(),
+            alpha * other.getY() + (1-alpha) * this.getY());
+    }
+
     @Override
     public ITwist2d interpolate(final ITwist2d other, double x) {
         if (x <= 0) {
