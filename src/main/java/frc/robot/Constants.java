@@ -36,6 +36,19 @@ public final class Constants {
     public static final double stickDeadband = 0.05;
     public static final double triggerDeadzone = 0.2;
 
+    public static Mode deployMode = Mode.REAL;
+
+    public static enum Mode {
+        /** Running on a real robot. */
+        REAL,
+
+        /** Running a simulator. */
+        SIM,
+
+        /** Replaying from a log file. */
+        REPLAY
+    }
+
     public static final class VisionConstants {
         public static final String cameraName = "camera";
         public static final int aprilTagMax = 16;
