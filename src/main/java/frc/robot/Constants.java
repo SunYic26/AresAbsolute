@@ -8,6 +8,7 @@ import edu.wpi.first.apriltag.AprilTag;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.apriltag.AprilTagPoseEstimate;
+import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -63,6 +64,11 @@ public final class Constants {
     }
 
     public static class LimelightConstants{
+        public static final Transform3d limelightToRobot = new Transform3d( // TODO this is NOT REAL - measure and then add in values for camera positioning
+                new Translation3d(Units.inchesToMeters(0), Units.inchesToMeters(0), Units.inchesToMeters(0)),
+                new Rotation3d(Units.degreesToRadians(0), Units.degreesToRadians(0), Units.degreesToRadians(0))
+        );
+        public static final String cameraName = "limelight"; // required for all LimelightHelpers method calls - or pass a blank string if the name is the default (limelight)
         
         // TODO these are all from the example person but idk how many we will need and ofc they need to change for our design and new game (this is charged up i think)
         public static final int pipeNu_megatag = 0;

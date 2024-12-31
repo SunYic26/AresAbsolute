@@ -1,8 +1,11 @@
 package frc.robot.Subsystems.Vision;
 
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.networktables.*;
 import frc.lib.vision.LimeLight;
+import frc.robot.Constants;
+import static frc.robot.Constants.LimelightConstants.*; // ooooh fancy
 import frc.robot.LimelightHelpers;
 import frc.robot.Subsystems.CommandSwerveDrivetrain.Drivetrain;
 import org.littletonrobotics.junction.AutoLogOutput;
@@ -16,7 +19,7 @@ public class LimelightSubsystem extends SubsystemBase {
     private NetworkTable nt;
     // Two ways to get data: the Limelight Helpers class (preferred) and the limeLight object which provides access to a library someone else made and i thought would be useful
     private LimeLight limeLight; // lib
-    private String limelightName = "limelight"; // required for all LimelightHelpers method calls - or pass a blank string if the name is the default (limelight
+    private final String name = cameraName; // simplified for convenience
 
     private final Drivetrain drivetrain;
 
@@ -27,7 +30,17 @@ public class LimelightSubsystem extends SubsystemBase {
         }
         return instance;
     }
+    
+    private LimelightSubsystem() {
+        limeLight = new LimeLight(); // init lib
+        nt = NetworkTableInstance.getDefault().getTable(name);
+        drivetrain = Drivetrain.getInstance();
 
+        LimelightHelpers.setCameraPose_RobotSpace(name,
+                limelightToRobot.getX(), limelightToRobot.getY(), limelightToRobot.getZ(), // translations assuming forward is x, right is y, up is z
+                limelightToRobot.getRotation().getX(), limelightToRobot.getRotation().getY(), limelightToRobot.getRotation().getZ()); // rotations, roll pitch yaw
+    }
+    
     public enum LedMode {
         pipeline(0),   //0	use the LED Mode set in the current pipeline
         forceOff(1),   //1	force off
@@ -92,59 +105,59 @@ public class LimelightSubsystem extends SubsystemBase {
         }
 
     }
-    private LimelightSubsystem() {
-        limeLight = new LimeLight(); // init lib
-        nt = NetworkTableInstance.getDefault().getTable(limelightName);
-        drivetrain = Drivetrain.getInstance();
-    }
+
     @AutoLogOutput(key = "Limelight/Connected")
     public boolean isConnected() {
-        return NetworkTableInstance.getDefault().getTable(limelightName).containsKey("ledMode");
+        return NetworkTableInstance.getDefault().getTable(name).containsKey("ledMode");
     }
 
      @AutoLogOutput(key = "Limelight/hasTarget")
      public boolean hasTarget() {
-          return LimelightHelpers.getTV(limelightName);
+          return LimelightHelpers.getTV(name);
      }
      
     @AutoLogOutput(key = "Limelight/TargetArea")
     public double getTargetArea() {
-         return LimelightHelpers.getTA(limelightName);
+         return LimelightHelpers.getTA(name);
     }
     @AutoLogOutput(key = "Limelight/xOffset")
     public double getXOffset() {
-         return LimelightHelpers.getTX(limelightName);
+         return LimelightHelpers.getTX(name);
     }
     @AutoLogOutput(key = "Limelight/yOffset")
     public double getYOffset() {
-         return LimelightHelpers.getTY(limelightName);
+         return LimelightHelpers.getTY(name);
     }
     @AutoLogOutput(key = "Limelight/LEDMode")
     public LedMode getLEDMode(){
         return LedMode.getByValue( nt.getEntry("ledMode").getInteger(-1));
     }
-    // note, cone cube etc
     @AutoLogOutput(key = "Limelight/DetectorClass")
     public String getDetectorClass(){
-        return LimelightHelpers.getDetectorClass(limelightName);
+        return LimelightHelpers.getDetectorClass(name);
     }
-    
     @AutoLogOutput(key = "Limelight/PipelineLatency")
     public double getPipelineLatency(){
-        return LimelightHelpers.getLatency_Pipeline(limelightName);
+        return LimelightHelpers.getLatency_Pipeline(name);
     }
-
     @AutoLogOutput(key = "Limelight/PipelineIndex")
     public int getCurrentPipelineIndex(){
-        return (int) LimelightHelpers.getCurrentPipelineIndex(limelightName);
+        return (int) LimelightHelpers.getCurrentPipelineIndex(name);
     }
-    
+
+    /**
+     * 
+     * @return The targets 3d pose with respect to the robots coordinate system
+     */
+    @AutoLogOutput(key = "Limelight/TargetToRobotPose")
+    public Pose3d getTargetToRobotPose(){
+        return  LimelightHelpers.getTargetPose3d_RobotSpace(name);
+    }
     public void setLEDMode(LedMode mode) {
         nt.getEntry("ledMode").setNumber(mode.getValue());
     }
-
     public void setPipeline(Pipeline pipeline){
-        LimelightHelpers.setPipelineIndex(limelightName, pipeline.getIndex());
+        LimelightHelpers.setPipelineIndex(name, pipeline.getIndex());
     }
     
     
@@ -176,7 +189,10 @@ public class LimelightSubsystem extends SubsystemBase {
 //                drivetrain.resetOdometryFromPosition(x,y);
 //            }
 //        }
+       
     }
+    
+    
 
     // @AutoLogOutput(key = "Limelight/Distance")
     // public double getDistance() {
