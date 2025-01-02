@@ -51,6 +51,11 @@ public class ITwist2d implements Interpolable<ITwist2d> {
             alpha * other.getY() + (1-alpha) * this.getY());
     }
 
+    public double toMagnitude() {
+        return Math.signum(Math.atan2(this.dx, this.dy))
+        * Math.hypot(this.dx, this.dy);
+    }
+
     @Override
     public ITwist2d interpolate(final ITwist2d other, double x) {
         if (x <= 0) {

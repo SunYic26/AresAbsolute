@@ -146,6 +146,8 @@ public class Drivetrain extends SwerveDrivetrain implements Subsystem {
 
     public void resetOdo(Pose2d pose){
         resetOdoUtil(pose);
+        resetOdoUtil(pose);
+        resetOdoUtil(pose);
         robotState.reset(0.02, new IPose2d(pose), ITwist2d.identity());
     }
 

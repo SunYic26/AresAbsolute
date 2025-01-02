@@ -1,43 +1,30 @@
 package frc.robot.Subsystems.Vision;    
 
-import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.lib.VisionOutput;
-import frc.robot.Constants;
-import frc.robot.Robot;
-import frc.robot.Constants.VisionConstants.VisionLimits;
-import frc.robot.RobotState.RobotState;
-import frc.robot.Subsystems.CommandSwerveDrivetrain.Drivetrain;
-
-import java.io.ObjectInputStream.GetField;
 import java.util.List;
-import java.util.Optional;
 
-import edu.wpi.first.apriltag.AprilTagFieldLayout;
-import edu.wpi.first.apriltag.AprilTagFields;
-import edu.wpi.first.math.geometry.Transform3d;
-import edu.wpi.first.math.geometry.Translation3d;
-import edu.wpi.first.math.util.Units;
-import edu.wpi.first.units.UnitBuilder;
-import edu.wpi.first.math.estimator.PoseEstimator;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Pose3d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Rotation3d;
-
-import org.photonvision.EstimatedRobotPose;
+import org.littletonrobotics.junction.Logger;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
 import org.photonvision.PhotonPoseEstimator.PoseStrategy;
 import org.photonvision.PhotonUtils;
-import org.photonvision.proto.Photon;
 import org.photonvision.targeting.MultiTargetPNPResult;
 import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
-import org.littletonrobotics.junction.Logger;
-import frc.robot.Subsystems.Vision.Vision;
+
+import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.apriltag.AprilTagFields;
+import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.lib.VisionOutput;
+import frc.robot.Constants;
+import frc.robot.Constants.VisionConstants.VisionLimits;
+import frc.robot.RobotState.RobotState;
+import frc.robot.Subsystems.CommandSwerveDrivetrain.Drivetrain;
 
 public class Vision extends SubsystemBase {
     private static Vision instance;
@@ -155,34 +142,23 @@ public class Vision extends SubsystemBase {
         //ensure this works before putting back into the code
 
         if(!cameraResult.getMultiTagResult().estimatedPose.isPresent) {
-            if(hasValidTarget(cameraResult)) { //using fallback tag
+            if(hasValidTarget(cameraResult)) 
+            { //using fallback tag
                 VisionOutput newPose = new VisionOutput(photonPoseEstimator.update().get());
                 robotState.visionUpdate(newPose); 
-                return;
             }
-            
         } else if (shouldUseMultiTag()) { //using multitag
-
             VisionOutput newPose = new VisionOutput(photonPoseEstimator.update().get());
             robotState.visionUpdate(newPose); 
-            return;
-
         } else if (hasValidTarget(cameraResult)){ // manually making the pose
-
-                Pose3d targetPose = aprilTagFieldLayout.getTagPose(cameraResult.getBestTarget().getFiducialId()).orElse(null);
-                Pose3d newPose = PhotonUtils.estimateFieldToRobotAprilTag(
-                cameraResult.getBestTarget().getBestCameraToTarget(), targetPose, cameraToRobotTransform);
-                robotState.visionUpdate(new VisionOutput(newPose, cameraResult.getTimestampSeconds(),
-                cameraResult.getBestTarget(), PoseStrategy.CLOSEST_TO_LAST_POSE));
-                
-        } 
-
-
-    }
-        // else { SmartDashboard.putString("Vision accepter", "Vision failed: no targets");} 
-        //less nesting! 
-
+            Pose3d targetPose = aprilTagFieldLayout.getTagPose(cameraResult.getBestTarget().getFiducialId()).orElse(null);
+            Pose3d newPose = PhotonUtils.estimateFieldToRobotAprilTag(
+            cameraResult.getBestTarget().getBestCameraToTarget(), targetPose, cameraToRobotTransform);
+            robotState.visionUpdate(new VisionOutput(newPose, cameraResult.getTimestampSeconds(),
+            cameraResult.getBestTarget(), PoseStrategy.CLOSEST_TO_LAST_POSE));
+        } else { SmartDashboard.putString("Vision accepter", "Vision failed: no targets");} 
         // lastProcessedTimestamp = cameraResult.getTimestampSeconds();
+    }
 
     @Override
     public void periodic() {

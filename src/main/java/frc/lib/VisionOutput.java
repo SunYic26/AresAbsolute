@@ -1,17 +1,13 @@
 package frc.lib;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
 
-import org.opencv.photo.Photo;
 import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonPoseEstimator.PoseStrategy;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
 import edu.wpi.first.math.geometry.Pose3d;
-import frc.lib.Interpolating.Geometry.*;
+import frc.lib.Interpolating.Geometry.ITranslation2d;
 
 /**
  * VisionOutput
@@ -37,7 +33,7 @@ public class VisionOutput extends EstimatedRobotPose {
         for (PhotonTrackedTarget photonTrackedTarget : this.targetsUsed) {
             count++;
 
-            // Update means wit Welford algorithm 
+            // Update means with Welford algorithm 
             double deltaArea = photonTrackedTarget.getArea() - meanArea;
             meanArea += deltaArea / count;
             sumSquareDiffArea += deltaArea * (photonTrackedTarget.getArea() - meanArea);
@@ -46,10 +42,11 @@ public class VisionOutput extends EstimatedRobotPose {
             meanAmbiguity += deltaAmbiguity / count;
             sumSquareDiffAmbiguity += deltaAmbiguity * (photonTrackedTarget.getPoseAmbiguity() - meanAmbiguity);
         }
-
+        
+        //dont divide by 0
         if(count <= 1) {
-            return 0;
-        } //dont divide by 0 brah
+            return 1e-4;
+        } 
 
         double varianceArea = sumSquareDiffArea / (count - 1);
         double varianceAmbiguity = sumSquareDiffAmbiguity / (count - 1);
