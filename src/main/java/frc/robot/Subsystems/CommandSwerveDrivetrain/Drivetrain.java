@@ -124,8 +124,10 @@ public class Drivetrain extends SwerveDrivetrain implements Subsystem {
 
     public void resetOdo(){ //not being used, drivetrain.seedFieldRelative() instead for field centric driving
         tareEverything();
+        robotState.reset(0.02, IPose2d.identity(), ITwist2d.identity());
+        robotState.resetUKF(IPose2d.identity());
     }
-
+    
     public void resetOdoUtil(Pose2d pose){
         try {
             m_stateLock.writeLock().lock();
@@ -149,6 +151,7 @@ public class Drivetrain extends SwerveDrivetrain implements Subsystem {
         resetOdoUtil(pose);
         resetOdoUtil(pose);
         robotState.reset(0.02, new IPose2d(pose), ITwist2d.identity());
+        robotState.resetUKF(new IPose2d(pose));
     }
 
     public double getHeading() {

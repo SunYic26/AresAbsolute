@@ -52,8 +52,7 @@ public class ITwist2d implements Interpolable<ITwist2d> {
     }
 
     public double toMagnitude() {
-        return Math.signum(Math.atan2(this.dx, this.dy))
-        * Math.hypot(this.dx, this.dy);
+        return Math.hypot(this.dx, this.dy);
     }
 
     @Override
