@@ -1,20 +1,7 @@
 plugins {
     id "java"
-    id "edu.wpi.first.GradleRIO" version "2024.3.2"
-    // BuildConstants File for Advantage Kit Version Control
-    id "com.peterabeles.gversion" version "1.10"
+    id "edu.wpi.first.GradleRIO" version "2025.1.1"
 }
-// idk where to put this block but oh well
-project.compileJava.dependsOn(createVersionFile)
-gversion {
-    srcDir       = "src/main/java/"
-    classPackage = "frc.robot"
-    className    = "BuildConstants"
-    dateFormat   = "yyyy-MM-dd HH:mm:ss z"
-    timeZone     = "America/Los_Angeles" // Use preferred time zone
-    indent       = "  "
-}
-
 
 repositories {
     maven {
@@ -27,50 +14,10 @@ repositories {
     mavenLocal()
 }
 
-configurations.all {
-    exclude group: "edu.wpi.first.wpilibj"
-}
-
-// Create commit with working changes on event branches
-// branch should start with event
-// https://docs.advantagekit.org/getting-started/installation/version-control
-task(eventDeploy) {
-    doLast {
-        if (project.gradle.startParameter.taskNames.any({ it.toLowerCase().contains("deploy") })) {
-            def branchPrefix = "event"
-            def branch = 'git branch --show-current'.execute().text.trim()
-            def commitMessage = "Update at '${new Date().toString()}'"
-
-            if (branch.startsWith(branchPrefix)) {
-                exec {
-                    workingDir(projectDir)
-                    executable 'git'
-                    args 'add', '-A'
-                }
-                exec {
-                    workingDir(projectDir)
-                    executable 'git'
-                    args 'commit', '-m', commitMessage
-                    ignoreExitValue = true
-                }
-
-                println "Committed to branch: '$branch'"
-                println "Commit message: '$commitMessage'"
-            } else {
-                println "Not on an event branch, skipping commit"
-            }
-        } else {
-            println "Not running deploy task, skipping commit"
-        }
-    }
-}
-project.createVersionFile.dependsOn(eventDeploy)
-
-task(checkAkitInstall, dependsOn: "classes", type: JavaExec) {
-    mainClass = "org.littletonrobotics.junction.CheckInstall"
+task(replayWatch, type: JavaExec) {
+    mainClass = "org.littletonrobotics.junction.ReplayWatch"
     classpath = sourceSets.main.runtimeClasspath
 }
-compileJava.finalizedBy checkAkitInstall
 
 java {
     sourceCompatibility = JavaVersion.VERSION_17
@@ -102,6 +49,8 @@ deploy {
                 frcStaticFileDeploy(getArtifactTypeClass('FileTreeArtifact')) {
                     files = project.fileTree('src/main/deploy')
                     directory = '/home/lvuser/deploy'
+                    deleteOldFiles = false // Change to true to delete files on roboRIO that no
+                                           // longer exist in deploy directory of this project
                 }
             }
         }
@@ -119,6 +68,7 @@ def includeDesktopSupport = true
 // Defining my dependencies. In this case, WPILib (+ friends), and vendor libraries.
 // Also defines JUnit 5.
 dependencies {
+    annotationProcessor wpi.java.deps.wpilibAnnotations()
     implementation wpi.java.deps.wpilib()
     implementation wpi.java.vendor.java()
 
@@ -138,9 +88,9 @@ dependencies {
 
     testImplementation 'org.junit.jupiter:junit-jupiter:5.10.1'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-
+    
     def akitJson = new groovy.json.JsonSlurper().parseText(new File(projectDir.getAbsolutePath() + "/vendordeps/AdvantageKit.json").text)
-    annotationProcessor "org.littletonrobotics.akit.junction:junction-autolog:$akitJson.version"
+    annotationProcessor "org.littletonrobotics.akit:akit-autolog:$akitJson.version"
 }
 
 test {

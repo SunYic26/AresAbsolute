@@ -164,20 +164,24 @@ bin/
 *.iws
 .idea/
 out/
-/.run/
 
 # Fleet
 .fleet
 
 # Simulation GUI and other tools window save file
+networktables.json
+simgui.json
 *-window.json
 
 # Simulation data log directory
 logs/
 
-# We dont need to be commiting this stuff - it is used to store metadata about the build so Advantage Kit can report it in the logs. Dont need info about ever random commit unless its being run
-src/main/java/frc/robot/BuildConstants.java 
-
-
 # Folder that has CTRE Phoenix Sim device config storage
 ctre_sim/
+
+# clangd
+/.cache
+compile_commands.json
+
+# Eclipse generated file for annotation processors
+.factorypath
