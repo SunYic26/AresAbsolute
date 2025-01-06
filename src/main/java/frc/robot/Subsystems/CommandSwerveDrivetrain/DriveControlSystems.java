@@ -8,11 +8,14 @@ import com.ctre.phoenix6.swerve.SwerveModule;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.interpolation.Interpolator;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants;
 import frc.robot.RobotContainer;
+
+import javax.xml.stream.events.DTD;
 
 import org.littletonrobotics.junction.Logger;
 
@@ -56,22 +59,57 @@ public class DriveControlSystems {
         //     driverRX = headingControl(driverRX);
         // }
 
-        // //slip control
-        // if (slipControlOn) {
-        // slipCorrection(slipControl(drivetrain.robotAbsoluteVelocity())); 
-        // }
-
         SmartDashboard.putNumber("requested velocity x", driverLX);
         SmartDashboard.putNumber("requested velocity y", driverLY);
         Logger.recordOutput("JoystickProcessing/RequestedX", driverLX);
         Logger.recordOutput("JoystickProcessing/RequestedY", driverLY);
+
+        ChassisSpeeds speeds = new ChassisSpeeds(driverLY, driverLX, driverRX);
+
+        double[][] wheelFeedFwX = calculateFeedforward();
         
-        return new SwerveRequest.FieldCentric()
-        .withVelocityX(driverLY)
-        .withVelocityY(driverLX)
-        .withRotationalRate(driverRX)
-        .withDeadband(Constants.MaxSpeed * RobotContainer.translationDeadband)
-        .withRotationalDeadband(Constants.MaxAngularRate * RobotContainer.rotDeadband);
+        return new SwerveRequest.ApplyFieldSpeeds()
+        .withSpeeds(speeds)
+        .withWheelForceFeedforwardsX(wheelFeedFwX[0])
+        .withWheelForceFeedforwardsY(wheelFeedFwX[1])
+        .withDriveRequestType(com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType.OpenLoopVoltage)
+        .withDesaturateWheelSpeeds(true);
+    }
+
+    private double[] previousVelocities = new double[4]; // To store previous velocity for each module
+
+    public double[][] calculateFeedforward() {
+        double[][] wheelFeedFwX = new double[4][4];
+        //TODO tune
+        double Kv = 0.1;  // velocity gain
+        double Ka = 0.1;  // acceleration gain
+        double Kf = 0.1;  // friction gain
+
+        for (int i = 0; i < 4; i++) {
+            double currentVelocity = getModule(i).getCurrentState().speedMetersPerSecond;
+
+            double X = Kv * currentVelocity * Math.cos(getModule(i).getCurrentState().angle.getRadians())
+            + Ka * (currentVelocity - previousVelocities[i]) / Constants.dt //acceleration
+            + Kf;
+
+            previousVelocities[i] = currentVelocity;
+
+            wheelFeedFwX[0][i] = X;
+        }
+
+        for (int i = 0; i < 4; i++) {
+            double currentVelocity = getModule(i).getCurrentState().speedMetersPerSecond;
+
+            double Y = Kv * currentVelocity * Math.cos(getModule(i).getCurrentState().angle.getRadians())
+            + Ka * (currentVelocity - previousVelocities[i]) / Constants.dt //acceleration
+            + Kf;
+
+            previousVelocities[i] = currentVelocity;
+
+            wheelFeedFwX[1][i] = Y;
+        }
+
+        return wheelFeedFwX;
     }
 
     public double scaledDeadBand(double input) {

@@ -34,7 +34,6 @@ import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import frc.lib.Interpolating.Geometry.IPose2d;
 import frc.lib.Interpolating.Geometry.ITranslation2d;
@@ -67,6 +66,7 @@ public class Drivetrain extends SwerveDrivetrain implements Subsystem {
         if(s_Swerve == null){
             s_Swerve = new Drivetrain(TunerConstants.DrivetrainConstants, 250, TunerConstants.FrontLeft,
             TunerConstants.FrontRight, TunerConstants.BackLeft, TunerConstants.BackRight);  
+            
         }
         return s_Swerve;
     }
@@ -86,24 +86,23 @@ public class Drivetrain extends SwerveDrivetrain implements Subsystem {
     // }
 
     public Drivetrain(SwerveDrivetrainConstants driveTrainConstants, double OdometryUpdateFrequency, SwerveModuleConstants... modules) {
-        super(driveTrainConstants, OdometryUpdateFrequency, modules); //look here for parent library methods
+        super(TalonFX::new, TalonFX::new, TalonFX::new, driveTrainConstants, modules);
         if (Utils.isSimulation()) {
             startSimThread();
         }
         // limit();
     }
 
-    public Drivetrain(SwerveDrivetrainConstants driveTrainConstants, SwerveModuleConstants... modules) {
-        super(driveTrainConstants, modules);
-        //robotState = RobotState.getInstance();
-        if (Utils.isSimulation()) {
-            startSimThread();
-        }
-        // limit();
-    }
+    // public Drivetrain(SwerveDrivetrainConstants driveTrainConstants, SwerveModuleConstants... modules) {
+    //     super(driveTrainConstants, modules);
+    //     if (Utils.isSimulation()) {
+    //         startSimThread();
+    //     }
+    //     // limit();
+    // }
 
     public Command applyRequest(Supplier<SwerveRequest> requestSupplier) {
-        return new InstantCommand(() -> setControl(requestSupplier.get()), this);
+        return run(() -> setControl(requestSupplier.get()));
     }
 
     private void startSimThread() {
