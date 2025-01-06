@@ -42,7 +42,7 @@ public class DriveControlSystems {
 
     //interface with modules
     public SwerveModule getModule(int index) {
-      return drivetrain(index);
+      return drivetrain.getModule(index);
     }   
 
      // =======---===[ ⚙ Joystick processing ]===---========
@@ -145,7 +145,7 @@ public class DriveControlSystems {
         for (int i = 0; i < 4; i++) { //4 is module count but i dont want to make a getter
 
             if (inputs[i] != null) {
-                TalonFX module = getModule(i).getDriveMotor();
+                TalonFX module = (TalonFX) drivetrain.getModule(i).getDriveMotor();
                 
                 module.set(module.get() *
                  (1 + (Math.signum(inputs[i] - 1)) * (inputs[i] - Constants.slipThreshold)) / Constants.slipFactor);
