@@ -28,7 +28,7 @@ public class FollowChoreoTrajectory extends Command {
     alliance = DriverStation.getAlliance();
     timer = new Timer();
   }
-
+  
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {

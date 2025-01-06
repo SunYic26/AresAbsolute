@@ -24,6 +24,7 @@ import frc.robot.RobotContainer;
 import frc.robot.RobotState.RobotState;
 import frc.robot.Subsystems.CommandSwerveDrivetrain.Drivetrain;
 import frc.robot.Subsystems.Vision.Vision;
+import frc.robot.commands.FollowChoreoTrajectory;
 
 /** Add your docs here. */
 public class Autos {
@@ -41,6 +42,10 @@ public class Autos {
     return Commands.waitSeconds(1);
   }
 
+  public static Command WaitSeconds(double seconds){
+    return Commands.waitSeconds(seconds);
+  }
+
   public static Command Test2() {
     return Commands.waitSeconds(0);
   }
@@ -54,16 +59,8 @@ public class Autos {
   }
 
   public static Command meterForwardTest(){
-    Trajectory trajectory = Choreo.loadTrajectory("1meterforward").get();
     return new SequentialCommandGroup(
-      new InstantCommand(() -> {
-                    Pose2d initialPose;
-                    Optional<DriverStation.Alliance> alliance = DriverStation.getAlliance();
-                    initialPose = alliance.isPresent() && alliance.get() != Alliance.Red ? trajectory.getInitialPose() : trajectory.flipped().getInitialPose();
-                    drivetrain.resetOdo(initialPose);
-                    System.out.println(initialPose.getX() + " " + initialPose.getY());
-                }),
-      FollowChoreoTrajectory(Choreo.getTrajectory("1meterforward"))
+      new FollowChoreoTrajectory("meterForwardTest")
     );
   }
 }
