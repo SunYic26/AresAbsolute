@@ -5,23 +5,23 @@ package frc.lib.Interpolating;
  *
  * @see InterpolatingTreeMap
  */
-public class InterpolatingDouble implements Interpolable<InterpolatingDouble>, InverseInterpolable<InterpolatingDouble>,
-        Comparable<InterpolatingDouble> {
+public class IDouble implements Interpolable<IDouble>, InverseInterpolable<IDouble>,
+        Comparable<IDouble> {
     public Double value = 0.0;
 
-    public InterpolatingDouble(Double val) {
+    public IDouble(Double val) {
         value = val;
     }
 
     @Override
-    public InterpolatingDouble interpolate(InterpolatingDouble other, double x) {
+    public IDouble interpolate(IDouble other, double x) {
         Double dydx = other.value - value;
         Double searchY = dydx * x + value;
-        return new InterpolatingDouble(searchY);
+        return new IDouble(searchY);
     }
 
     @Override
-    public double inverseInterpolate(InterpolatingDouble upper, InterpolatingDouble query) {
+    public double inverseInterpolate(IDouble upper, IDouble query) {
         double upper_to_lower = upper.value - value;
         if (upper_to_lower <= 0) {
             return 0;
@@ -34,7 +34,7 @@ public class InterpolatingDouble implements Interpolable<InterpolatingDouble>, I
     }
 
     @Override
-    public int compareTo(InterpolatingDouble other) {
+    public int compareTo(IDouble other) {
         if (other.value < value) {
             return 1;
         } else if (other.value > value) {
