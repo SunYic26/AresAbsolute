@@ -102,6 +102,21 @@ public class RobotState { //will estimate pose with odometry and correct drift w
     public void odometryUpdate(Pose2d pose, double[] wheelVelocity, double timestamp) {
 
         updateSensors();
+        // //get the latest velocity
+        // updateVelocity(wheelVelocity);
+        // ITwist2d robotVelocity = getLatestRobotVelocity();
+        // double robotVelocityMagnitude = Math.abs(robotVelocityMagnitude());
+
+        // // if(robotVelocityMagnitude > 0) { //manually increase P (our predicted error in pos)
+        // //      Matrix<N2,N2> P = UKF.getP();
+
+        // //      double minimumFactor = 0.00001; // Base noise
+        // //      double motionFactor = 0.0001 * robotVelocityMagnitude / Constants.MaxSpeed;
+
+        // //      P.set(0, 0, P.get(0, 0) + minimumFactor + motionFactor);
+        // //      P.set(1, 1, P.get(1, 1) + minimumFactor + motionFactor);
+        // //      UKF.setP(P);
+        // // }
 
         if(prevOdomTimestamp.isEmpty()) {
             // First time initialization of state
@@ -155,13 +170,42 @@ public class RobotState { //will estimate pose with odometry and correct drift w
         }
 
         // odometryPoses.put(new InterpolatingDouble(timestamp), new IPose2d(pose.getX(),pose.getY(), pose.getRotation()));
+        // if(prevOdomTimestamp.isEmpty()) {
+        //     // First time initialization of state
+        //     Matrix<N2, N1> initialState = VecBuilder.fill(pose.getX(), pose.getY());
+        //     UKF.setXhat(initialState);
+        // } else {
+        //     //predict next state using our control input (velocity)
+        //     UKF.predict(VecBuilder.fill(robotVelocity.getX(), robotVelocity.getY()), timestamp);
 
+        //     //gets previous measurement to correct our prediction last timestep
+        //     robotVelocity = getInterpolatedValue(robotVelocities, prevOdomTimestamp.get(), ITwist2d.identity());
+
+        //     //specify the standard deviation of our current pose estimate
+        //     Vector<N2> stdevs = VecBuilder.fill(Math.pow(0.01, 1) * 0.5, Math.pow(0.01, 1));
+
+        //     UKF.correct(
+        //         VecBuilder.fill(
+        //             robotVelocity.getX(),
+        //             robotVelocity.getY()),
+        //         VecBuilder.fill(
+        //             pose.getX(),
+        //             pose.getY()),
+        //             StateSpaceUtil.makeCovarianceMatrix(Nat.N2(), stdevs));
+        // }
+
+        // odometryPoses.put(new InterpolatingDouble(timestamp), new IPose2d(pose.getX(),pose.getY(), pose.getRotation()));
+
+        // prevOdomTimestamp = Optional.of(timestamp);
         // prevOdomTimestamp = Optional.of(timestamp);
 
         SmartDashboard.putNumber("P MATRIX ", UKF.getP().get(0, 0));
         SmartDashboard.putNumber("FILT X", UKF.getXhat(0));
         SmartDashboard.putNumber("FILT Y", UKF.getXhat(1));
         // SmartDashboard.putNumber("VelocityMagnitude", );
+        // SmartDashboard.putNumber("P MATRIX", UKF.getP().get(0, 0));
+        // SmartDashboard.putNumber("FILT X", UKF.getXhat(0));
+        // SmartDashboard.putNumber("FILT Y", UKF.getXhat(1));
     }
 
 
