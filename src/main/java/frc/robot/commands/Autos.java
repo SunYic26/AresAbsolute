@@ -6,8 +6,8 @@ package frc.robot.commands;
 
 import java.util.Optional;
 
-import com.choreo.lib.Choreo;
-import com.choreo.lib.ChoreoTrajectory;
+import choreo.Choreo;
+import choreo.trajectory.Trajectory;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
 import edu.wpi.first.math.controller.PIDController;
@@ -37,36 +37,6 @@ public class Autos {
     private static final PIDController xController = new PIDController(5, 1, 0);
     private static final PIDController yController = new PIDController(5, 1, 0);
 
-
-    public static Command FollowChoreoTrajectory(ChoreoTrajectory path) {
-        SwerveRequest.ApplyChassisSpeeds drive = new SwerveRequest.ApplyChassisSpeeds();
-        thetaController.enableContinuousInput(-Math.PI, Math.PI);
-
-        ChoreoTrajectory traj = path;
-        thetaController.reset();
-        xController.reset();
-        yController.reset();
-
-        drivetrain.setAutoStartPose(traj.getInitialPose()); //NOTE: THIS MAY BE BROKEN, BE READY WHEN FIRST TESTING AUTO TO DISABLE
-        SmartDashboard.putNumber("Start pose x", traj.getInitialPose().getX());
-        Command swerveCommand = Choreo.choreoSwerveCommand(
-                traj,
-                drivetrain::getPose,
-                xController,
-                yController,
-                thetaController,
-                (ChassisSpeeds speeds) -> drivetrain.setControl(drive.withSpeeds(speeds)),
-                // () -> {return false;},
-                // (ChassisSpeeds speeds) -> s_Swerve.applyRequest(() -> drive.withSpeeds(speeds)),
-                () -> {
-                    Optional<DriverStation.Alliance> alliance = DriverStation.getAlliance();
-                    return alliance.isPresent() && alliance.get() == Alliance.Red;
-                },
-                drivetrain);
-
-        return swerveCommand;
-    }
-
   public static Command Test1() {
     return Commands.waitSeconds(1);
   }
@@ -84,7 +54,7 @@ public class Autos {
   }
 
   public static Command meterForwardTest(){
-    ChoreoTrajectory trajectory = Choreo.getTrajectory("1meterforward");
+    Trajectory trajectory = Choreo.loadTrajectory("1meterforward").get();
     return new SequentialCommandGroup(
       new InstantCommand(() -> {
                     Pose2d initialPose;
