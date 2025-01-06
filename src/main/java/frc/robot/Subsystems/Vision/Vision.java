@@ -3,6 +3,7 @@ package frc.robot.Subsystems.Vision;
 import java.util.List;
 
 import org.littletonrobotics.junction.Logger;
+import org.opencv.photo.Photo;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
 import org.photonvision.PhotonPoseEstimator.PoseStrategy;
@@ -30,7 +31,6 @@ public class Vision extends SubsystemBase {
     private static Vision instance;
     private static PhotonCamera centerCamera;
 
-    // private static PhotonCamera backRightCamera;
     private static PhotonPipelineResult cameraResult;
 
     private double lastProcessedTimestamp = -1;
@@ -47,7 +47,7 @@ public class Vision extends SubsystemBase {
 
     public static AprilTagFieldLayout aprilTagFieldLayout = AprilTagFields.k2024Crescendo.loadAprilTagLayoutField();
 
-    PhotonPoseEstimator photonPoseEstimator = new PhotonPoseEstimator(aprilTagFieldLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, centerCamera, cameraToRobotTransform);
+    PhotonPoseEstimator photonPoseEstimator = new PhotonPoseEstimator(aprilTagFieldLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, cameraToRobotTransform);
     
     public static Vision getInstance() {
         if (instance == null) {
@@ -67,6 +67,7 @@ public class Vision extends SubsystemBase {
 
     public void updateAprilTagResults() {
         cameraResult = centerCamera.getLatestResult();
+
     }
 
     public PhotonPipelineResult getLatestAprilTagResult(){
@@ -90,7 +91,7 @@ public class Vision extends SubsystemBase {
     }
 
     private Boolean shouldUseMultiTag() {
-        MultiTargetPNPResult multiTagResult = cameraResult.getMultiTagResult();
+        MultiTargetPNPResult multiTagResult = cameraResult.getMultiTagResult().get();
 
         if(multiTagResult.estimatedPose.bestReprojErr > VisionLimits.k_reprojectionLimit) {
             SmartDashboard.putString("Multitag updates", "high error");
@@ -141,14 +142,14 @@ public class Vision extends SubsystemBase {
         // } 
         //ensure this works before putting back into the code
 
-        if(!cameraResult.getMultiTagResult().estimatedPose.isPresent) {
+        if(!cameraResult.getMultiTagResult().isEmpty()) {
             if(hasValidTarget(cameraResult)) 
             { //using fallback tag
-                VisionOutput newPose = new VisionOutput(photonPoseEstimator.update().get());
+                VisionOutput newPose = new VisionOutput(photonPoseEstimator.update(cameraResult).get());
                 robotState.visionUpdate(newPose); 
             }
         } else if (shouldUseMultiTag()) { //using multitag
-            VisionOutput newPose = new VisionOutput(photonPoseEstimator.update().get());
+            VisionOutput newPose = new VisionOutput(photonPoseEstimator.update(cameraResult).get());
             robotState.visionUpdate(newPose); 
         } else if (hasValidTarget(cameraResult)){ // manually making the pose
             Pose3d targetPose = aprilTagFieldLayout.getTagPose(cameraResult.getBestTarget().getFiducialId()).orElse(null);
