@@ -11,6 +11,7 @@ import org.photonvision.EstimatedRobotPose;
 
 import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
+import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.Pigeon2;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.swerve.SwerveDrivetrain;
@@ -86,7 +87,7 @@ public class Drivetrain extends SwerveDrivetrain implements Subsystem {
     // }
 
     public Drivetrain(SwerveDrivetrainConstants driveTrainConstants, double OdometryUpdateFrequency, SwerveModuleConstants... modules) {
-        super(TalonFX::new, TalonFX::new, TalonFX::new, driveTrainConstants, modules);
+        super(TalonFX::new, TalonFX::new, CANcoder::new, driveTrainConstants, modules);
         if (Utils.isSimulation()) {
             startSimThread();
         }
@@ -94,7 +95,7 @@ public class Drivetrain extends SwerveDrivetrain implements Subsystem {
     }
 
     public Drivetrain(SwerveDrivetrainConstants driveTrainConstants, SwerveModuleConstants... modules) {
-        super(driveTrainConstants, modules);
+        super(TalonFX::new, TalonFX::new, CANcoder::new,driveTrainConstants, modules);
         if (Utils.isSimulation()) {
             startSimThread();
         }
@@ -126,22 +127,26 @@ public class Drivetrain extends SwerveDrivetrain implements Subsystem {
         robotState.resetUKF(IPose2d.identity());
     }
     
-    public void resetOdoUtil(Pose2d pose){
-        try {
-            m_stateLock.writeLock().lock();
-
-            for (int i = 0; i < ModuleCount; ++i) {
-                Modules[i].resetPosition();
-                m_modulePositions[i] = Modules[i].getPosition(true);
-            }
-            m_odometry.resetPosition(Rotation2d.fromDegrees(m_yawGetter.getValue()), m_modulePositions, pose);
-        } finally {
-            m_stateLock.writeLock().unlock();
-        }
+    public void resetOdoUtil(Pose2d pose){ //IDK if this works as we want it to
+        s_Swerve.resetPose(pose);
     }
 
+    // public void resetOdoUtil(Pose2d pose){
+    //     try {
+    //         m_stateLock.writeLock().lock();
+
+    //         for (int i = 0; i < ModuleCount; ++i) {
+    //             Modules[i].resetPosition();
+    //             m_modulePositions[i] = Modules[i].getPosition(true);
+    //         }
+    //         m_odometry.resetPosition(Rotation2d.fromDegrees(m_yawGetter.getValue()), m_modulePositions, pose);
+    //     } finally {
+    //         m_stateLock.writeLock().unlock();
+    //     }
+    // }
+
     public Pose2d getPose(){
-        return s_Swerve.m_odometry.getEstimatedPosition();
+        return s_Swerve.getStateCopy().Pose;
     }
 
     public void resetOdo(Pose2d pose){
@@ -164,8 +169,8 @@ public class Drivetrain extends SwerveDrivetrain implements Subsystem {
      */
     public double[] getWheelVelocities(){
         double roughVel[] = { 0.0, 0.0 }; // x and y
-        for(int i = 0; i < ModuleCount; i++){
-            SwerveModuleState module = Modules[i].getCurrentState();
+        for(int i = 0; i < 4; i++){
+            SwerveModuleState module = s_Swerve.getStateCopy().ModuleStates[i];
 
             roughVel[0] += module.speedMetersPerSecond * module.angle.getCos();
             roughVel[1] += module.speedMetersPerSecond * module.angle.getSin();
@@ -179,8 +184,8 @@ public class Drivetrain extends SwerveDrivetrain implements Subsystem {
 
     public double getAbsoluteWheelVelocity(){
         double velocity = 0;
-        for(int i = 0; i < ModuleCount; i++){
-            velocity += Modules[i].getCurrentState().speedMetersPerSecond;
+        for(int i = 0; i < 4; i++){
+            velocity += s_Swerve.getStateCopy().ModuleStates[i].speedMetersPerSecond;
         }
         return velocity/4;
     }
@@ -188,13 +193,13 @@ public class Drivetrain extends SwerveDrivetrain implements Subsystem {
     public void updateOdometryByVision(Pose3d estimatedPose){
         System.out.println("Pose received");
         if(estimatedPose != null){
-            s_Swerve.getOdometryThread()..addVisionMeasurement(estimatedPose.toPose2d(), Logger.getRealTimestamp()); //Timer.getFPGATimestamp()
+            s_Swerve.addVisionMeasurement(estimatedPose.toPose2d(), Logger.getTimestamp()); //Timer.getFPGATimestamp()
         }
     }
 
     public void updateOdometryByVision(Optional<EstimatedRobotPose> estimatedPose){
         if(estimatedPose.isPresent()){
-            s_Swerve.m_odometry.addVisionMeasurement(estimatedPose.get().estimatedPose.toPose2d(), estimatedPose.get().timestampSeconds); 
+            s_Swerve.addVisionMeasurement(estimatedPose.get().estimatedPose.toPose2d(), estimatedPose.get().timestampSeconds); 
         }
     }
 
@@ -209,10 +214,10 @@ public class Drivetrain extends SwerveDrivetrain implements Subsystem {
     @Override
     public void periodic() {
         // System.out.println(robotState);
-        Pose2d currPose = getPose();
+        Pose2d currentPose = getPose();
         
         if(robotState != null){
-             robotState.odometryUpdate(m_odometry.getEstimatedPosition(), getWheelVelocities(), Timer.getFPGATimestamp());
+             robotState.odometryUpdate(currentPose, getWheelVelocities(), Timer.getFPGATimestamp());
 
             // ITranslation2d currFilteredPose = robotState.getLatestFilteredPose();
 
@@ -225,17 +230,17 @@ public class Drivetrain extends SwerveDrivetrain implements Subsystem {
 
         //allows driver to see if resetting worked
         // SmartDashboard.putBoolean("Odo Reset (last 5 sec)", lastTimeReset != -1 && Timer.getFPGATimestamp() - lastTimeReset < 5);
-        SmartDashboard.putNumber("ODO X", currPose.getX());
-        SmartDashboard.putNumber("ODO Y", currPose.getY());
-         SmartDashboard.putNumber("ODO ROT", currPose.getRotation().getRadians());
+        SmartDashboard.putNumber("ODO X", currentPose.getX());
+        SmartDashboard.putNumber("ODO Y", currentPose.getY());
+         SmartDashboard.putNumber("ODO ROT", currentPose.getRotation().getRadians());
         // SmartDashboard.putNumber("AUTO INIT X", autoStartPose.getX());
         // SmartDashboard.putNumber("AUTO INIT Y", autoStartPose.getY());
          SmartDashboard.putNumber("current heading", getHeading());
         // SmartDashboard.putNumber("DT Vel", robotAbsoluteVelocity());
 //        Logger.recordOutput("Odo Reset (last 5 sec)", lastTimeReset != -1 && Timer.getFPGATimestamp() - lastTimeReset < 5);
-        Logger.recordOutput("Swerve/ODO X", currPose.getX());
-        Logger.recordOutput("Swerve/ODO Y", currPose.getY());
-        Logger.recordOutput("Swerve/ODO ROT", currPose.getRotation().getRadians());
+        Logger.recordOutput("Swerve/ODO X", currentPose.getX());
+        Logger.recordOutput("Swerve/ODO Y", currentPose.getY());
+        Logger.recordOutput("Swerve/ODO ROT", currentPose.getRotation().getRadians());
 //        Logger.recordOutput("Swerve/AUTO INIT X", autoStartPose.getX());
 //        Logger.recordOutput("Swerve/AUTO INIT Y", autoStartPose.getY());
         Logger.recordOutput("Swerve/CurrentHeading", getHeading());

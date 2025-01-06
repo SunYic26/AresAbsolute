@@ -156,11 +156,12 @@ public class DriveControlSystems {
     }
 
     // =======---===[ ⚙ Slip Control ]===---========
-    public Double[] slipControl(double currentVelocity) {
+
+    //useless bc our IMU gives poop values
+
+    public Double[] slipControl(double currentVelocity) { 
 
     Double[] outputs = new Double[4]; // reset to null every call
-    SmartDashboard.putNumber("currentVelocity", currentVelocity);
-        Logger.recordOutput("currentVelocity", currentVelocity);
         for (int i = 0; i < 4; i++) {  //4 is module count but i dont want to make a getter
         
         //gets the ratio between what the encoders think our velocity is and the real velocity
@@ -174,7 +175,7 @@ public class DriveControlSystems {
         if (slipRatio > (Constants.slipThreshold + 1) || slipRatio < (1 - Constants.slipThreshold)) {
             outputs[i] = slipRatio;
         }
-    }
+    } 
 
     return outputs;
     } // runs periodically as a default command
