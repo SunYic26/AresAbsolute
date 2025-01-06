@@ -45,13 +45,6 @@ public class RobotContainer {
   //instances
   private final Drivetrain drivetrain = Drivetrain.getInstance(); // Drivetrain
 
-  private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
-          .withDeadband(Constants.MaxSpeed * translationDeadband).withRotationalDeadband(Constants.MaxAngularRate * rotDeadband)
-          .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // I want field-centric
-
-          public static final double translationDeadband = 0.03;
-          public static final double rotDeadband = 0.03;
-
   /* Driver Buttons */
   private final Trigger driverBack = driver.back();
   private final Trigger driverStart = driver.start();

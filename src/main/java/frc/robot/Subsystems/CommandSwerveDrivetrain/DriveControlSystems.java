@@ -54,11 +54,6 @@ public class DriveControlSystems {
         driverLY = scaledDeadBand(driverLY) * Constants.MaxSpeed;
         driverRX = scaledDeadBand(driverRX) * Constants.MaxAngularRate;
 
-        //heading control
-        // if (headingControl && driverRX < 0.1) {
-        //     driverRX = headingControl(driverRX);
-        // }
-
         SmartDashboard.putNumber("requested velocity x", driverLX);
         SmartDashboard.putNumber("requested velocity y", driverLY);
         Logger.recordOutput("JoystickProcessing/RequestedX", driverLX);
@@ -114,7 +109,10 @@ public class DriveControlSystems {
     }
 
     public double scaledDeadBand(double input) {
-        return (deadbandFactor * Math.pow(input, 3)) + (1 - deadbandFactor) * input;
+        if(Math.abs(input) < Constants.stickDeadband) 
+            return 0;
+        else
+            return (deadbandFactor * Math.pow(input, 3)) + (1 - deadbandFactor) * input;
     }
 
     // =======---===[ ⚙ Heading control ]===---========
