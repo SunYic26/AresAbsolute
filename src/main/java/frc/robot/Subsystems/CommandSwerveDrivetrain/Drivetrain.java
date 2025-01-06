@@ -93,13 +93,13 @@ public class Drivetrain extends SwerveDrivetrain implements Subsystem {
         // limit();
     }
 
-    // public Drivetrain(SwerveDrivetrainConstants driveTrainConstants, SwerveModuleConstants... modules) {
-    //     super(driveTrainConstants, modules);
-    //     if (Utils.isSimulation()) {
-    //         startSimThread();
-    //     }
-    //     // limit();
-    // }
+    public Drivetrain(SwerveDrivetrainConstants driveTrainConstants, SwerveModuleConstants... modules) {
+        super(driveTrainConstants, modules);
+        if (Utils.isSimulation()) {
+            startSimThread();
+        }
+        // limit();
+    }
 
     public Command applyRequest(Supplier<SwerveRequest> requestSupplier) {
         return run(() -> setControl(requestSupplier.get()));

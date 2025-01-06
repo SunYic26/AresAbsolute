@@ -87,27 +87,28 @@ public class DriveControlSystems {
 
         for (int i = 0; i < 4; i++) {
             double currentVelocity = getModule(i).getCurrentState().speedMetersPerSecond;
+            double angleComponent = Math.cos(getModule(i).getCurrentState().angle.getRadians());
 
-            double X = Kv * currentVelocity * Math.cos(getModule(i).getCurrentState().angle.getRadians())
-            + Ka * (currentVelocity - previousVelocities[i]) / Constants.dt //acceleration
+            double X = Kv * currentVelocity * angleComponent
+            + Ka * ((currentVelocity - previousVelocities[i]) / Constants.dt) * angleComponent //acceleration
             + Kf;
-
-            previousVelocities[i] = currentVelocity;
 
             wheelFeedFwX[0][i] = X;
         }
 
         for (int i = 0; i < 4; i++) {
             double currentVelocity = getModule(i).getCurrentState().speedMetersPerSecond;
+            double angleComponent = Math.sin(getModule(i).getCurrentState().angle.getRadians());
 
-            double Y = Kv * currentVelocity * Math.cos(getModule(i).getCurrentState().angle.getRadians())
-            + Ka * (currentVelocity - previousVelocities[i]) / Constants.dt //acceleration
+            double Y = Kv * currentVelocity * angleComponent
+            + Ka * ((currentVelocity - previousVelocities[i]) / Constants.dt) * angleComponent //acceleration
             + Kf;
 
             previousVelocities[i] = currentVelocity;
 
             wheelFeedFwX[1][i] = Y;
         }
+
 
         return wheelFeedFwX;
     }
