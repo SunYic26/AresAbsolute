@@ -13,12 +13,9 @@ import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.hardware.Pigeon2;
 import com.ctre.phoenix6.hardware.TalonFX;
-import com.ctre.phoenix6.mechanisms.swerve.SwerveDrivetrain;
-import com.ctre.phoenix6.mechanisms.swerve.SwerveDrivetrainConstants;
-import com.ctre.phoenix6.mechanisms.swerve.SwerveModule;
-import com.ctre.phoenix6.mechanisms.swerve.SwerveModuleConstants;
-import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest;
-import com.ctre.phoenix6.mechanisms.swerve.SwerveModule.DriveRequestType;
+import com.ctre.phoenix6.swerve.SwerveDrivetrain;
+import com.ctre.phoenix6.swerve.SwerveModule;
+import com.ctre.phoenix6.swerve.SwerveRequest;
 
 import edu.wpi.first.math.MatBuilder;
 import edu.wpi.first.math.Nat;
@@ -104,7 +101,7 @@ public class Drivetrain extends SwerveDrivetrain implements Subsystem {
     }
 
     public Command applyRequest(Supplier<SwerveRequest> requestSupplier) {
-        return run(() -> this.setControl(requestSupplier.get()));
+
     }
 
     private void startSimThread() {
@@ -242,17 +239,6 @@ public class Drivetrain extends SwerveDrivetrain implements Subsystem {
 //        Logger.recordOutput("Swerve/AUTO INIT Y", autoStartPose.getY());
         Logger.recordOutput("Swerve/CurrentHeading", getHeading());
 //        Logger.recordOutput("Swerve/DT Vel", robotAbsoluteVelocity());
-
-        for(int i = 0; i < ModuleCount; i++){
-            // Logger.recordOutput("Swerve/DriveMotor" + i, Modules[i].getDriveMotor().getVelocity().getValueAsDouble());
-            //Logger.recordOutput("Swerve/CANcoder module " + i, Modules[i].getCANcoder().getAbsolutePosition().getValueAsDouble());
-            SmartDashboard.putNumber("CANcoder position module " + i, Modules[i].getCANcoder().getAbsolutePosition().getValueAsDouble());
-            SmartDashboard.putNumber("drive motor velocity mod " + i, Modules[i].getDriveMotor().getVelocity().getValueAsDouble());
-            SmartDashboard.putNumber("Angle motor velocity mod " + i, Modules[i].getSteerMotor().getVelocity().getValueAsDouble());
-            Logger.recordOutput("Swerve/CANCoder Position/Module " + i, Modules[i].getCANcoder().getAbsolutePosition().getValueAsDouble());
-            Logger.recordOutput("Swerve/DriveMotorVelocity/Module " + i, Modules[i].getDriveMotor().getVelocity().getValueAsDouble());
-            Logger.recordOutput("Swerve/SteerMotorVelocity/Module " + i, Modules[i].getSteerMotor().getVelocity().getValueAsDouble());
-        }
     }
 
 }

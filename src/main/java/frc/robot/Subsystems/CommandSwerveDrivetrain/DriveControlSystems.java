@@ -1,9 +1,9 @@
 package frc.robot.Subsystems.CommandSwerveDrivetrain;
 
 import com.ctre.phoenix6.hardware.TalonFX;
-import com.ctre.phoenix6.mechanisms.swerve.SwerveModule.DriveRequestType;
-import com.ctre.phoenix6.mechanisms.swerve.SwerveModule;
-import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest;
+import com.ctre.phoenix6.mechanisms.swerve.LegacySwerveModule.DriveRequestType;
+import com.ctre.phoenix6.swerve.SwerveRequest;
+import com.ctre.phoenix6.swerve.SwerveModule;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.filter.SlewRateLimiter;
@@ -42,7 +42,7 @@ public class DriveControlSystems {
 
     //interface with modules
     public SwerveModule getModule(int index) {
-      return drivetrain.getModule(index);
+      return drivetrain(index);
     }   
 
      // =======---===[ ⚙ Joystick processing ]===---========
@@ -71,8 +71,7 @@ public class DriveControlSystems {
         .withVelocityY(driverLX)
         .withRotationalRate(driverRX)
         .withDeadband(Constants.MaxSpeed * RobotContainer.translationDeadband)
-        .withRotationalDeadband(Constants.MaxAngularRate * RobotContainer.rotDeadband)
-        .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
+        .withRotationalDeadband(Constants.MaxAngularRate * RobotContainer.rotDeadband);
     }
 
     public double scaledDeadBand(double input) {
