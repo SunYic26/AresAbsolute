@@ -52,6 +52,12 @@ public class Drivetrain extends SwerveDrivetrain implements Subsystem {
     private Notifier m_simNotifier = null;
     private double m_lastSimTime;
 
+
+    //auto pid controllers
+    private final PIDController xController = new PIDController(0, 0, 0);
+    private final PIDController yController = new PIDController(0, 0, 0);
+    private final PIDController thetaController = new PIDController(0, 0, 0);
+
     private double lastTimeReset = -1;
 
     RobotState robotState;
@@ -139,10 +145,19 @@ public class Drivetrain extends SwerveDrivetrain implements Subsystem {
         }
     }
 
+    public void followAutoTrajectory(SwerveSample sample){
+        Pose2d currPose;
+
+        setControl(new SwerveRequest.FieldCentric()
+        .withVelocityX(sample.vx + xController.calculate(currPose.getX(), sample.x))
+        .withVelocityY(sample.vy + xController.calculate(currPose.getY(), sample.y))
+        .withRotationalRate(sample.omega + thetaController.calculate(currPose.getRotation(), sample.omega))
+        );
+    }
+
     public Pose2d getPose(){
         return s_Swerve.m_odometry.getEstimatedPosition();
     }
-
     public void resetOdo(Pose2d pose){
         resetOdoUtil(pose);
         resetOdoUtil(pose);
