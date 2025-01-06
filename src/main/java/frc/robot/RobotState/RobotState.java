@@ -311,7 +311,7 @@ public class RobotState { //will estimate pose with odometry and correct drift w
         }
 
         public synchronized double robotYaw() {
-            return pigeon.getYaw().getValue();
+            return pigeon.getYaw().getValueAsDouble();
         }
 
         /**
@@ -320,8 +320,8 @@ public class RobotState { //will estimate pose with odometry and correct drift w
          * @return double[] {AngularX, AngularY, Timestamp}
          */
         public synchronized double[] robotAngularVelocities(){
-            double angularX = pigeon.getAngularVelocityXDevice().getValue();
-            double angularY = pigeon.getAngularVelocityYDevice().getValue();
+            double angularX = pigeon.getAngularVelocityXDevice().getValueAsDouble();
+            double angularY = pigeon.getAngularVelocityYDevice().getValueAsDouble();
 
             double timestamp = pigeon.getAngularVelocityXDevice().getTimestamp().getTime();
             
@@ -334,8 +334,8 @@ public class RobotState { //will estimate pose with odometry and correct drift w
          * @return double[] {AngularMagnitude, Timestamp}
          */
         public synchronized double[] robotAngularVelocityMagnitude(){
-            double angularX = pigeon.getAngularVelocityXDevice().getValue();
-            double angularY = pigeon.getAngularVelocityYDevice().getValue();
+            double angularX = pigeon.getAngularVelocityXDevice().getValueAsDouble();
+            double angularY = pigeon.getAngularVelocityYDevice().getValueAsDouble();
 
             double timestamp = pigeon.getAngularVelocityXDevice().getTimestamp().getTime();
             
@@ -348,8 +348,8 @@ public class RobotState { //will estimate pose with odometry and correct drift w
          * @return double[] {AccelerationX, AccelerationY, Timestamp}
          */
         public synchronized double[] rawRobotAcceleration() {
-            double accelerationX = (pigeon.getAccelerationX().getValue() - pigeon.getGravityVectorX().getValue()) * 9.80665;
-            double accelerationY = (pigeon.getAccelerationY().getValue() - pigeon.getGravityVectorY().getValue()) * 9.80665;
+            double accelerationX = (pigeon.getAccelerationX().getValueAsDouble() - pigeon.getGravityVectorX().getValueAsDouble()) * 9.80665;
+            double accelerationY = (pigeon.getAccelerationY().getValueAsDouble() - pigeon.getGravityVectorY().getValueAsDouble()) * 9.80665;
             
             double timestamp = pigeon.getAccelerationX().getTimestamp().getTime();
             SmartDashboard.putNumber("current timestamp", timestamp);

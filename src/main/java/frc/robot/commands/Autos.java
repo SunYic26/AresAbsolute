@@ -8,7 +8,7 @@ import java.util.Optional;
 
 import com.choreo.lib.Choreo;
 import com.choreo.lib.ChoreoTrajectory;
-import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest;
+import com.ctre.phoenix6.swerve.SwerveRequest;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
