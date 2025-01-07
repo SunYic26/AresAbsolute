@@ -40,6 +40,9 @@ public final class Constants {
 
     public static Mode deployMode = Mode.REAL;
 
+    public static final double elevatorContinuousCurrentLimit = 50;
+    public static final double elevatorPeakCurrentLimit = 80;
+
     public static enum Mode {
         /** Running on a real robot. */
         REAL,
