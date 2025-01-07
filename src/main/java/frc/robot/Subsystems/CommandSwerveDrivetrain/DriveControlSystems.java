@@ -14,6 +14,8 @@ import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants;
 import frc.robot.RobotContainer;
+import frc.robot.Subsystems.Intake;
+import frc.robot.generated.TunerConstants;
 
 import javax.xml.stream.events.DTD;
 
@@ -27,6 +29,7 @@ public class DriveControlSystems {
     private boolean headingControl = false;
     private boolean shooterMode = false;
     private boolean aligning = false;
+    private boolean inputting = false;
     private double lastHeading = 0;
 
     // Can tune
@@ -37,6 +40,15 @@ public class DriveControlSystems {
     // RobotState robotState;
 
     PIDController pidHeading = new PIDController(0, 0, 0);
+
+    private static DriveControlSystems controlSystems;
+
+    public static DriveControlSystems getInstance(){
+        if(controlSystems == null){
+            controlSystems = new DriveControlSystems();  
+        }
+        return controlSystems;
+    }
 
     public DriveControlSystems() {  
         // robotState = RobotState.getInstance();
@@ -53,6 +65,8 @@ public class DriveControlSystems {
         driverLX = scaledDeadBand(driverLX) * Constants.MaxSpeed;
         driverLY = scaledDeadBand(driverLY) * Constants.MaxSpeed;
         driverRX = scaledDeadBand(driverRX) * Constants.MaxAngularRate;
+
+        inputting = driverLX > 0.1 || driverLY > 0.1 || driverRX > 0.1;
 
         SmartDashboard.putNumber("requested velocity x", driverLX);
         SmartDashboard.putNumber("requested velocity y", driverLY);
@@ -113,6 +127,10 @@ public class DriveControlSystems {
             return 0;
         else
             return (deadbandFactor * Math.pow(input, 3)) + (1 - deadbandFactor) * input;
+    }
+
+    public Boolean pollInput() {
+        return inputting;
     }
 
     // =======---===[ ⚙ Heading control ]===---========

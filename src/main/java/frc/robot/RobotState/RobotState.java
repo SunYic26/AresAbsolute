@@ -14,6 +14,7 @@ import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.Vector;
 import edu.wpi.first.math.estimator.UnscentedKalmanFilter;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N2;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -281,6 +282,10 @@ public class RobotState { //will estimate pose with odometry and correct drift w
              * Math.hypot(robotVelocity.getX(), robotVelocity.getY());
         }
 
+        public Pose2d getCurrentPose2d() {
+            return new Pose2d(getLatestFilteredPose().getX(), getLatestFilteredPose().getY(), robotYaw());
+        }
+
         //// =======---===[ ⚙ Pigeon2.0  ]===---========
 
         public void updateSensors() {
@@ -310,8 +315,8 @@ public class RobotState { //will estimate pose with odometry and correct drift w
             Logger.recordOutput("RobotState/raw Accel Y", newAccel[1]);
         }
 
-        public synchronized double robotYaw() {
-            return pigeon.getYaw().getValueAsDouble();
+        public Rotation2d robotYaw() {
+            return new Rotation2d(pigeon.getYaw().getValue());
         }
 
         /**
