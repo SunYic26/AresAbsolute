@@ -23,6 +23,7 @@ public class OuttakeProfiler {
     private Optional<DriverStation.Alliance> alliance;
 
     private Hexagon scoringArea; //change later, this will obviously not be a rectangle. using this for now for simplicity
+    private Hexagon innerArea;
 
     public static OuttakeProfiler getInstance(){
         if (instance == null) {
@@ -40,11 +41,17 @@ public class OuttakeProfiler {
         if(alliance.get() == DriverStation.Alliance.Blue){
             scoringArea = new Hexagon(new Point(), 0.75); //gave about 15 cm of clearance, actual sidelength is 0.9
         } else{
-            scoringArea = new Hexagon(new Point(), 0.75);
+            scoringArea = new Hexagon(new Point(), 0.75); //TODO: get coordinates of center of reef and use them here
+        }
+
+        if(alliance.get() == DriverStation.Alliance.Blue){
+            innerArea = new Hexagon(new Point(), 0.55);
+        } else{
+            innerArea = new Hexagon(new Point(), 0.55);
         }
     }
     
     public boolean coralTrajAligned(){
-        return scoringArea.contains(landingPoint);
+        return scoringArea.contains(landingPoint) && !innerArea.contains(landingPoint);
     }
 }
