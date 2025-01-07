@@ -38,6 +38,9 @@ public final class Constants {
     public static final double stickDeadband = 0.05;
     public static final double triggerDeadzone = 0.2;
 
+    public static final int intakeContinuousCurrentLimit = 30;
+    public static final int intakePeakCurrentLimit = 60;
+
     public static Mode deployMode = Mode.REAL;
 
     public static enum Mode {
@@ -63,7 +66,6 @@ public final class Constants {
 
         public static final double centerCameraHeight = Units.inchesToMeters(10.15);
         public static final double centerCameraPitch = Units.degreesToRadians(15);
-
 
         public static final class VisionLimits {
         public static final int k_rotationLimitDPS = 175;
@@ -98,6 +100,9 @@ public final class Constants {
 
     public static final class HardwarePorts {
         // motor id
+        public static final int intakeRollerID = 11;
+        public static final int intakePivotID = 12;
+
     }
 
     //change for next game
