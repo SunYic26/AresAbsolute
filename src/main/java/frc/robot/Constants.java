@@ -38,7 +38,12 @@ public final class Constants {
     public static final double stickDeadband = 0.05;
     public static final double triggerDeadzone = 0.2;
 
+    public static final int outtakeContinuousCurrentLimit = 40;
+    public static final int outtakePeakCurrentLimit = 70;
+
     public static Mode deployMode = Mode.REAL;
+
+    public static final double outtakeAngle = 35;
 
     public static enum Mode {
         /** Running on a real robot. */
@@ -98,6 +103,8 @@ public final class Constants {
 
     public static final class HardwarePorts {
         // motor id
+        public static final int topOuttake = 21;
+        public static final int botOuttake = 22;
     }
 
     //change for next game
