@@ -4,8 +4,8 @@
 
 package frc.lib;
 
-import org.opencv.core.Point;
-import org.opencv.core.Rect;
+import java.awt.Point;
+import frc.lib.Hexagon;
 
 import frc.robot.RobotState.RobotState;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -22,7 +22,7 @@ public class OuttakeProfiler {
 
     private Optional<DriverStation.Alliance> alliance;
 
-    private Rect scoringArea; //change later, this will obviously not be a rectangle. using this for now for simplicity
+    private Hexagon scoringArea; //change later, this will obviously not be a rectangle. using this for now for simplicity
 
     public static OuttakeProfiler getInstance(){
         if (instance == null) {
@@ -38,13 +38,13 @@ public class OuttakeProfiler {
         robotState = RobotState.getInstance();
         alliance = DriverStation.getAlliance();
         if(alliance.get() == DriverStation.Alliance.Blue){
-            scoringArea = new Rect();
+            scoringArea = new Hexagon(new Point(), 0.75); //gave about 15 cm of clearance, actual sidelength is 0.9
         } else{
-            scoringArea = new Rect();
+            scoringArea = new Hexagon(new Point(), 0.75);
         }
     }
     
     public boolean coralTrajAligned(){
-        return landingPoint.inside(scoringArea);
+        return scoringArea.contains(landingPoint);
     }
 }
