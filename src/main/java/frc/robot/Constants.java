@@ -125,7 +125,7 @@ public final class Constants {
 
         public enum ReefPoleSide {
 
-            //blue side, should be mirrored for red side
+            //TODO blue side, should be mirrored for red side
             LEFT(new Pose2d[]{ //these are wrong obvi
                 new Pose2d(0.0, 0.0, new Rotation2d(0.0)), // Point A
                 new Pose2d(0.0, 1.0, new Rotation2d(0.0)), // Point C
@@ -156,13 +156,12 @@ public final class Constants {
 
             public Pose2d getClosestPoint(Pose2d robotPose) {
                 return Arrays.stream(this.waypoints)
-                    .min(Comparator.comparingDouble(
-                        point -> robotPose.getTranslation().getDistance(new Translation2d(robotPose.getX(), robotPose.getY()))))
+                    .min(Comparator.comparingDouble(point -> point.getTranslation().getDistance(new Translation2d(robotPose.getX(), robotPose.getY()))))
                     .orElse(null);
              }
         }
 
-        enum ReefPoleLevel { //Assign to elevator levels
+        public enum ReefPoleLevel { //Assign to elevator levels
             L1(0.0),
             L2(0.0),
             L3(0.0); //wont be using l4
