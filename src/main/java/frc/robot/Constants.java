@@ -102,7 +102,6 @@ public final class Constants {
             public static final double lowI = 0;
             public static final double lowD = 1.5;
         }
-
     }
 
     public static final class HardwarePorts {
@@ -116,83 +115,93 @@ public final class Constants {
     AprilTagFieldLayout aprilTagFieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2022RapidReact); //WHERE IS NEW FIELD?
 
     public static final class FieldConstants {
-        //constants about the field
 
+        public static final Pose2d Procceser = new Pose2d(0,0, new Rotation2d(0));
 
-
+        public static final class Cage { // idk what our cage mech will be but might not need this
+            public static final Pose2d RedCage1 = new Pose2d(0,0, new Rotation2d(0));
+            public static final Pose2d RedCage2 = new Pose2d(0,0, new Rotation2d(0));
+            public static final Pose2d RedCage3 = new Pose2d(0,0, new Rotation2d(0));
+            
+            public static final Pose2d BlueCage1 = new Pose2d(0,0, new Rotation2d(0));
+            public static final Pose2d BlueCage2 = new Pose2d(0,0, new Rotation2d(0));
+            public static final Pose2d BlueCage3 = new Pose2d(0,0, new Rotation2d(0));
+        }
 
         public static final class Reef {
 
-        public enum ReefPoleSide {
+            public enum ReefPoleSide {
 
-            //blue side, should be mirrored for red side
-            LEFT(new Pose2d[]{ //these are wrong obvi
-                new Pose2d(0.0, 0.0, new Rotation2d(0.0)), // Point A
-                new Pose2d(0.0, 1.0, new Rotation2d(0.0)), // Point C
-                new Pose2d(0.0, 2.0, new Rotation2d(0.0)), // Point E
-                new Pose2d(0.0, 3.0, new Rotation2d(0.0)), // Point G
-                new Pose2d(0.0, 4.0, new Rotation2d(0.0)), // Point I
-                new Pose2d(0.0, 5.0, new Rotation2d(0.0))  // Point K
-            }),
+                //BLUE SIDE, should be mirrored for red side
+                LEFT(new Pose2d[]{ //these are wrong obvi
+                    new Pose2d(0.0, 0.0, new Rotation2d(0.0)), // Point A
+                    new Pose2d(0.0, 1.0, new Rotation2d(0.0)), // Point C
+                    new Pose2d(0.0, 2.0, new Rotation2d(0.0)), // Point E
+                    new Pose2d(0.0, 3.0, new Rotation2d(0.0)), // Point G
+                    new Pose2d(0.0, 4.0, new Rotation2d(0.0)), // Point I
+                    new Pose2d(0.0, 5.0, new Rotation2d(0.0))  // Point K
+                }),
 
-            RIGHT(new Pose2d[]{
-                new Pose2d(1.0, 0.0, new Rotation2d(0.0)), // Point B
-                new Pose2d(1.0, 1.0, new Rotation2d(0.0)), // Point D
-                new Pose2d(1.0, 2.0, new Rotation2d(0.0)), // Point F
-                new Pose2d(1.0, 3.0, new Rotation2d(0.0)), // Point H
-                new Pose2d(1.0, 4.0, new Rotation2d(0.0)), // Point J
-                new Pose2d(1.0, 5.0, new Rotation2d(0.0))  // Point L
-            });
+                RIGHT(new Pose2d[]{
+                    new Pose2d(1.0, 0.0, new Rotation2d(0.0)), // Point B
+                    new Pose2d(1.0, 1.0, new Rotation2d(0.0)), // Point D
+                    new Pose2d(1.0, 2.0, new Rotation2d(0.0)), // Point F
+                    new Pose2d(1.0, 3.0, new Rotation2d(0.0)), // Point H
+                    new Pose2d(1.0, 4.0, new Rotation2d(0.0)), // Point J
+                    new Pose2d(1.0, 5.0, new Rotation2d(0.0))  // Point L
+                });
 
-            private final Pose2d[] waypoints;
+                private final Pose2d[] waypoints;
 
-            ReefPoleSide(Pose2d[] poses) {
-                this.waypoints = poses;
+                ReefPoleSide(Pose2d[] poses) {
+                    this.waypoints = poses;
+                }
+
+                public Pose2d[] getPoints(ReefPoleSide side) {
+                    return side.waypoints;
+                }
+
+                public Pose2d getClosestPoint(Pose2d robotPose) {
+                    return Arrays.stream(this.waypoints)
+                        .min(Comparator.comparingDouble(
+                            point -> point.getTranslation().getDistance(robotPose.getTranslation())))
+                        .orElse(null);
+                }
             }
 
-            public Pose2d[] getPoints(ReefPoleSide side) {
-                return side.waypoints;
+            public enum ReefPoleLevel { //Assign to elevator levels
+                L1(0.0),
+                L2(0.0),
+                L3(0.0); //wont be using l4
+
+                private final double elevatorLevel;
+
+                ReefPoleLevel(double height) {
+                    this.elevatorLevel = height;
+                }
+
+                public ReefPoleLevel raiseLevel() {
+                    if(this.ordinal() == 2)
+                        return this;
+                    else
+                        return ReefPoleLevel.values()[this.ordinal() + 1];
+                }
+
+                public ReefPoleLevel decreaseLevel() {
+                    if(this.ordinal() == 0)
+                        return this;
+                    else
+                        return ReefPoleLevel.values()[this.ordinal() - 1];
+                }
+
+                public double getElevatorLevel() {
+                    return this.elevatorLevel;
+                }
             }
 
-            public Pose2d getClosestPoint(Pose2d robotPose) {
-                return Arrays.stream(this.waypoints)
-                    .min(Comparator.comparingDouble(
-                        point -> robotPose.getTranslation().getDistance(new Translation2d(robotPose.getX(), robotPose.getY()))))
-                    .orElse(null);
-             }
         }
 
-        enum ReefPoleLevel { //Assign to elevator levels
-            L1(0.0),
-            L2(0.0),
-            L3(0.0); //wont be using l4
-
-            private final double elevatorLevel;
-
-            ReefPoleLevel(double height) {
-                this.elevatorLevel = height;
-            }
-
-            public ReefPoleLevel raiseLevel() {
-                if(this.ordinal() == 2)
-                    return this;
-                else
-                    return ReefPoleLevel.values()[this.ordinal() + 1];
-            }
-
-            public ReefPoleLevel decreaseLevel() {
-                if(this.ordinal() == 0)
-                    return this;
-                else
-                    return ReefPoleLevel.values()[this.ordinal() - 1];
-            }
-
-            public double getElevatorLevel() {
-                return this.elevatorLevel;
-            }
-        }
-
-        }
+        
     }
 
     public static final double FIELD_WIDTH_METERS = 8.21055;

@@ -29,6 +29,7 @@ public class FollowTrajectory extends Command {
 
     Pose2d currentPose2D;
 
+    //TODO change these
     TrajectoryConfig config = new TrajectoryConfig(2.0, 1.0); 
 
     private LTVUnicycleController ltvUnicycleController = new LTVUnicycleController(0.02, 6); // Ramsete tuning constants
@@ -52,8 +53,7 @@ public class FollowTrajectory extends Command {
 
     @Override
     public void initialize() {
-        // s_Swerve.resetOdo(trajectory.getInitialPose());
-        
+        s_Swerve.resetOdo(trajectory.getInitialPose());
         ltvUnicycleController.setTolerance(new Pose2d(0.05, 0.03, new Rotation2d(0.1))); 
 
         timer.start();
