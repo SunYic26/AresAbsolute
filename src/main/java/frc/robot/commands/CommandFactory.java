@@ -10,8 +10,14 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.Subsystems.Intake.PivotState;
+import frc.robot.Constants.FieldConstants.Reef;
 import frc.robot.Subsystems.Intake;
 import frc.robot.Subsystems.Intake.RollerState;
+import frc.lib.FollowTrajectory;
+import frc.robot.Constants;
+import frc.robot.Constants.FieldConstants;
+import frc.robot.Constants.FieldConstants.Reef.ReefPoleSide;
+import frc.robot.RobotState.RobotState;
 
 /** Add your docs here. */
 public class CommandFactory {
@@ -27,6 +33,13 @@ public class CommandFactory {
                 new SetIntakePivot(PivotState.UP),
                 new InstantCommand(()-> Intake.getInstance().setRollerSpeed(RollerState.OFF.getRollerSpeed()))
             )
+        );
+    }
+
+    public static Command AutoReefScore(ReefPoleSide side) {
+        return new ParallelCommandGroup(
+            new FollowTrajectory(side)
+            // put elevator to level
         );
     }
 

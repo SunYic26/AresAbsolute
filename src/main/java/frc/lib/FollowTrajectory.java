@@ -16,13 +16,15 @@ import frc.robot.Subsystems.CommandSwerveDrivetrain.DriveControlSystems;
 import frc.robot.Subsystems.CommandSwerveDrivetrain.Drivetrain;
 import edu.wpi.first.math.controller.LTVUnicycleController ;
 import frc.lib.Interpolating.Geometry.ITranslation2d;
+import frc.robot.Constants.FieldConstants.Reef.ReefPoleSide;
 import frc.robot.RobotState.RobotState;
 
 public class FollowTrajectory extends Command {
     Drivetrain s_Swerve;
     RobotState robotState;
     DriveControlSystems controlSystems;
-    private Supplier<Pose2d> goalSupplier;
+
+    private Pose2d goalPose;
     private Trajectory trajectory;
 
     Pose2d currentPose2D;
@@ -32,23 +34,31 @@ public class FollowTrajectory extends Command {
     private LTVUnicycleController ltvUnicycleController = new LTVUnicycleController(0.02, 6); // Ramsete tuning constants
     Timer timer = new Timer();
 
-    public FollowTrajectory(Supplier<Pose2d> goalSupplier) {
+    public FollowTrajectory(Pose2d goalPose) {
         this.s_Swerve = Drivetrain.getInstance();
         this.controlSystems = DriveControlSystems.getInstance();
         this.robotState = RobotState.getInstance();
-        this.goalSupplier = goalSupplier;
+        this.goalPose = goalPose;
+        addRequirements(s_Swerve);
+    }
+
+    public FollowTrajectory(ReefPoleSide side) {        
+        this.s_Swerve = Drivetrain.getInstance();
+        this.controlSystems = DriveControlSystems.getInstance();
+        this.robotState = RobotState.getInstance();
+        this.goalPose = side.getClosestPoint(robotState.getCurrentPose2d());
         addRequirements(s_Swerve);
     }
 
     @Override
     public void initialize() {
         // s_Swerve.resetOdo(trajectory.getInitialPose());
-        currentPose2D = robotState.getCurrentPose2d();
+        
         ltvUnicycleController.setTolerance(new Pose2d(0.05, 0.03, new Rotation2d(0.1))); 
 
         timer.start();
         trajectory = TrajectoryGenerator.generateTrajectory(
-            List.of(currentPose2D, goalSupplier.get()), config
+            List.of(currentPose2D, goalPose), config
         );
     }
 

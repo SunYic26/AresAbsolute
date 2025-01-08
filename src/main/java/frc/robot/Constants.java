@@ -8,10 +8,17 @@ import edu.wpi.first.apriltag.AprilTag;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.apriltag.AprilTagPoseEstimate;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants.VisionConstants.AprilTags;
+import frc.robot.RobotState.RobotState;
+
+import java.util.Arrays;
+import java.util.Comparator;
 
 import org.opencv.core.Point;
 
@@ -106,10 +113,86 @@ public final class Constants {
     }
 
     //change for next game
-    AprilTagFieldLayout aprilTagFieldLayout = AprilTagFields.k2024Crescendo.loadAprilTagLayoutField();
+    AprilTagFieldLayout aprilTagFieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2022RapidReact); //WHERE IS NEW FIELD?
 
     public static final class FieldConstants {
         //constants about the field
+
+
+
+
+        public static final class Reef {
+
+        public enum ReefPoleSide {
+
+            //blue side, should be mirrored for red side
+            LEFT(new Pose2d[]{ //these are wrong obvi
+                new Pose2d(0.0, 0.0, new Rotation2d(0.0)), // Point A
+                new Pose2d(0.0, 1.0, new Rotation2d(0.0)), // Point C
+                new Pose2d(0.0, 2.0, new Rotation2d(0.0)), // Point E
+                new Pose2d(0.0, 3.0, new Rotation2d(0.0)), // Point G
+                new Pose2d(0.0, 4.0, new Rotation2d(0.0)), // Point I
+                new Pose2d(0.0, 5.0, new Rotation2d(0.0))  // Point K
+            }),
+
+            RIGHT(new Pose2d[]{
+                new Pose2d(1.0, 0.0, new Rotation2d(0.0)), // Point B
+                new Pose2d(1.0, 1.0, new Rotation2d(0.0)), // Point D
+                new Pose2d(1.0, 2.0, new Rotation2d(0.0)), // Point F
+                new Pose2d(1.0, 3.0, new Rotation2d(0.0)), // Point H
+                new Pose2d(1.0, 4.0, new Rotation2d(0.0)), // Point J
+                new Pose2d(1.0, 5.0, new Rotation2d(0.0))  // Point L
+            });
+
+            private final Pose2d[] waypoints;
+
+            ReefPoleSide(Pose2d[] poses) {
+                this.waypoints = poses;
+            }
+
+            public Pose2d[] getPoints(ReefPoleSide side) {
+                return side.waypoints;
+            }
+
+            public Pose2d getClosestPoint(Pose2d robotPose) {
+                return Arrays.stream(this.waypoints)
+                    .min(Comparator.comparingDouble(
+                        point -> robotPose.getTranslation().getDistance(new Translation2d(robotPose.getX(), robotPose.getY()))))
+                    .orElse(null);
+             }
+        }
+
+        enum ReefPoleLevel { //Assign to elevator levels
+            L1(0.0),
+            L2(0.0),
+            L3(0.0); //wont be using l4
+
+            private final double elevatorLevel;
+
+            ReefPoleLevel(double height) {
+                this.elevatorLevel = height;
+            }
+
+            public ReefPoleLevel raiseLevel() {
+                if(this.ordinal() == 2)
+                    return this;
+                else
+                    return ReefPoleLevel.values()[this.ordinal() + 1];
+            }
+
+            public ReefPoleLevel decreaseLevel() {
+                if(this.ordinal() == 0)
+                    return this;
+                else
+                    return ReefPoleLevel.values()[this.ordinal() - 1];
+            }
+
+            public double getElevatorLevel() {
+                return this.elevatorLevel;
+            }
+        }
+
+        }
     }
 
     public static final double FIELD_WIDTH_METERS = 8.21055;
