@@ -2,7 +2,7 @@ package frc.robot.RobotState;
 
 import java.util.Optional;
 
-import org.littletonrobotics.junction.Logger;
+// import org.littletonrobotics.junction.Logger;
 
 import com.ctre.phoenix6.hardware.Pigeon2;
 
@@ -293,8 +293,8 @@ public class RobotState { //will estimate pose with odometry and correct drift w
             SmartDashboard.putNumber("raw Accel X", newAccel[0]);
 
             SmartDashboard.putNumber("raw Accel Y", newAccel[1]);
-            Logger.recordOutput("RobotState/raw Accel X", newAccel[0]);
-            Logger.recordOutput("RobotState/raw Accel Y", newAccel[1]);
+            // Logger.recordOutput("RobotState/raw Accel X", newAccel[0]);
+            // Logger.recordOutput("RobotState/raw Accel Y", newAccel[1]);
         }
 
         public void updateSensors(double[] wheelVelocity) {
@@ -306,8 +306,8 @@ public class RobotState { //will estimate pose with odometry and correct drift w
 
             SmartDashboard.putNumber("raw Accel X", newAccel[0]);
             SmartDashboard.putNumber("raw Accel Y", newAccel[1]);
-            Logger.recordOutput("RobotState/raw Accel X", newAccel[0]);
-            Logger.recordOutput("RobotState/raw Accel Y", newAccel[1]);
+            // Logger.recordOutput("RobotState/raw Accel X", newAccel[0]);
+            // Logger.recordOutput("RobotState/raw Accel Y", newAccel[1]);
         }
 
         public synchronized double robotYaw() {
@@ -353,7 +353,7 @@ public class RobotState { //will estimate pose with odometry and correct drift w
             
             double timestamp = pigeon.getAccelerationX().getTimestamp().getTime();
             SmartDashboard.putNumber("current timestamp", timestamp);
-            Logger.recordOutput("RobotState/current timestamp", timestamp);
+            // Logger.recordOutput("RobotState/current timestamp", timestamp);
             return new double[] {accelerationX, accelerationY, timestamp};
         }
  }
