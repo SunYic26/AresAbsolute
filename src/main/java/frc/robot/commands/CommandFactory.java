@@ -17,6 +17,7 @@ import frc.lib.FollowTrajectory;
 import frc.robot.Constants;
 import frc.robot.Constants.FieldConstants;
 import frc.robot.Constants.FieldConstants.Reef.ReefPoleSide;
+import frc.robot.Constants.FieldConstants.Reef.ReefPoleLevel;
 import frc.robot.RobotState.RobotState;
 
 /** Add your docs here. */
@@ -36,10 +37,13 @@ public class CommandFactory {
         );
     }
 
-    public static Command AutoReefScore(ReefPoleSide side) {
-        return new ParallelCommandGroup(
-            new FollowTrajectory(side)
-            // put elevator to level
+    public static Command AutoReefScore(ReefPoleSide side, ReefPoleLevel level){
+        return new SequentialCommandGroup(
+            new ParallelCommandGroup(
+                new FollowTrajectory(side)
+                // put elevator to level based on level
+            )
+            // outtake to score
         );
     }
 

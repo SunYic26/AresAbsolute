@@ -80,8 +80,8 @@ public class RobotContainer {
     driver.rightBumper().onTrue(new InstantCommand(() -> reefPoleLevel = reefPoleLevel.raiseLevel()));
     driver.leftBumper().onTrue(new InstantCommand(() -> reefPoleLevel = reefPoleLevel.decreaseLevel()));
 
-    driver.x().onTrue(CommandFactory.AutoReefScore(Constants.FieldConstants.Reef.ReefPoleSide.LEFT)); //left closest reef
-    driver.b().onTrue(CommandFactory.AutoReefScore(Constants.FieldConstants.Reef.ReefPoleSide.RIGHT)); //right closest reef
+    driver.x().onTrue(CommandFactory.AutoReefScore(Constants.FieldConstants.Reef.ReefPoleSide.LEFT, reefPoleLevel)); //left closest reef
+    driver.b().onTrue(CommandFactory.AutoReefScore(Constants.FieldConstants.Reef.ReefPoleSide.RIGHT, reefPoleLevel)); //right closest reef
 
     driverBack.onTrue(new InstantCommand(() -> drivetrain.resetOdo()));
   }
