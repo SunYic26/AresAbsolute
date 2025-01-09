@@ -28,7 +28,6 @@ public class DriveControlSystems {
     private boolean headingControl = false;
     private boolean shooterMode = false;
     private boolean aligning = false;
-    private boolean inputting = false;
     private double lastHeading = 0;
 
     // Can tune
@@ -65,7 +64,6 @@ public class DriveControlSystems {
         driverLY = scaledDeadBand(driverLY) * Constants.MaxSpeed;
         driverRX = scaledDeadBand(driverRX) * Constants.MaxAngularRate;
 
-        inputting = driverLX > 0.1 || driverLY > 0.1 || driverRX > 0.1;
 
         SmartDashboard.putNumber("requested velocity x", driverLX);
         SmartDashboard.putNumber("requested velocity y", driverLY);
@@ -128,9 +126,7 @@ public class DriveControlSystems {
             return (deadbandFactor * Math.pow(input, 3)) + (1 - deadbandFactor) * input;
     }
 
-    public Boolean pollInput() {
-        return inputting;
-    }
+
 
     // =======---===[ ⚙ Heading control ]===---========
     // public double headingControl(double driverRX){ //TODO tune high and low PID values

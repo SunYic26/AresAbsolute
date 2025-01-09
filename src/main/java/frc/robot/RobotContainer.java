@@ -22,10 +22,10 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.commands.CommandFactory;
-import frc.robot.commands.CommandFactory.*;
 import frc.robot.Subsystems.CommandSwerveDrivetrain.Drivetrain;
-import frc.robot.Constants.FieldConstants.Reef.ReefPoleLevel;
+import frc.robot.commands.CommandFactory.CommandFactory;
+import frc.robot.commands.CommandFactory.CommandFactory.*;
+import frc.robot.Constants.FieldConstants.ReefConstants.ReefPoleLevel;
 import frc.robot.Subsystems.CommandSwerveDrivetrain.DriveControlSystems;
 
 public class RobotContainer {
@@ -80,10 +80,14 @@ public class RobotContainer {
     driver.rightBumper().onTrue(new InstantCommand(() -> reefPoleLevel = reefPoleLevel.raiseLevel()));
     driver.leftBumper().onTrue(new InstantCommand(() -> reefPoleLevel = reefPoleLevel.decreaseLevel()));
 
-    driver.x().onTrue(CommandFactory.AutoReefScore(Constants.FieldConstants.Reef.ReefPoleSide.LEFT, reefPoleLevel)); //left closest reef
-    driver.b().onTrue(CommandFactory.AutoReefScore(Constants.FieldConstants.Reef.ReefPoleSide.RIGHT, reefPoleLevel)); //right closest reef
+    driver.x().onTrue(CommandFactory.AutoReefScore(Constants.FieldConstants.ReefConstants.ReefPoleSide.LEFT, reefPoleLevel)); //left closest reef
+    driver.b().onTrue(CommandFactory.AutoReefScore(Constants.FieldConstants.ReefConstants.ReefPoleSide.RIGHT, reefPoleLevel)); //right closest reef
 
     driverBack.onTrue(new InstantCommand(() -> drivetrain.resetOdo()));
+  }
+
+  public Boolean pollInput() {
+    return driver.getLeftY() > 0.1 || driver.getLeftX() > 0.1 || driver.getRightX() > 0.1;
   }
 
   public Command getAutonomousCommand() {

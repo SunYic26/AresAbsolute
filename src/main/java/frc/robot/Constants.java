@@ -32,6 +32,7 @@ import org.opencv.core.Point;
  */
 public final class Constants {
 
+
     public static double MaxSpeed = 6; //can be lowered during testing
     public static double MaxAngularRate = 3 * Math.PI; // 3/4 of a rotation per second max angular velocity
 
@@ -49,6 +50,15 @@ public final class Constants {
     public static final int intakePeakCurrentLimit = 60;
 
     public static Mode deployMode = Mode.REAL;
+
+    public static final class TrajectoryConstants {
+        public static final double maxAcceleration = 2.0;
+        public static final double maxVelocity = 6.0;
+
+        public static final double poseToleranceX = 0.02;
+        public static final double poseToleranceY = 0.02;
+        public static final double poseToleranceTheta = Math.PI / 30; // 6 degrees
+    }
 
     public static enum Mode {
         /** Running on a real robot. */
@@ -128,7 +138,7 @@ public final class Constants {
             public static final Pose2d BlueCage3 = new Pose2d(0,0, new Rotation2d(0));
         }
 
-        public static final class Reef {
+        public static final class ReefConstants{
 
             public enum ReefPoleSide {
 
@@ -169,7 +179,7 @@ public final class Constants {
                 }
             }
 
-            public enum ReefPoleLevel { //Assign to elevator levels
+            public enum ReefPoleLevel { //We can also leave these empty and just use for display
                 L1(0.0),
                 L2(0.0),
                 L3(0.0); //wont be using l4
@@ -184,6 +194,7 @@ public final class Constants {
                     if(this.ordinal() == 2)
                         return this;
                     else
+                        SmartDashboard.putNumber("Selected Reef Level", this.ordinal() + 1);
                         return ReefPoleLevel.values()[this.ordinal() + 1];
                 }
 
@@ -191,6 +202,7 @@ public final class Constants {
                     if(this.ordinal() == 0)
                         return this;
                     else
+                        SmartDashboard.putNumber("Selected Reef Level", this.ordinal() - 1);
                         return ReefPoleLevel.values()[this.ordinal() - 1];
                 }
 
