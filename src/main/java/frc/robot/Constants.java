@@ -32,6 +32,9 @@ public final class Constants {
     
     public static final int timeOutMs = 10;
 
+    public static final double elevatorMaxVelocity = 5;
+    public static final double elevatorMaxAcceleration = 1;
+
     public static final double slipFactor = 65;
     public static final double slipThreshold = 0.15;
 
@@ -101,6 +104,8 @@ public final class Constants {
 
     public static final class HardwarePorts {
         // motor id
+        public static final int elevatorLeaderId = 31;
+        public static final int elevatorFollowerId = 32;
     }
 
     //change for next game
