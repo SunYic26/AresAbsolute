@@ -6,8 +6,11 @@ package frc.lib;
 
 import java.awt.Point;
 import frc.lib.Hexagon;
-
+import frc.robot.Constants;
 import frc.robot.RobotState.RobotState;
+import frc.robot.Subsystems.Outtake;
+import frc.robot.Subsystems.CommandSwerveDrivetrain.Drivetrain;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import java.util.Optional;
 
@@ -16,7 +19,14 @@ public class OuttakeProfiler {
     
     private static OuttakeProfiler instance;
     private RobotState robotState;
+    private Outtake s_Outtake;
+    private Drivetrain s_Swerve;
+    private Pose2d robotPose;
 
+    private double horizontalVel;
+    private double verticalVel;
+
+    private double outtakeDirection;
 
     private Point landingPoint;
 
@@ -33,11 +43,22 @@ public class OuttakeProfiler {
     }
 
     private void calculateLandingPoint(){
+        horizontalVel = Math.cos(Math.toRadians(Constants.outtakeAngle))*s_Outtake.getOutputSpeed();
+        verticalVel = Math.sin(Math.toRadians(Constants.outtakeAngle))*s_Outtake.getOutputSpeed();
+
+        //horizontalVel += s_Swerve.getWheelVelocities()[0];
+        //verticalVel += s_Swerve.getWheelVelocities()[1];
+
+        robotPose = s_Swerve.getPose();
+
+        outtakeDirection = Math.toDegrees(s_Swerve.getHeading());
+
     }
 
     private OuttakeProfiler() {
         robotState = RobotState.getInstance();
         alliance = DriverStation.getAlliance();
+        s_Outtake = Outtake.getInstance();
         if(alliance.get() == DriverStation.Alliance.Blue){
             scoringArea = new Hexagon(new Point(), 0.75); //gave about 15 cm of clearance, actual sidelength is 0.9
         } else{

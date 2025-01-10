@@ -35,6 +35,10 @@ public final class Constants {
     public static final double slipFactor = 65;
     public static final double slipThreshold = 0.15;
 
+    public static final double outtakeRollerRadius = 0;
+
+    public static double outtakeGearRatio = 0;
+
     public static final double stickDeadband = 0.05;
     public static final double triggerDeadzone = 0.2;
 

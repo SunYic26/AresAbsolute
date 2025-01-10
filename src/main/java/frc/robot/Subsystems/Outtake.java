@@ -8,6 +8,7 @@ import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+import com.ctre.phoenix6.configs.FeedbackConfigs;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -77,6 +78,12 @@ public class Outtake extends SubsystemBase {
 
   public void setBotRollerSpeed(double speed){
     botRoller.set(speed);
+  }
+
+
+  //returns tangential speed of rollers
+  public double getOutputSpeed(){
+    return (botRoller.getVelocity().getValueAsDouble()+topRoller.getVelocity().getValueAsDouble())*Math.PI*Constants.outtakeRollerRadius;
   }
     
 
