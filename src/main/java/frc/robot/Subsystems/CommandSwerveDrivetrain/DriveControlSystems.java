@@ -14,6 +14,7 @@ import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants;
 import frc.robot.RobotContainer;
+import frc.robot.generated.TunerConstants;
 
 import javax.xml.stream.events.DTD;
 
@@ -38,6 +39,15 @@ public class DriveControlSystems {
 
     PIDController pidHeading = new PIDController(0, 0, 0);
 
+    private static DriveControlSystems controlSystems;
+
+    public static DriveControlSystems getInstance(){
+        if(controlSystems == null){
+            controlSystems = new DriveControlSystems();  
+        }
+        return controlSystems;
+    }
+
     public DriveControlSystems() {  
         // robotState = RobotState.getInstance();
         drivetrain = Drivetrain.getInstance();
@@ -53,6 +63,7 @@ public class DriveControlSystems {
         driverLX = scaledDeadBand(driverLX) * Constants.MaxSpeed;
         driverLY = scaledDeadBand(driverLY) * Constants.MaxSpeed;
         driverRX = scaledDeadBand(driverRX) * Constants.MaxAngularRate;
+
 
         SmartDashboard.putNumber("requested velocity x", driverLX);
         SmartDashboard.putNumber("requested velocity y", driverLY);
@@ -114,6 +125,8 @@ public class DriveControlSystems {
         else
             return (deadbandFactor * Math.pow(input, 3)) + (1 - deadbandFactor) * input;
     }
+
+
 
     // =======---===[ ⚙ Heading control ]===---========
     // public double headingControl(double driverRX){ //TODO tune high and low PID values

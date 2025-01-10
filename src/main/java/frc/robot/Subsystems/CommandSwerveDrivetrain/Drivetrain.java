@@ -28,6 +28,7 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.interpolation.Interpolator;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.units.measure.Velocity;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Notifier;
@@ -56,6 +57,8 @@ public class Drivetrain extends SwerveDrivetrain implements Subsystem {
     private double m_lastSimTime;
 
     private double lastTimeReset = -1;
+
+    private DriveControlSystems controlSystem  = new DriveControlSystems(); //only for trajectory following
 
     RobotState robotState;
 
@@ -208,7 +211,10 @@ public class Drivetrain extends SwerveDrivetrain implements Subsystem {
     }
 
 
-
+    public void trajectoryDrive(double driverLY, double driverLX, double driverRX) {
+        applyRequest(() -> controlSystem.drive(driverLY, driverLX, driverRX));
+    }
+    
     @Override
     public void periodic() {
         // System.out.println(robotState);
