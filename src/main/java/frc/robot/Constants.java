@@ -42,16 +42,27 @@ public final class Constants {
 
     public static final double slipFactor = 65;
     public static final double slipThreshold = 0.15;
+    
+    public static final class OuttakePhysicalConstants{
+        public static final double outtakeRollerRadius = 0;
+        public static final double outtakeOffsetMillimeters = 0; //distance between center of robot and PVC center of mass after exiting outtake in mm
+    }
 
-    public static final double outtakeRollerRadius = 0;
+    
 
-    public static double outtakeGearRatio = 0;
 
     public static final double stickDeadband = 0.05;
     public static final double triggerDeadzone = 0.2;
 
-    public static final int outtakeContinuousCurrentLimit = 40;
-    public static final int outtakePeakCurrentLimit = 70;
+
+    public static final class CurrentLimits{
+        public static final int outtakeContinuousCurrentLimit = 40;
+        public static final int outtakePeakCurrentLimit = 70;
+        
+        public static final int intakeContinuousCurrentLimit = 40;
+        public static final int intakePeakCurrentLimit = 70;
+    }
+    
 
     public static Mode deployMode = Mode.REAL;
 

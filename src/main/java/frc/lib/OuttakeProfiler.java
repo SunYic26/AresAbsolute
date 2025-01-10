@@ -15,6 +15,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import java.util.Optional;
 
 /** Add your docs here. */
+
 public class OuttakeProfiler {
     
     private static OuttakeProfiler instance;
@@ -23,11 +24,14 @@ public class OuttakeProfiler {
     private Drivetrain s_Swerve;
     private Pose2d robotPose;
 
+    private double elevatorHeight;
+
     private double horizontalVel;
     private double verticalVel;
 
     private double outtakeDirection;
 
+    private Point exitPoint;
     private Point landingPoint;
 
     private Optional<DriverStation.Alliance> alliance;
@@ -42,18 +46,32 @@ public class OuttakeProfiler {
         return instance;
     }
 
+    /**
+     * Calculates the landing point of the coral. All values passed through the Point and Hexagon classes
+     * must converted from meters into millimeters.
+     */
     private void calculateLandingPoint(){
         horizontalVel = Math.cos(Math.toRadians(Constants.outtakeAngle))*s_Outtake.getOutputSpeed();
         verticalVel = Math.sin(Math.toRadians(Constants.outtakeAngle))*s_Outtake.getOutputSpeed();
 
         horizontalVel += robotState.getLatestRobotVelocity().getX();
         verticalVel += robotState.getLatestRobotVelocity().getY();
+        
 
         //horizontalVel += s_Swerve.getWheelVelocities()[0];
         //verticalVel += s_Swerve.getWheelVelocities()[1];
 
         robotPose = s_Swerve.getPose();
+        exitPoint = new Point(
+            (int)robotPose.getX()*1000 + (int)(Constants.OuttakePhysicalConstants.outtakeOffsetMillimeters*Math.cos(robotPose.getRotation().getRadians())),
+            (int)robotPose.getY()*1000 + (int)(Constants.OuttakePhysicalConstants.outtakeOffsetMillimeters*Math.sin(robotPose.getRotation().getRadians()))
+        );
 
+        landingPoint = new Point(
+            
+        );
+
+        
         outtakeDirection = Math.toDegrees(s_Swerve.getHeading());
 
     }

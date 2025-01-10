@@ -58,9 +58,9 @@ public class Outtake extends SubsystemBase {
     TalonFXConfiguration config = new TalonFXConfiguration();
     CurrentLimitsConfigs currentLimitsConfigs = new CurrentLimitsConfigs();
     
-    currentLimitsConfigs.SupplyCurrentLimit = Constants.outtakeContinuousCurrentLimit;
+    currentLimitsConfigs.SupplyCurrentLimit = Constants.CurrentLimits.outtakeContinuousCurrentLimit;
     currentLimitsConfigs.SupplyCurrentLimitEnable = true;
-    currentLimitsConfigs.StatorCurrentLimit = Constants.outtakePeakCurrentLimit;
+    currentLimitsConfigs.StatorCurrentLimit = Constants.CurrentLimits.outtakePeakCurrentLimit;
     currentLimitsConfigs.StatorCurrentLimitEnable = true;
 
     config.CurrentLimits = currentLimitsConfigs;
@@ -83,7 +83,7 @@ public class Outtake extends SubsystemBase {
 
   //returns tangential speed of rollers
   public double getOutputSpeed(){
-    return (botRoller.getVelocity().getValueAsDouble()+topRoller.getVelocity().getValueAsDouble())*Math.PI*Constants.outtakeRollerRadius;
+    return (botRoller.getVelocity().getValueAsDouble()+topRoller.getVelocity().getValueAsDouble())*Math.PI*Constants.OuttakePhysicalConstants.outtakeRollerRadius;
   }
     
 

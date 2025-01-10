@@ -29,6 +29,9 @@ public class DriveControlSystems {
     private boolean shooterMode = false;
     private boolean aligning = false;
     private double lastHeading = 0;
+    private boolean homing = false;
+
+    private PIDController homingController = new PIDController(0, 0, 0);
 
     // Can tune
     private double deadbandFactor = 0.8; // higher is more linear joystick controls
@@ -53,6 +56,12 @@ public class DriveControlSystems {
         drivetrain = Drivetrain.getInstance();
     }
 
+    private double homingL1(){
+        double homingSetpoint = 0; //TODO: finish calculation for homing angle setpoint
+        double RX = homingController.calculate(drivetrain.getHeading(), homingSetpoint);
+        return RX; 
+    }
+
     //interface with modules
     public SwerveModule getModule(int index) {
       return drivetrain.getModule(index);
@@ -69,6 +78,10 @@ public class DriveControlSystems {
         SmartDashboard.putNumber("requested velocity y", driverLY);
         // Logger.recordOutput("JoystickProcessing/RequestedX", driverLX);
         // Logger.recordOutput("JoystickProcessing/RequestedY", driverLY);
+
+        if(homing == true){
+            driverRX = homingL1();
+        }
 
         ChassisSpeeds speeds = new ChassisSpeeds(driverLY, driverLX, driverRX);
 

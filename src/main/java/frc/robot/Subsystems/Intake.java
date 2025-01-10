@@ -39,9 +39,9 @@ public class Intake extends SubsystemBase {
     TalonFXConfiguration config = new TalonFXConfiguration();
     CurrentLimitsConfigs currentLimitsConfigs = new CurrentLimitsConfigs();
     
-    currentLimitsConfigs.SupplyCurrentLimit = Constants.intakeContinuousCurrentLimit;
+    currentLimitsConfigs.SupplyCurrentLimit = Constants.CurrentLimits.intakeContinuousCurrentLimit;
     currentLimitsConfigs.SupplyCurrentLimitEnable = true;
-    currentLimitsConfigs.StatorCurrentLimit = Constants.intakePeakCurrentLimit;
+    currentLimitsConfigs.StatorCurrentLimit = Constants.CurrentLimits.intakePeakCurrentLimit;
     currentLimitsConfigs.StatorCurrentLimitEnable = true;
 
     config.CurrentLimits = currentLimitsConfigs;
