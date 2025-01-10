@@ -36,15 +36,14 @@ public class SetElevator extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    timer.reset();
-    timer.start();
+    timer.restart();
     initialState = new State(s_Elevator.getPosition(), s_Elevator.getVelocity());
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    setpoint = profile.calculate(timer.get(), new State(s_Elevator.getPosition(), s_Elevator.getVelocity()), new State(goalPosition, 0.0));
+    setpoint = profile.calculate(timer.get(), initialState, new State(goalPosition, 0.0));
     s_Elevator.setVoltage(controller.calculate(s_Elevator.getVelocity(), setpoint.velocity) + feedforward.calculate(setpoint.velocity));
   }
 
