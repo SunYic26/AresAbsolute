@@ -26,7 +26,7 @@ import frc.robot.Subsystems.Vision.Vision;
 // import frc.robot.commands.AutoCommand;
 // import frc.robot.commands.Autos;
 
-public class Robot extends LoggedRobot {
+public class Robot extends TimedRobot {
   private Command m_autonomousCommand;
   // SendableChooser<AutoCommand> firstAuto = new SendableChooser<AutoCommand>();
   // SendableChooser<AutoCommand> secondAuto = new SendableChooser<AutoCommand>();
@@ -50,56 +50,56 @@ public class Robot extends LoggedRobot {
     public Robot() { 
       // oops just realized logging needs to be in the constructor lol
       // metadata
-      Logger.recordMetadata("ProjectName", BuildConstants.MAVEN_NAME);
-      Logger.recordMetadata("BuildDate", BuildConstants.BUILD_DATE);
-      Logger.recordMetadata("GitSHA", BuildConstants.GIT_SHA);
-      Logger.recordMetadata("GitDate", BuildConstants.GIT_DATE);
-      Logger.recordMetadata("GitBranch", BuildConstants.GIT_BRANCH);
-      switch (BuildConstants.DIRTY) {
-        case 0:
-          Logger.recordMetadata("GitDirty", "All changes committed");
-          break;
-        case 1:
-          Logger.recordMetadata("GitDirty", "Uncomitted changes");
-          break;
-        default:
-          Logger.recordMetadata("GitDirty", "Unknown");
-          break;
-      }
-      // actual logging
-      // Automatically switch between sim and real deployment - to run REPLAY you must manually change Constants.deployMode
-      if (isReal()) {
-        Constants.deployMode = Constants.Mode.REAL;
-      } else {
-        Constants.deployMode = Constants.Mode.SIM;
-      }
+      // Logger.recordMetadata("ProjectName", BuildConstants.MAVEN_NAME);
+      // Logger.recordMetadata("BuildDate", BuildConstants.BUILD_DATE);
+      // Logger.recordMetadata("GitSHA", BuildConstants.GIT_SHA);
+      // Logger.recordMetadata("GitDate", BuildConstants.GIT_DATE);
+      // Logger.recordMetadata("GitBranch", BuildConstants.GIT_BRANCH);
+      // switch (BuildConstants.DIRTY) {
+      //   case 0:
+      //     Logger.recordMetadata("GitDirty", "All changes committed");
+      //     break;
+      //   case 1:
+      //     Logger.recordMetadata("GitDirty", "Uncomitted changes");
+      //     break;
+      //   default:
+      //     Logger.recordMetadata("GitDirty", "Unknown");
+      //     break;
+      // }
+      // // actual logging
+      // // Automatically switch between sim and real deployment - to run REPLAY you must manually change Constants.deployMode
+      // if (isReal()) {
+      //   Constants.deployMode = Constants.Mode.REAL;
+      // } else {
+      //   Constants.deployMode = Constants.Mode.SIM;
+      // }
 
-      // Set up data receivers & replay source
-      switch (Constants.deployMode) {
-        case REAL:
-          // Running on a real robot, log to a USB stick ("/U/logs")
-          System.out.println("Running in REAL mode");
-          Logger.addDataReceiver(new WPILOGWriter());
-          Logger.addDataReceiver(new NT4Publisher());
-          break;
+      // // Set up data receivers & replay source
+      // switch (Constants.deployMode) {
+      //   case REAL:
+      //     // Running on a real robot, log to a USB stick ("/U/logs")
+      //     System.out.println("Running in REAL mode");
+      //     Logger.addDataReceiver(new WPILOGWriter());
+      //     Logger.addDataReceiver(new NT4Publisher());
+      //     break;
 
-        case SIM:
-          // Running a physics simulator, log to NT
-          System.out.println("Running in SIM mode");
-          Logger.addDataReceiver(new NT4Publisher());
-          break;
+      //   case SIM:
+      //     // Running a physics simulator, log to NT
+      //     System.out.println("Running in SIM mode");
+      //     Logger.addDataReceiver(new NT4Publisher());
+      //     break;
 
-        case REPLAY:
-          // Replaying a log, set up replay source
-          System.out.println("Running in REPLAY mode");
-          setUseTiming(false); // Run as fast as possible
-          String logPath = LogFileUtil.findReplayLog();
-          Logger.setReplaySource(new WPILOGReader(logPath));
-          Logger.addDataReceiver(new WPILOGWriter(LogFileUtil.addPathSuffix(logPath, "_sim")));
-          break;
-      }
+      //   case REPLAY:
+      //     // Replaying a log, set up replay source
+      //     System.out.println("Running in REPLAY mode");
+      //     setUseTiming(false); // Run as fast as possible
+      //     String logPath = LogFileUtil.findReplayLog();
+      //     Logger.setReplaySource(new WPILOGReader(logPath));
+      //     Logger.addDataReceiver(new WPILOGWriter(LogFileUtil.addPathSuffix(logPath, "_sim")));
+      //     break;
+      // }
 
-      Logger.start(); // Start logging! No more data receivers, replay sources, or metadata values may be added.
+      // Logger.start(); // Start logging! No more data receivers, replay sources, or metadata values may be added.
       
       drivetrain = Drivetrain.getInstance();
       robotState = RobotState.getInstance();
@@ -113,14 +113,14 @@ public class Robot extends LoggedRobot {
     // AutoCommand.loadAutos();
     // SmartDashboard.putData("first auto", firstAuto);
 
-    if(isReal()){
-      Logger.addDataReceiver(new WPILOGWriter()); // should be savig to usb
-      Logger.addDataReceiver(new NT4Publisher());
-    }
-    else {
-      Logger.addDataReceiver(new NT4Publisher());
-    }
-    Logger.start();
+    // if(isReal()){
+    //   Logger.addDataReceiver(new WPILOGWriter()); // should be savig to usb
+    //   Logger.addDataReceiver(new NT4Publisher());
+    // }
+    // else {
+    //   Logger.addDataReceiver(new NT4Publisher());
+    // }
+    // Logger.start();
 
     //start the logger here
     m_robotContainer = new RobotContainer();
