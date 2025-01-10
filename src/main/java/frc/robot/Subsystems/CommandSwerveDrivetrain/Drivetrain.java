@@ -5,7 +5,7 @@ import java.util.Optional;
 import java.util.function.Supplier;
 
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
-import org.littletonrobotics.junction.Logger;
+// import org.littletonrobotics.junction.Logger;
 import org.opencv.core.Point;
 import org.photonvision.EstimatedRobotPose;
 
@@ -59,7 +59,7 @@ public class Drivetrain extends SwerveDrivetrain implements Subsystem {
 
     RobotState robotState;
 
-    private static Drivetrain s_Swerve = TunerConstants.DriveTrain;
+    private static Drivetrain s_Swerve = TunerConstants.createDrivetrain();
 
     Optional<DriverStation.Alliance> alliance = DriverStation.getAlliance();
 
@@ -151,8 +151,6 @@ public class Drivetrain extends SwerveDrivetrain implements Subsystem {
 
     public void resetOdo(Pose2d pose){
         resetOdoUtil(pose);
-        resetOdoUtil(pose);
-        resetOdoUtil(pose);
         robotState.reset(0.02, new IPose2d(pose), ITwist2d.identity());
         robotState.resetUKF(new IPose2d(pose));
     }
@@ -193,7 +191,7 @@ public class Drivetrain extends SwerveDrivetrain implements Subsystem {
     public void updateOdometryByVision(Pose3d estimatedPose){
         System.out.println("Pose received");
         if(estimatedPose != null){
-            s_Swerve.addVisionMeasurement(estimatedPose.toPose2d(), Logger.getTimestamp()); //Timer.getFPGATimestamp()
+            s_Swerve.addVisionMeasurement(estimatedPose.toPose2d(), 0); //Timer.getFPGATimestamp()
         }
     }
 
@@ -238,12 +236,12 @@ public class Drivetrain extends SwerveDrivetrain implements Subsystem {
          SmartDashboard.putNumber("current heading", getHeading());
         // SmartDashboard.putNumber("DT Vel", robotAbsoluteVelocity());
 //        Logger.recordOutput("Odo Reset (last 5 sec)", lastTimeReset != -1 && Timer.getFPGATimestamp() - lastTimeReset < 5);
-        Logger.recordOutput("Swerve/ODO X", currentPose.getX());
-        Logger.recordOutput("Swerve/ODO Y", currentPose.getY());
-        Logger.recordOutput("Swerve/ODO ROT", currentPose.getRotation().getRadians());
+        // Logger.recordOutput("Swerve/ODO X", currentPose.getX());
+        // Logger.recordOutput("Swerve/ODO Y", currentPose.getY());
+        // Logger.recordOutput("Swerve/ODO ROT", currentPose.getRotation().getRadians());
 //        Logger.recordOutput("Swerve/AUTO INIT X", autoStartPose.getX());
 //        Logger.recordOutput("Swerve/AUTO INIT Y", autoStartPose.getY());
-        Logger.recordOutput("Swerve/CurrentHeading", getHeading());
+        // Logger.recordOutput("Swerve/CurrentHeading", getHeading());
 //        Logger.recordOutput("Swerve/DT Vel", robotAbsoluteVelocity());
     }
 

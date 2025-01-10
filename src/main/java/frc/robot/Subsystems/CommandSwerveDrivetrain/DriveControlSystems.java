@@ -17,7 +17,7 @@ import frc.robot.RobotContainer;
 
 import javax.xml.stream.events.DTD;
 
-import org.littletonrobotics.junction.Logger;
+// import org.littletonrobotics.junction.Logger;
 
 // import frc.robot.RobotState.RobotState;
 
@@ -56,29 +56,29 @@ public class DriveControlSystems {
 
         SmartDashboard.putNumber("requested velocity x", driverLX);
         SmartDashboard.putNumber("requested velocity y", driverLY);
-        Logger.recordOutput("JoystickProcessing/RequestedX", driverLX);
-        Logger.recordOutput("JoystickProcessing/RequestedY", driverLY);
+        // Logger.recordOutput("JoystickProcessing/RequestedX", driverLX);
+        // Logger.recordOutput("JoystickProcessing/RequestedY", driverLY);
 
         ChassisSpeeds speeds = new ChassisSpeeds(driverLY, driverLX, driverRX);
 
         double[][] wheelFeedFwX = calculateFeedforward();
         
-        return new SwerveRequest.ApplyFieldSpeeds()
-        .withSpeeds(speeds)
-        .withWheelForceFeedforwardsX(wheelFeedFwX[0])
-        .withWheelForceFeedforwardsY(wheelFeedFwX[1])
-        .withDriveRequestType(com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType.OpenLoopVoltage)
-        .withDesaturateWheelSpeeds(true);
+        return new SwerveRequest.FieldCentric().withVelocityX(driverLX).withVelocityY(driverLY).withRotationalRate(driverRX);
+        // .withSpeeds(speeds)
+        // .withWheelForceFeedforwardsX(wheelFeedFwX[0])
+        //  .withWheelForceFeedforwardsY(wheelFeedFwX[1])
+        //  .withDriveRequestType(com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType.Velocity);
+        // .withDesaturateWheelSpeeds(true);
     }
 
     private double[] previousVelocities = new double[4]; // To store previous velocity for each module
 
     public double[][] calculateFeedforward() {
-        double[][] wheelFeedFwX = new double[4][4];
+        double[][] wheelFeedFwX = new double[2][4];
         //TODO tune
-        double Kv = 0.1;  // velocity gain
-        double Ka = 0.1;  // acceleration gain
-        double Kf = 0.1;  // friction gain
+        double Kv = 0.01;  // velocity gain
+        double Ka = 0.01;  // acceleration gain
+        double Kf = 0;  // friction gain
 
         for (int i = 0; i < 4; i++) {
             double currentVelocity = getModule(i).getCurrentState().speedMetersPerSecond;
@@ -168,7 +168,7 @@ public class DriveControlSystems {
             slipRatio = ((getModule(i).getCurrentState().speedMetersPerSecond) / currentVelocity); 
         }
         SmartDashboard.putNumber("Module " + i + " slipratio", slipRatio);
-        Logger.recordOutput("SwerveModules/SlipRatios/Module " + i , slipRatio);
+        // Logger.recordOutput("SwerveModules/SlipRatios/Module " + i , slipRatio);
         //if over the upper or lower threshold save the value
         if (slipRatio > (Constants.slipThreshold + 1) || slipRatio < (1 - Constants.slipThreshold)) {
             outputs[i] = slipRatio;
@@ -190,10 +190,10 @@ public class DriveControlSystems {
                 //https://www.desmos.com/calculator/afe5omf92p how slipfactor changes slip aggression
 
                 SmartDashboard.putBoolean("slipON", true);
-                Logger.recordOutput("SlipControl/Active", true);
+                // Logger.recordOutput("SlipControl/Active", true);
             }  else {
                 SmartDashboard.putBoolean("slipON", false);
-                Logger.recordOutput("SlipControl/Active", false);
+                // Logger.recordOutput("SlipControl/Active", false);
             } 
             
         }
