@@ -278,6 +278,11 @@ public class RobotState { //will estimate pose with odometry and correct drift w
                 .complimentaryFilter(getLatestIMURobotVelocity(), 0.2);
 	    }
 
+        public synchronized ITwist2d getLatestRobotVelocity(double alpha) {
+		    return getLatestOdomRobotVelocity()
+                .complimentaryFilter(getLatestIMURobotVelocity(), alpha);
+	    }
+
         public synchronized ITwist2d getLatestIMURobotVelocity() {
 		    return getInterpolatedValue(robotIMUVelocity, robotIMUVelocity.lastKey().value, ITwist2d.identity()); 
 	    }
