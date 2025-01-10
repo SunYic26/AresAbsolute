@@ -59,7 +59,7 @@ public class Drivetrain extends SwerveDrivetrain implements Subsystem {
 
     RobotState robotState;
 
-    private static Drivetrain s_Swerve = TunerConstants.DriveTrain;
+    private static Drivetrain s_Swerve = TunerConstants.createDrivetrain();
 
     Optional<DriverStation.Alliance> alliance = DriverStation.getAlliance();
 
