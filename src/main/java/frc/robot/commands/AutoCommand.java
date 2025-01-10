@@ -41,7 +41,19 @@ public class AutoCommand {
         R3(new AutoCommand[]{}),
         R4(new AutoCommand[]{}),
         R5(new AutoCommand[]{}),
-        R6(new AutoCommand[]{});
+        R6(new AutoCommand[]{}),
+        R7(new AutoCommand[]{}),
+        R8(new AutoCommand[]{}),
+        R9(new AutoCommand[]{}),
+        R10(new AutoCommand[]{}),
+        R11(new AutoCommand[]{}),
+        R12(new AutoCommand[]{}),
+        C1(new AutoCommand[]{}),
+        C2(new AutoCommand[]{}),
+        C3(new AutoCommand[]{}),
+        C4(new AutoCommand[]{}),
+        C5(new AutoCommand[]{}),
+        C6(new AutoCommand[]{});
         private AutoCommand[] branches; //this stores all of the paths that start at this endpoint
         private EndPoint(AutoCommand[] branches){
             this.branches = branches;
