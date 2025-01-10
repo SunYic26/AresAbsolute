@@ -4,6 +4,7 @@
 
 package frc.robot.commands;
 
+import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
@@ -17,7 +18,7 @@ import frc.robot.Subsystems.Elevator.ElevatorState;
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
 public class SetElevator extends Command {
   private Elevator s_Elevator;
-  private SimpleMotorFeedforward feedforward = new SimpleMotorFeedforward(0, 0);
+  private ElevatorFeedforward feedforward = new ElevatorFeedforward(0, 0, 0, 0);
   private PIDController controller = new PIDController(0, 0, 0);
   private double goalPosition;
   private TrapezoidProfile profile = new TrapezoidProfile(new TrapezoidProfile.Constraints(Constants.elevatorMaxVelocity, Constants.elevatorMaxAcceleration));
