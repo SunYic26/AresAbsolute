@@ -20,6 +20,7 @@ import com.ctre.phoenix6.swerve.SwerveModule;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
+import choreo.trajectory.SwerveSample;
 import edu.wpi.first.math.MatBuilder;
 import edu.wpi.first.math.Nat;
 import edu.wpi.first.math.controller.PIDController;
@@ -55,6 +56,12 @@ public class Drivetrain extends SwerveDrivetrain implements Subsystem {
     private static final double kSimLoopPeriod = 0.005; // 5 ms
     private Notifier m_simNotifier = null;
     private double m_lastSimTime;
+
+
+    //auto pid controllers
+    private final PIDController xController = new PIDController(0, 0, 0);
+    private final PIDController yController = new PIDController(0, 0, 0);
+    private final PIDController thetaController = new PIDController(0, 0, 0);
 
     private double lastTimeReset = -1;
 
@@ -134,24 +141,21 @@ public class Drivetrain extends SwerveDrivetrain implements Subsystem {
         s_Swerve.resetPose(pose);
     }
 
-    // public void resetOdoUtil(Pose2d pose){
-    //     try {
-    //         m_stateLock.writeLock().lock();
 
-    //         for (int i = 0; i < ModuleCount; ++i) {
-    //             Modules[i].resetPosition();
-    //             m_modulePositions[i] = Modules[i].getPosition(true);
-    //         }
-    //         m_odometry.resetPosition(Rotation2d.fromDegrees(m_yawGetter.getValue()), m_modulePositions, pose);
-    //     } finally {
-    //         m_stateLock.writeLock().unlock();
-    //     }
-    // }
+
+    public void followAutoTrajectory(SwerveSample sample){
+        Pose2d currPose;
+
+        setControl(new SwerveRequest.FieldCentric()
+        .withVelocityX(sample.vx + xController.calculate(currPose.getX(), sample.x))
+        .withVelocityY(sample.vy + xController.calculate(currPose.getY(), sample.y))
+        .withRotationalRate(sample.omega + thetaController.calculate(currPose.getRotation(), sample.omega))
+        );
+    }
 
     public Pose2d getPose(){
         return s_Swerve.getStateCopy().Pose;
     }
-
     public void resetOdo(Pose2d pose){
         resetOdoUtil(pose);
         robotState.reset(0.02, new IPose2d(pose), ITwist2d.identity());
