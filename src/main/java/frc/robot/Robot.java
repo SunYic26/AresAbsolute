@@ -21,11 +21,11 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.lib.AccelerationIntegrator;
 import frc.robot.RobotState.RobotState;
-// import frc.robot.Subsystems.CommandSwerveDrivetrain.DriveControlSystems;
+import frc.robot.Subsystems.CommandSwerveDrivetrain.DriveControlSystems;
 import frc.robot.Subsystems.CommandSwerveDrivetrain.Drivetrain;
 import frc.robot.Subsystems.Vision.Vision;
-// import frc.robot.commands.AutoCommand;
-// import frc.robot.commands.Autos;
+import frc.robot.commands.AutoCommand;
+import frc.robot.commands.Autos;
 
 public class Robot extends LoggedRobot {
   private SequentialCommandGroup m_autonomousCommand = new SequentialCommandGroup();
@@ -35,11 +35,11 @@ public class Robot extends LoggedRobot {
   SendableChooser<AutoCommand> fourthAuto = new SendableChooser<AutoCommand>();
   SendableChooser<AutoCommand> fifthAuto = new SendableChooser<AutoCommand>();
 
-  // private AutoCommand firstSavedChoice;
-  // private AutoCommand secondSavedChoice;
-  // private AutoCommand thirdSavedChoice;
-  // private AutoCommand fourthSavedChoice;
-  // private AutoCommand fifthSavedChoice;
+  private AutoCommand firstSavedChoice;
+  private AutoCommand secondSavedChoice;
+  private AutoCommand thirdSavedChoice;
+  private AutoCommand fourthSavedChoice;
+  private AutoCommand fifthSavedChoice;
 
   private RobotContainer m_robotContainer;
 

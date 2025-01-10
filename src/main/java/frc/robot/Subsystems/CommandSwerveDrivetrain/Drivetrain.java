@@ -144,12 +144,12 @@ public class Drivetrain extends SwerveDrivetrain implements Subsystem {
 
 
     public void followAutoTrajectory(SwerveSample sample){
-        Pose2d currPose;
+        Pose2d currPose = robotState.getCurrentPose2d();
 
         setControl(new SwerveRequest.FieldCentric()
         .withVelocityX(sample.vx + xController.calculate(currPose.getX(), sample.x))
         .withVelocityY(sample.vy + xController.calculate(currPose.getY(), sample.y))
-        .withRotationalRate(sample.omega + thetaController.calculate(currPose.getRotation(), sample.omega))
+        .withRotationalRate(sample.omega + thetaController.calculate(currPose.getRotation().getRadians(), sample.omega))
         );
     }
 
