@@ -33,14 +33,14 @@ public class DriveControlSystems {
     private double deadbandFactor = 0.8; // higher is more linear joystick controls
 
 
-    Drivetrain drivetrain;
+    CommandSwerveDrivetrain drivetrain;
     // RobotState robotState;
 
     PIDController pidHeading = new PIDController(0, 0, 0);
 
     public DriveControlSystems() {  
         // robotState = RobotState.getInstance();
-        drivetrain = Drivetrain.getInstance();
+        drivetrain = CommandSwerveDrivetrain.getInstance();
     }
 
     //interface with modules

@@ -25,7 +25,7 @@ import frc.lib.VisionOutput;
 import frc.robot.Constants;
 import frc.robot.Constants.VisionConstants.VisionLimits;
 import frc.robot.RobotState.RobotState;
-import frc.robot.Subsystems.CommandSwerveDrivetrain.Drivetrain;
+import frc.robot.Subsystems.CommandSwerveDrivetrain.CommandSwerveDrivetrain;
 
 public class Vision extends SubsystemBase {
     private static Vision instance;
@@ -35,7 +35,7 @@ public class Vision extends SubsystemBase {
 
     private double lastProcessedTimestamp = -1;
 
-    Drivetrain s_Swerve;
+    CommandSwerveDrivetrain s_Swerve;
     RobotState robotState;
     
     public double floorDistance;
@@ -57,7 +57,7 @@ public class Vision extends SubsystemBase {
     }
     
     public Vision() {
-        s_Swerve = Drivetrain.getInstance();
+        s_Swerve = CommandSwerveDrivetrain.getInstance();
         robotState = RobotState.getInstance();
 
         centerCamera = new PhotonCamera(Constants.VisionConstants.cameraName);

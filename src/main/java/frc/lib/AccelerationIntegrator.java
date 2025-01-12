@@ -1,7 +1,7 @@
 package frc.lib;
 import frc.lib.Interpolating.Geometry.ITwist2d;
 
-import frc.robot.Subsystems.CommandSwerveDrivetrain.Drivetrain;
+import frc.robot.Subsystems.CommandSwerveDrivetrain.CommandSwerveDrivetrain;
 
 public class AccelerationIntegrator {
 
@@ -15,7 +15,7 @@ public class AccelerationIntegrator {
 
     private double[] prevAccel = new double[2];
     
-    private Drivetrain s_Swerve = Drivetrain.getInstance();
+    private CommandSwerveDrivetrain s_Swerve = CommandSwerveDrivetrain.getInstance();
 
     public void initTimeStamp(double timestamp){
         lastTimestamp = timestamp;

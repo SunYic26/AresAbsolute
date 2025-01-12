@@ -21,7 +21,7 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.lib.AccelerationIntegrator;
 import frc.robot.RobotState.RobotState;
 // import frc.robot.Subsystems.CommandSwerveDrivetrain.DriveControlSystems;
-import frc.robot.Subsystems.CommandSwerveDrivetrain.Drivetrain;
+import frc.robot.Subsystems.CommandSwerveDrivetrain.CommandSwerveDrivetrain;
 import frc.robot.Subsystems.Vision.Vision;
 // import frc.robot.commands.AutoCommand;
 // import frc.robot.commands.Autos;
@@ -44,7 +44,7 @@ public class Robot extends TimedRobot {
 
   private final Vision vision;
 
-  private Drivetrain drivetrain;
+  private CommandSwerveDrivetrain drivetrain;
   private RobotState robotState;
  
     public Robot() { 
@@ -101,7 +101,7 @@ public class Robot extends TimedRobot {
 
       // Logger.start(); // Start logging! No more data receivers, replay sources, or metadata values may be added.
       
-      drivetrain = Drivetrain.getInstance();
+      drivetrain = CommandSwerveDrivetrain.getInstance();
       robotState = RobotState.getInstance();
       vision = Vision.getInstance();
     }

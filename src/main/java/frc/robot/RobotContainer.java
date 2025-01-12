@@ -22,7 +22,7 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.Subsystems.CommandSwerveDrivetrain.Drivetrain;
+import frc.robot.Subsystems.CommandSwerveDrivetrain.CommandSwerveDrivetrain;
 import frc.robot.Subsystems.CommandSwerveDrivetrain.DriveControlSystems;
 
 public class RobotContainer {
@@ -43,7 +43,7 @@ public class RobotContainer {
   private DriveControlSystems controlSystem  = new DriveControlSystems();
 
   //instances
-  private final Drivetrain drivetrain = Drivetrain.getInstance(); // Drivetrain
+  private final CommandSwerveDrivetrain drivetrain = CommandSwerveDrivetrain.getInstance(); // Drivetrain
 
   /* Driver Buttons */
   private final Trigger driverBack = driver.back();
