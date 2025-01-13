@@ -22,11 +22,12 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.Subsystems.CommandSwerveDrivetrain.Drivetrain;
+import frc.robot.Subsystems.CommandSwerveDrivetrain.CommandSwerveDrivetrain;
 import frc.robot.commands.CommandFactory.CommandFactory;
 import frc.robot.commands.CommandFactory.CommandFactory.*;
 import frc.robot.Constants.FieldConstants.ReefConstants.ReefPoleLevel;
 import frc.robot.Subsystems.CommandSwerveDrivetrain.DriveControlSystems;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 
 public class RobotContainer {
 
@@ -48,7 +49,7 @@ public class RobotContainer {
   private ReefPoleLevel reefPoleLevel = ReefPoleLevel.L1; //default reef pole level
 
   //instances
-  private final Drivetrain drivetrain = Drivetrain.getInstance(); // Drivetrain
+  private final CommandSwerveDrivetrain drivetrain = CommandSwerveDrivetrain.getInstance(); // Drivetrain
 
   /* Driver Buttons */
   private final Trigger driverBack = driver.back();

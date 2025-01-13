@@ -28,7 +28,7 @@ import frc.lib.Interpolating.IDouble;
 import frc.lib.Interpolating.InterpolatingTreeMap;
 import frc.lib.VisionOutput;
 import frc.robot.Constants;
-import frc.robot.Subsystems.CommandSwerveDrivetrain.Drivetrain;
+import frc.robot.Subsystems.CommandSwerveDrivetrain.CommandSwerveDrivetrain;
 
 public class RobotState { //will estimate pose with odometry and correct drift with vision
     private static RobotState instance;
@@ -42,7 +42,7 @@ public class RobotState { //will estimate pose with odometry and correct drift w
 
     private static AccelerationIntegrator accelIntegrator = new AccelerationIntegrator();
     
-    Drivetrain drivetrain;
+    CommandSwerveDrivetrain drivetrain;
     Pigeon2 pigeon;
 
     private InterpolatingTreeMap<IDouble, IPose2d> odometryPoses;
@@ -68,7 +68,7 @@ public class RobotState { //will estimate pose with odometry and correct drift w
 	private boolean inAuto = false; //need to configure with auto but we dont have an auto yet (lol)
 
     public RobotState() {
-        drivetrain = Drivetrain.getInstance();
+        drivetrain = CommandSwerveDrivetrain.getInstance();
         pigeon = drivetrain.getPigeon2();  //getting the already constructed pigeon in swerve
         reset(0.02, IPose2d.identity(), ITwist2d.identity()); //init
     }
