@@ -4,10 +4,13 @@
 
 package frc.robot.Subsystems;
 
+import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
@@ -43,12 +46,25 @@ public class Elevator extends SubsystemBase {
   public Elevator() {
     leader = new TalonFX(Constants.HardwarePorts.elevatorLeaderId);
     follower = new TalonFX(Constants.HardwarePorts.elevatorFollowerId);
-    follower.setControl(new Follower(Constants.HardwarePorts.elevatorLeaderId, false));
+    configMotor(leader, false, NeutralModeValue.Brake);
+    configMotor(follower, false, NeutralModeValue.Brake);
 
+    follower.setControl(new Follower(Constants.HardwarePorts.elevatorLeaderId, false));
   }
 
   private void configMotor(TalonFX motor, boolean inverted, NeutralModeValue neutralMode){
+    motor.setNeutralMode(neutralMode);
+    TalonFXConfiguration config = new TalonFXConfiguration();
+    CurrentLimitsConfigs currentLimitsConfigs = new CurrentLimitsConfigs();
     
+    currentLimitsConfigs.SupplyCurrentLimit = Constants.CurrentLimits.elevatorContinuousCurrentLimit;
+    currentLimitsConfigs.SupplyCurrentLimitEnable = true;
+    currentLimitsConfigs.StatorCurrentLimit = Constants.CurrentLimits.elevatorPeakCurrentLimit;
+    currentLimitsConfigs.StatorCurrentLimitEnable = true;
+
+    config.CurrentLimits = currentLimitsConfigs;
+
+    motor.optimizeBusUtilization();
   }
 
   public double getPosition(){
@@ -69,6 +85,6 @@ public class Elevator extends SubsystemBase {
 
   @Override
   public void periodic() {
-    // This method will be called once per scheduler run
+    SmartDashboard.putNumber("elevator position", getPosition());
   }
 }

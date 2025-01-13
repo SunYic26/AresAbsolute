@@ -33,7 +33,7 @@ import org.opencv.core.Point;
 public final class Constants {
 
 
-    public static double MaxSpeed = 6; //can be lowered during testing
+    public static double MaxSpeed = 5.5; //can be lowered during testing
     public static double MaxAngularRate = 3 * Math.PI; // 3/4 of a rotation per second max angular velocity
 
     public static final double dt = 0.02; // 3/4 of a rotation per second max angular velocity
@@ -59,11 +59,14 @@ public final class Constants {
 
 
     public static final class CurrentLimits{
-        public static final int outtakeContinuousCurrentLimit = 40;
-        public static final int outtakePeakCurrentLimit = 70;
+        public static final int outtakeContinuousCurrentLimit = 35;
+        public static final int outtakePeakCurrentLimit = 65;
         
         public static final int intakeContinuousCurrentLimit = 40;
         public static final int intakePeakCurrentLimit = 70;
+
+        public static final int elevatorContinuousCurrentLimit = 50;
+        public static final int elevatorPeakCurrentLimit = 80;
     }
     
 
