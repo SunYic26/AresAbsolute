@@ -22,7 +22,7 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.RobotContainer;
 import frc.robot.RobotState.RobotState;
-import frc.robot.Subsystems.CommandSwerveDrivetrain.Drivetrain;
+import frc.robot.Subsystems.CommandSwerveDrivetrain.CommandSwerveDrivetrain;
 import frc.robot.Subsystems.Vision.Vision;
 import frc.robot.commands.FollowChoreoTrajectory;
 
@@ -32,7 +32,7 @@ public class Autos {
 
     private final Vision vision = Vision.getInstance();
 
-    private static Drivetrain drivetrain = Drivetrain.getInstance();
+    private static CommandSwerveDrivetrain drivetrain = CommandSwerveDrivetrain.getInstance();
     private static RobotState robotState = RobotState.getInstance();
     private static final PIDController thetaController = new PIDController(3, 1.4, 0); //tune?
     private static final PIDController xController = new PIDController(5, 1, 0);

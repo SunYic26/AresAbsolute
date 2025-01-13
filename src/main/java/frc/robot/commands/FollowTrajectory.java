@@ -14,7 +14,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import frc.robot.Subsystems.CommandSwerveDrivetrain.DriveControlSystems;
-import frc.robot.Subsystems.CommandSwerveDrivetrain.Drivetrain;
+import frc.robot.Subsystems.CommandSwerveDrivetrain.CommandSwerveDrivetrain;
 import edu.wpi.first.math.controller.LTVUnicycleController ;
 import frc.lib.Interpolating.Geometry.ITranslation2d;
 import frc.robot.Constants;
@@ -24,7 +24,7 @@ import frc.robot.RobotState.RobotState;
 import frc.robot.Constants.TrajectoryConstants;
 
 public class FollowTrajectory extends Command {
-    Drivetrain s_Swerve;
+    CommandSwerveDrivetrain s_Swerve;
     RobotState robotState;
     DriveControlSystems controlSystems;
 
@@ -42,7 +42,7 @@ public class FollowTrajectory extends Command {
     Timer timer = new Timer();
 
     public FollowTrajectory(Pose2d goalPose) {
-        this.s_Swerve = Drivetrain.getInstance();
+        this.s_Swerve = CommandSwerveDrivetrain.getInstance();
         this.controlSystems = DriveControlSystems.getInstance();
         this.robotState = RobotState.getInstance();
         this.goalPose = goalPose;
@@ -50,7 +50,7 @@ public class FollowTrajectory extends Command {
     }
 
     public FollowTrajectory(ReefPoleSide side) {        
-        this.s_Swerve = Drivetrain.getInstance();
+        this.s_Swerve = CommandSwerveDrivetrain.getInstance();
         this.controlSystems = DriveControlSystems.getInstance();
         this.robotState = RobotState.getInstance();
         this.goalPose = side.getClosestPoint(robotState.getCurrentPose2d());

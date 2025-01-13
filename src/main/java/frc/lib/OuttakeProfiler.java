@@ -9,7 +9,7 @@ import frc.lib.Hexagon;
 import frc.robot.Constants;
 import frc.robot.RobotState.RobotState;
 import frc.robot.Subsystems.Outtake;
-import frc.robot.Subsystems.CommandSwerveDrivetrain.Drivetrain;
+import frc.robot.Subsystems.CommandSwerveDrivetrain.CommandSwerveDrivetrain;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import java.util.Optional;
@@ -21,7 +21,7 @@ public class OuttakeProfiler {
     private static OuttakeProfiler instance;
     private RobotState robotState;
     private Outtake s_Outtake;
-    private Drivetrain s_Swerve;
+    private CommandSwerveDrivetrain s_Swerve;
     private Pose2d robotPose;
 
     private double elevatorHeight;

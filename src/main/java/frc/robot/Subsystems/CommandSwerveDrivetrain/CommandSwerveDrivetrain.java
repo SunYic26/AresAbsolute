@@ -23,6 +23,7 @@ import com.ctre.phoenix6.swerve.SwerveModule;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
+import choreo.trajectory.SwerveSample;
 import edu.wpi.first.math.MatBuilder;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.Nat;
@@ -63,11 +64,17 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     private Notifier m_simNotifier = null;
     private double m_lastSimTime;
 
+    private DriveControlSystems controlSystem = new DriveControlSystems();
+
     private double lastTimeReset = -1;
 
     RobotState robotState;
 
     private static CommandSwerveDrivetrain s_Swerve;
+
+    private PIDController xController = new PIDController(0, 0, 0);
+    private PIDController yController = new PIDController(0, 0, 0);
+    private PIDController thetaController = new PIDController(0, 0, 0);
 
     Optional<DriverStation.Alliance> alliance = DriverStation.getAlliance();
 
@@ -287,6 +294,20 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         tareEverything();
         robotState.reset(0.02, IPose2d.identity(), ITwist2d.identity());
         robotState.resetUKF(IPose2d.identity());
+    }
+
+    public void trajectoryDrive(double driverLY, double driverLX, double driverRX) {
+        applyRequest(() -> controlSystem.drive(driverLY, driverLX, driverRX));
+    }
+
+    public void followAutoTrajectory(SwerveSample sample){
+        Pose2d currPose = robotState.getCurrentPose2d();
+
+        setControl(new SwerveRequest.FieldCentric()
+        .withVelocityX(sample.vx + xController.calculate(currPose.getX(), sample.x))
+        .withVelocityY(sample.vy + yController.calculate(currPose.getY(), sample.y))
+        .withRotationalRate(sample.omega + thetaController.calculate(currPose.getRotation().getRadians(), sample.omega))
+        );
     }
     
     public void resetOdoUtil(Pose2d pose){ //IDK if this works as we want it to

@@ -13,18 +13,18 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.Subsystems.CommandSwerveDrivetrain.Drivetrain;
+import frc.robot.Subsystems.CommandSwerveDrivetrain.CommandSwerveDrivetrain;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
 public class FollowChoreoTrajectory extends Command {
   private final Trajectory trajectory;
-  private final Drivetrain s_Swerve;
+  private final CommandSwerveDrivetrain s_Swerve;
   private Optional<DriverStation.Alliance> alliance;
   private Optional<Pose2d> startPose;
   private Timer timer;
   public FollowChoreoTrajectory(String name) {
     trajectory = Choreo.loadTrajectory(name).get();
-    s_Swerve = Drivetrain.getInstance();
+    s_Swerve = CommandSwerveDrivetrain.getInstance();
     alliance = DriverStation.getAlliance();
     timer = new Timer();
   }
