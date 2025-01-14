@@ -29,7 +29,7 @@ public class AutoCommand {
     public AutoCommand(String name, Command autoCommand, EndPoint endPoint){
         this.name = name;
         this.autoCommand = autoCommand;
-        this.end = end;
+        this.end = endPoint;
     }
 
     private enum EndPoint {

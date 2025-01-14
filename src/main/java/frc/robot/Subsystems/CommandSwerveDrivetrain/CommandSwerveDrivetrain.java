@@ -64,7 +64,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     private Notifier m_simNotifier = null;
     private double m_lastSimTime;
 
-    private DriveControlSystems controlSystem = new DriveControlSystems();
+    private DriveControlSystems controlSystem = DriveControlSystems.getInstance();
 
     private double lastTimeReset = -1;
 

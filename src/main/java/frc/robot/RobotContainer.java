@@ -44,7 +44,7 @@ public class RobotContainer {
   /* Setting up bindings for necessary control of the swerve drive platform */
   public final CommandXboxController driver = new CommandXboxController(0); // Driver joystick
 
-  private DriveControlSystems controlSystem  = new DriveControlSystems();
+  private DriveControlSystems controlSystem  = DriveControlSystems.getInstance();
 
   private ReefPoleLevel reefPoleLevel = ReefPoleLevel.L1; //default reef pole level
 
