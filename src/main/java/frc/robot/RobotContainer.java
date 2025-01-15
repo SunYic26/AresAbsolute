@@ -24,6 +24,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Subsystems.CommandSwerveDrivetrain.CommandSwerveDrivetrain;
 import frc.robot.Subsystems.CommandSwerveDrivetrain.DriveControlSystems;
+import frc.robot.Subsystems.CommandSwerveDrivetrain.CANCoders;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 
 public class RobotContainer {
@@ -43,6 +44,7 @@ public class RobotContainer {
 
   private DriveControlSystems controlSystem  = new DriveControlSystems();
 
+  private CANCoders encoders = CANCoders.getInstance();
   //instances
   private final CommandSwerveDrivetrain drivetrain = CommandSwerveDrivetrain.getInstance(); // Drivetrain
 
@@ -69,7 +71,7 @@ public class RobotContainer {
   private void configureBindings() {
 
     drivetrain.setDefaultCommand( // Drivetrain will execute this command periodically
-        drivetrain.applyRequest(() -> controlSystem.drive(-driver.getLeftY(), -driver.getLeftX(), -driver.getRightX()) // Drive counterclockwise with negative X (left)
+        drivetrain.applyRequest(() -> controlSystem.drive(-driver.getLeftY(), driver.getLeftX(), -driver.getRightX()) // Drive counterclockwise with negative X (left)
     ));
     //bindings
 

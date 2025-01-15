@@ -23,6 +23,7 @@ import frc.robot.RobotState.RobotState;
 // import frc.robot.Subsystems.CommandSwerveDrivetrain.DriveControlSystems;
 import frc.robot.Subsystems.CommandSwerveDrivetrain.CommandSwerveDrivetrain;
 import frc.robot.Subsystems.Vision.Vision;
+import frc.robot.Subsystems.CommandSwerveDrivetrain.CANCoders;
 // import frc.robot.commands.AutoCommand;
 // import frc.robot.commands.Autos;
 
@@ -46,6 +47,7 @@ public class Robot extends TimedRobot {
 
   private CommandSwerveDrivetrain drivetrain;
   private RobotState robotState;
+  private CANCoders encoders;
  
     public Robot() { 
       // oops just realized logging needs to be in the constructor lol
@@ -104,6 +106,7 @@ public class Robot extends TimedRobot {
       drivetrain = CommandSwerveDrivetrain.getInstance();
       robotState = RobotState.getInstance();
       vision = Vision.getInstance();
+      encoders = CANCoders.getInstance();
     }
 
   @Override
