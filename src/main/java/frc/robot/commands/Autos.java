@@ -58,9 +58,9 @@ public class Autos {
     return Commands.waitSeconds(0);
   }
 
-  public static Command meterForwardTest(){
-    return new SequentialCommandGroup(
-      new FollowChoreoTrajectory("meterForwardTest")
-    );
-  }
+  // public static Command meterForwardTest(){
+  //   return new SequentialCommandGroup(
+  //     new FollowChoreoTrajectory("meterForwardTest")
+  //   );
+  // }
 }

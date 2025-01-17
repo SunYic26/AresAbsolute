@@ -111,7 +111,7 @@ public class Robot extends LoggedRobot {
   public void robotInit() {
     firstAuto.addOption(AutoCommand.Test1().name, AutoCommand.Test1());
     firstAuto.addOption(AutoCommand.Test2().name, AutoCommand.Test2());
-    firstAuto.addOption(AutoCommand.meterForwardTest().name, AutoCommand.meterForwardTest());
+    //firstAuto.addOption(AutoCommand.meterForwardTest().name, AutoCommand.meterForwardTest());
     AutoCommand.loadAutos();
     SmartDashboard.putData("first auto", firstAuto);
 

@@ -23,7 +23,7 @@ public class AutoCommand {
         pathKeys.put("Test2", Test2());
         pathKeys.put("Test3", Test3());
         pathKeys.put("Test4", Test4());
-        pathKeys.put("meterForwardTest", meterForwardTest());
+        //pathKeys.put("meterForwardTest", meterForwardTest());
     }
 
     public AutoCommand(String name, Command autoCommand, EndPoint endPoint){
@@ -95,9 +95,9 @@ public class AutoCommand {
         return new AutoCommand("Test4", Autos.Test4(), EndPoint.GENERIC);
     }
 
-    public static AutoCommand meterForwardTest() {
-        return new AutoCommand("meterForwardTest", Autos.meterForwardTest(), EndPoint.GENERIC);
-    }
+    // public static AutoCommand meterForwardTest() {
+    //     return new AutoCommand("meterForwardTest", Autos.meterForwardTest(), EndPoint.GENERIC);
+    // }
 
     public static AutoCommand getAuto(String name){
         return pathKeys.get(name);

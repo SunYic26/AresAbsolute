@@ -42,7 +42,7 @@ public class FollowChoreoTrajectory extends Command {
   @Override
   public void execute() {
     Optional<SwerveSample> sample = trajectory.sampleAt(timer.get(), alliance.get() == DriverStation.Alliance.Red);
-    s_Swerve.followAutoTrajectory(sample.get());
+    // s_Swerve.followAutoTrajectory(sample.get());
   }
 
   // Called once the command ends or is interrupted.

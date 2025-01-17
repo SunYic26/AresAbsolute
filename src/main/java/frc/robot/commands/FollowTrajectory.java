@@ -76,7 +76,7 @@ public class FollowTrajectory extends Command {
     public void execute() {
 
         ChassisSpeeds controlOutput = ltvUnicycleController.calculate(robotState.getCurrentPose2d(), trajectory.sample(timer.get()));
-        s_Swerve.trajectoryDrive(controlOutput.vxMetersPerSecond, controlOutput.vyMetersPerSecond, controlOutput.omegaRadiansPerSecond);
+        // s_Swerve.trajectoryDrive(controlOutput.vxMetersPerSecond, controlOutput.vyMetersPerSecond, controlOutput.omegaRadiansPerSecond);
     }
 
     @Override
