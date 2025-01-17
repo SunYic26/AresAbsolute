@@ -13,7 +13,7 @@ import frc.robot.Subsystems.Intake.PivotState;
 import frc.robot.Constants.FieldConstants.ReefConstants;
 import frc.robot.Subsystems.Intake;
 import frc.robot.Subsystems.Intake.RollerState;
-import frc.robot.commands.CancelableCommand;
+//import frc.robot.commands.CancelableCommand;
 import frc.robot.commands.FollowTrajectory;
 import frc.robot.commands.SetIntakePivot;
 import frc.robot.Constants;
@@ -46,7 +46,7 @@ public class CommandFactory {
                 // put elevator to level based on ReefPoleLevel
             )
             // outtake to score
-        ).raceWith(new CancelableCommand());
+        );// raceWith(new CancelableCommand());
     }
 
     public static Command Outtake() {
