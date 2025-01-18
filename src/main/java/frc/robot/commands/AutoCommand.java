@@ -14,17 +14,18 @@ public class AutoCommand {
     Command autoCommand;
     public String name;
     private EndPoint end;
-    private static HashMap<String, AutoCommand> pathKeys = new HashMap<String, AutoCommand>();
+    // private static HashMap<String, AutoCommand> pathKeys = new HashMap<String, AutoCommand>();
     private static ArrayList<AutoCommand> autoList2 = new ArrayList<AutoCommand>();
 
     //if you have questions ask ethan
-    public static void loadAutos(){
-        pathKeys.put("Test1", Test1());
-        pathKeys.put("Test2", Test2());
-        pathKeys.put("Test3", Test3());
-        pathKeys.put("Test4", Test4());
-        //pathKeys.put("meterForwardTest", meterForwardTest());
-    }
+    // public static void loadAutos(){
+    //     pathKeys.put("Test1", Test1());
+    //     pathKeys.put("Test2", Test2());
+    //     pathKeys.put("Test3", Test3());
+    //     pathKeys.put("Test4", Test4());
+
+    //     //pathKeys.put("meterForwardTest", meterForwardTest());
+    // }
 
     public AutoCommand(String name, Command autoCommand, EndPoint endPoint){
         this.name = name;
@@ -95,11 +96,27 @@ public class AutoCommand {
         return new AutoCommand("Test4", Autos.Test4(), EndPoint.GENERIC);
     }
 
+    public static AutoCommand meter1() {
+        return new AutoCommand("1meter", Autos.meter(), EndPoint.GENERIC);
+    }
+
+    public static AutoCommand meter2() {
+        return new AutoCommand("2meters", Autos.meter2(), EndPoint.GENERIC);
+    }
+
+    public static AutoCommand meter3() {
+        return new AutoCommand("3meters", Autos.meter3(), EndPoint.GENERIC);
+    }
+
+    public static AutoCommand meter4() {
+        return new AutoCommand("4meters", Autos.meter4(), EndPoint.GENERIC);
+    }
+
     // public static AutoCommand meterForwardTest() {
     //     return new AutoCommand("meterForwardTest", Autos.meterForwardTest(), EndPoint.GENERIC);
     // }
 
-    public static AutoCommand getAuto(String name){
-        return pathKeys.get(name);
-    }
+    // public static AutoCommand getAuto(String name){
+    //     return pathKeys.get(name);
+    // }
 }

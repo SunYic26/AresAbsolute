@@ -34,9 +34,9 @@ public class Autos {
 
     private static CommandSwerveDrivetrain drivetrain = CommandSwerveDrivetrain.getInstance();
     private static RobotState robotState = RobotState.getInstance();
-    private static final PIDController thetaController = new PIDController(3, 1.4, 0); //tune?
-    private static final PIDController xController = new PIDController(5, 1, 0);
-    private static final PIDController yController = new PIDController(5, 1, 0);
+    // private static final PIDController thetaController = new PIDController(0, 0, 0); //tune?
+    // private static final PIDController xController = new PIDController(0, 0, 0);
+    // private static final PIDController yController = new PIDController(0, 0, 0);
 
   public static Command Test1() {
     return Commands.waitSeconds(1);
@@ -57,6 +57,23 @@ public class Autos {
   public static Command Test4() {
     return Commands.waitSeconds(0);
   }
+
+  public static Command meter() {
+    return new FollowChoreoTrajectory("1meter");
+  }
+
+  public static Command meter2(){
+    return new FollowChoreoTrajectory("2meters");
+  }
+
+  public static Command meter3(){
+    return new FollowChoreoTrajectory("3meters");
+  }
+
+  public static Command meter4(){
+    return new FollowChoreoTrajectory("4meters");
+  }
+
 
   // public static Command meterForwardTest(){
   //   return new SequentialCommandGroup(
