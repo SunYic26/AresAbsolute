@@ -67,6 +67,8 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
 
     RobotState robotState;
 
+    // private DriveControlSystems controlSystem  = new DriveControlSystems(); //only for trajectory following
+
     private static CommandSwerveDrivetrain s_Swerve;
 
     Optional<DriverStation.Alliance> alliance = DriverStation.getAlliance();
@@ -166,7 +168,6 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         if(s_Swerve == null){
             s_Swerve = new CommandSwerveDrivetrain(TunerConstants.DrivetrainConstants, 250, TunerConstants.FrontLeft,
             TunerConstants.FrontRight, TunerConstants.BackLeft, TunerConstants.BackRight);  
-            
         }
         return s_Swerve;
     }
@@ -268,6 +269,17 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         return run(() -> setControl(requestSupplier.get()));
     }
 
+    // public Command applyRequest(double driverLY, double driverLX, double driverRX) {
+    //     return run(() -> setControl(
+
+    //     new SwerveRequest.FieldCentric()
+    //     .withVelocityX(driverLX)
+    //     .withVelocityY(driverLY)
+    //     .withRotationalRate(driverRX)
+
+    //     ));
+    // }
+
     private void startSimThread() {
         m_lastSimTime = Utils.getCurrentTimeSeconds();
 
@@ -308,7 +320,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     // }
 
     public Pose2d getPose(){
-        return s_Swerve.getStateCopy().Pose;
+        return s_Swerve.getState().Pose;
     }
 
     public void resetOdo(Pose2d pose){
@@ -378,10 +390,10 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         if(robotState != null){
              robotState.odometryUpdate(currentPose, getWheelVelocities(), Timer.getFPGATimestamp());
 
-            // ITranslation2d currFilteredPose = robotState.getLatestFilteredPose();
+            ITranslation2d currFilteredPose = robotState.getLatestFilteredPose();
 
-            // SmartDashboard.putNumber("FILT X", currFilteredPose.getX());
-            // SmartDashboard.putNumber("FILT Y", currFilteredPose.getY());
+            SmartDashboard.putNumber("FILT X", currFilteredPose.getX());
+            SmartDashboard.putNumber("FILT Y", currFilteredPose.getY());
         }else{
             robotState = RobotState.getInstance();
         }
@@ -389,9 +401,6 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
 
         //allows driver to see if resetting worked
         // SmartDashboard.putBoolean("Odo Reset (last 5 sec)", lastTimeReset != -1 && Timer.getFPGATimestamp() - lastTimeReset < 5);
-        for(int i = 0; i < 4; i++){
-            SmartDashboard.putNumber("cancoder position module " + i, s_Swerve.getModule(i).getPosition(true).angle.getRadians());
-        }
         SmartDashboard.putNumber("ODO X", currentPose.getX());
         SmartDashboard.putNumber("ODO Y", currentPose.getY());
          SmartDashboard.putNumber("ODO ROT", currentPose.getRotation().getRadians());

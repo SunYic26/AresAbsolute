@@ -111,7 +111,7 @@ public class RobotState { //will estimate pose with odometry and correct drift w
             Matrix<N2, N1> initialState = VecBuilder.fill(pose.getX(), pose.getY());
             UKF.setXhat(initialState);
         } else {
-            ITwist2d robotVelocity = getIMURobotVelocity(timestamp);
+            // ITwist2d robotVelocity = getIMURobotVelocity(timestamp);
 
             ITwist2d OdomVelocity = getInterpolatedValue(odometryPoses, prevOdomTimestamp.get(), IPose2d.identity())
                 .getVelocityBetween(new IPose2d(pose), timestamp - prevOdomTimestamp.get());
@@ -120,21 +120,21 @@ public class RobotState { //will estimate pose with odometry and correct drift w
             
             //    .complimentaryFilter(robotVelocity, 0.1); Could reimplement this if our pigeon values improve 
 
-            double robotVelocityMagnitude = robotVelocity.toMagnitude();
+            // double robotVelocityMagnitude = robotVelocity.toMagnitude();
             IDouble robotAngularMagnitude = getInterpolatedValue(robotAngularVelocity, timestamp, new IDouble(0.0));
             ITwist2d robotAcceleration = getInterpolatedValue(robotAccelerations, timestamp, ITwist2d.identity());
 
             SmartDashboard.putNumber("Accel", robotAcceleration.toMagnitude());
-            SmartDashboard.putNumber("velocity", robotVelocityMagnitude);
+            SmartDashboard.putNumber("velocity", OdomVelocity.toMagnitude());
 
-            if(robotVelocityMagnitude > 0) { //manually increase P (our predicted error in pos)
+            if(OdomVelocity.toMagnitude() > 0) { //manually increase P (our predicted error in pos)
                 Matrix<N2,N2> P = UKF.getP();
 
                 //TODO numbers are arbitrary
                 // components of our uncertainty
                 double curvature = Math.min(0.03, (
                     Math.hypot(robotAcceleration.getX(), robotAcceleration.getY()) / //acceleration over velocity
-                    (750 * (robotVelocityMagnitude + 1))
+                    (750 * (OdomVelocity.toMagnitude() + 1))
                     ));
 
                 double angular = 0.0005 * (robotAngularMagnitude.value / Constants.MaxAngularRate);
@@ -160,6 +160,8 @@ public class RobotState { //will estimate pose with odometry and correct drift w
         }
 
         odometryPoses.put(new IDouble(timestamp), new IPose2d(pose.getX(),pose.getY(), pose.getRotation()));
+
+        filteredPoses.put(new IDouble(timestamp), new ITranslation2d(UKF.getXhat(0), UKF.getXhat(1)));
 
         prevOdomTimestamp = Optional.of(timestamp);
 
@@ -316,7 +318,7 @@ public class RobotState { //will estimate pose with odometry and correct drift w
         }
 
         public Pose2d getCurrentPose2d() {
-            return new Pose2d(getLatestFilteredPose().getX(), getLatestFilteredPose().getY(), robotYaw());
+            return new Pose2d(getLatestFilteredPose().getX(), getLatestFilteredPose().getY(), drivetrain.getRotation3d().toRotation2d());
         }
 
         //// =======---===[ ⚙ Pigeon2.0  ]===---========

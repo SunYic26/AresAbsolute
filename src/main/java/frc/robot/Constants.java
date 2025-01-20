@@ -51,10 +51,8 @@ public final class Constants {
         public static final double outtakeOffsetMillimeters = 0; //distance between center of robot and PVC center of mass after exiting outtake in mm
     }
 
-    
 
-
-    public static final double stickDeadband = 0.05;
+    public static final double stickDeadband = 0.075;
     public static final double triggerDeadzone = 0.2;
 
 
@@ -80,7 +78,7 @@ public final class Constants {
 
         public static final double poseToleranceX = 0.02;
         public static final double poseToleranceY = 0.02;
-        public static final double poseToleranceTheta = Math.PI / 30; // 6 degrees
+        public static final double poseToleranceTheta = Math.PI / 50; // 6 degrees
     }
 
     public static final double elevatorContinuousCurrentLimit = 50;
@@ -174,21 +172,21 @@ public final class Constants {
 
                 //BLUE SIDE, should be mirrored for red side
                 LEFT(new Pose2d[]{ //these are wrong obvi
-                    new Pose2d(0.0, 0.0, new Rotation2d(0.0)), // Point A
-                    new Pose2d(0.0, 1.0, new Rotation2d(0.0)), // Point C
-                    new Pose2d(0.0, 2.0, new Rotation2d(0.0)), // Point E
-                    new Pose2d(0.0, 3.0, new Rotation2d(0.0)), // Point G
-                    new Pose2d(0.0, 4.0, new Rotation2d(0.0)), // Point I
-                    new Pose2d(0.0, 5.0, new Rotation2d(0.0))  // Point K
+                    new Pose2d(1.0, 1.0, new Rotation2d(0.0)), // Point A
+                    new Pose2d(1.0, 1.0, new Rotation2d(0.0)), // Point C
+                    new Pose2d(1.0, 1.0, new Rotation2d(0.0)), // Point E
+                    new Pose2d(1.0, 1.0, new Rotation2d(0.0)), // Point G
+                    new Pose2d(1.0, 1.0, new Rotation2d(0.0)), // Point I
+                    new Pose2d(1.0, 1.0, new Rotation2d(0.0))  // Point K
                 }),
 
                 RIGHT(new Pose2d[]{
-                    new Pose2d(1.0, 0.0, new Rotation2d(0.0)), // Point B
+                    new Pose2d(1.0, 1.0, new Rotation2d(0.0)), // Point B
                     new Pose2d(1.0, 1.0, new Rotation2d(0.0)), // Point D
-                    new Pose2d(1.0, 2.0, new Rotation2d(0.0)), // Point F
-                    new Pose2d(1.0, 3.0, new Rotation2d(0.0)), // Point H
-                    new Pose2d(1.0, 4.0, new Rotation2d(0.0)), // Point J
-                    new Pose2d(1.0, 5.0, new Rotation2d(0.0))  // Point L
+                    new Pose2d(1.0, 1.0, new Rotation2d(0.0)), // Point F
+                    new Pose2d(1.0, 1.0, new Rotation2d(0.0)), // Point H
+                    new Pose2d(1.0, 1.0, new Rotation2d(0.0)), // Point J
+                    new Pose2d(1.0, 1.0, new Rotation2d(0.0))  // Point L
                 });
 
                 private final Pose2d[] waypoints;
@@ -221,19 +219,26 @@ public final class Constants {
                 }
 
                 public ReefPoleLevel raiseLevel() {
+                    System.out.println(this.ordinal());
+
+
                     if(this.ordinal() == 2)
                         return this;
-                    else
-                        SmartDashboard.putNumber("Selected Reef Level", this.ordinal() + 1);
+                    else {
+                        SmartDashboard.putString("Selected Pole Level", ReefPoleLevel.values()[this.ordinal() + 1].name());
                         return ReefPoleLevel.values()[this.ordinal() + 1];
+                    }
                 }
 
                 public ReefPoleLevel decreaseLevel() {
+                    System.out.println(this.ordinal());
+
                     if(this.ordinal() == 0)
                         return this;
-                    else
-                        SmartDashboard.putNumber("Selected Reef Level", this.ordinal() - 1);
+                    else {
+                        SmartDashboard.putString("Selected Pole Level", ReefPoleLevel.values()[this.ordinal() - 1].name());
                         return ReefPoleLevel.values()[this.ordinal() - 1];
+                    }
                 }
 
                 public double getElevatorLevel() {

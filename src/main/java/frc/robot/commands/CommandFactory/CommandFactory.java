@@ -40,13 +40,13 @@ public class CommandFactory {
     }
 
     public static Command AutoReefScore(ReefPoleSide side, ReefPoleLevel level){
-        return new SequentialCommandGroup(
-            new ParallelCommandGroup(
-                new FollowTrajectory(side)
+        // return new SequentialCommandGroup(
+           // return new ParallelCommandGroup(
+                return new FollowTrajectory(side);
                 // put elevator to level based on ReefPoleLevel
-            )
+            // );
             // outtake to score
-        );// raceWith(new CancelableCommand());
+        //);// raceWith(new CancelableCommand());
     }
 
     public static Command Outtake() {

@@ -16,6 +16,7 @@ import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -46,7 +47,7 @@ public class RobotContainer {
 
   private DriveControlSystems controlSystem  = DriveControlSystems.getInstance();
 
-  private ReefPoleLevel reefPoleLevel = ReefPoleLevel.L1; //default reef pole level
+  private ReefPoleLevel reefPoleLevel = ReefPoleLevel.L2; //default reef pole level
 
   //instances
   private final CommandSwerveDrivetrain drivetrain = CommandSwerveDrivetrain.getInstance(); // Drivetrain
@@ -78,7 +79,7 @@ public class RobotContainer {
     ));
     //bindings
 
-    driver.rightBumper().onTrue(new InstantCommand(() -> reefPoleLevel = reefPoleLevel.raiseLevel()));
+    driver.rightBumper().onTrue(new InstantCommand( () -> reefPoleLevel = reefPoleLevel.raiseLevel()));
     driver.leftBumper().onTrue(new InstantCommand(() -> reefPoleLevel = reefPoleLevel.decreaseLevel()));
 
     driver.x().onTrue(CommandFactory.AutoReefScore(Constants.FieldConstants.ReefConstants.ReefPoleSide.LEFT, reefPoleLevel)); //left closest reef
