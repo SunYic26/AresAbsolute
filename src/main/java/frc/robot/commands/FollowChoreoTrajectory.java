@@ -17,13 +17,15 @@ import frc.robot.Subsystems.CommandSwerveDrivetrain.CommandSwerveDrivetrain;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
 public class FollowChoreoTrajectory extends Command {
-  private final Trajectory trajectory;
+  private Trajectory trajectory;
   private final CommandSwerveDrivetrain s_Swerve;
   private Optional<DriverStation.Alliance> alliance;
   private Optional<Pose2d> startPose;
   private Timer timer;
   public FollowChoreoTrajectory(String name) {
-    trajectory = Choreo.loadTrajectory(name).get();
+    if (Choreo.loadTrajectory(name).isPresent()) {
+      trajectory = Choreo.loadTrajectory(name).get();
+    }
     s_Swerve = CommandSwerveDrivetrain.getInstance();
     alliance = DriverStation.getAlliance();
     timer = new Timer();
@@ -34,15 +36,20 @@ public class FollowChoreoTrajectory extends Command {
   public void initialize() {
     timer.reset();
     timer.start();
-    startPose = trajectory.getInitialPose(alliance.get() == DriverStation.Alliance.Red);
+    if (trajectory != null){
+      startPose = trajectory.getInitialPose(alliance.get() == DriverStation.Alliance.Red);
+    }
+    
     s_Swerve.resetOdo(startPose.get());
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    Optional<SwerveSample> sample = trajectory.sampleAt(timer.get(), alliance.get() == DriverStation.Alliance.Red);
-    s_Swerve.followAutoTrajectory(sample.get());
+    if(trajectory != null){
+      Optional<SwerveSample> sample = trajectory.sampleAt(timer.get(), alliance.get() == DriverStation.Alliance.Red);
+      s_Swerve.followAutoTrajectory(sample.get());
+    }
   }
 
   // Called once the command ends or is interrupted.
@@ -52,6 +59,6 @@ public class FollowChoreoTrajectory extends Command {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return timer.get() >= trajectory.getTotalTime();
+    return trajectory != null ? timer.get() >= trajectory.getTotalTime() : true;
   }
 }
