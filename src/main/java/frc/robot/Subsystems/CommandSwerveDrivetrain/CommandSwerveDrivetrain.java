@@ -23,6 +23,7 @@ import com.ctre.phoenix6.swerve.SwerveModule;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
+import choreo.trajectory.SwerveSample;
 import edu.wpi.first.math.MatBuilder;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.Nat;
@@ -77,6 +78,9 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     private final SwerveRequest.SysIdSwerveSteerGains m_steerCharacterization = new SwerveRequest.SysIdSwerveSteerGains();
     private final SwerveRequest.SysIdSwerveRotation m_rotationCharacterization = new SwerveRequest.SysIdSwerveRotation();
 
+    private PIDController xController = new PIDController(0, 0, 0);
+    private PIDController yController = new PIDController(0, 0, 0);
+    private PIDController thetaController = new PIDController(0, 0, 0);
     /* SysId routine for characterizing translation. This is used to find PID gains for the drive motors. */
     private final SysIdRoutine m_sysIdRoutineTranslation = new SysIdRoutine(
         new SysIdRoutine.Config(
@@ -360,6 +364,16 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
             velocity += s_Swerve.getStateCopy().ModuleStates[i].speedMetersPerSecond;
         }
         return velocity/4;
+    }
+
+    public void followAutoTrajectory(SwerveSample sample){
+        Pose2d currPose = robotState.getCurrentPose2d();
+
+        setControl(new SwerveRequest.FieldCentric()
+        .withVelocityX(sample.vx + xController.calculate(currPose.getX(), sample.x))
+        .withVelocityY(sample.vy + yController.calculate(currPose.getY(), sample.y))
+        .withRotationalRate(sample.omega + thetaController.calculate(currPose.getRotation().getRadians(), sample.heading))
+        );
     }
 
     public void updateOdometryByVision(Pose3d estimatedPose){
