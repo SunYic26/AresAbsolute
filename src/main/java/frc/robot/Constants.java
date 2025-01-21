@@ -34,7 +34,11 @@ public final class Constants {
 
 
     public static double MaxSpeed = 5.5; //can be lowered during testing
-    public static double MaxAngularRate = 3 * Math.PI; // 3/4 of a rotation per second max angular velocity
+    public static double MaxAcceleration = 5.5; //can be lowered during testing
+    public static double MaxAngularRate = 1.5 * Math.PI; // 3/4 of a rotation per second max angular velocity
+    public static double MaxAngularVelocity = 3 * Math.PI; // 3/4 of a rotation per second max angular velocity
+    public static double robotMass = 80; //kg
+    public static double MOI = 20 * Math.pow(0.6858, 2); //kg * m^2
 
     public static final double dt = 0.02; // 3/4 of a rotation per second max angular velocity
     

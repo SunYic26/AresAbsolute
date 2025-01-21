@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.function.Supplier;
 
 import com.ctre.phoenix6.swerve.SwerveRequest;
+import com.ctre.phoenix6.swerve.SwerveDrivetrain.SwerveDriveState;
 
 import choreo.Choreo;
 import edu.wpi.first.math.trajectory.Trajectory;
@@ -13,6 +14,7 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -33,14 +35,34 @@ import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.Vector;
 
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.Constants;
+import frc.robot.RobotState.RobotState;
+import frc.robot.Subsystems.CommandSwerveDrivetrain.CommandSwerveDrivetrain;
+import frc.robot.Subsystems.CommandSwerveDrivetrain.DriveControlSystems;
+
+import com.pathplanner.lib.config.ModuleConfig;
+import com.pathplanner.lib.config.RobotConfig;
+
+import java.util.List;
+
+import com.pathplanner.lib.path.*;
+import com.pathplanner.lib.trajectory.PathPlannerTrajectory;
+import com.pathplanner.lib.trajectory.PathPlannerTrajectoryState;
+
 public class FollowTrajectory extends Command {
     CommandSwerveDrivetrain s_Swerve;
     RobotState robotState;
     DriveControlSystems controlSystems;
 
-    private Pose2d goalPose;
+    PathConstraints constraints = new PathConstraints(Constants.MaxSpeed, Constants.MaxAcceleration, Constants.MaxAngularRate, Constants.MaxAngularVelocity);
+  
+    PathPlannerTrajectory trajectory;
+    List<Waypoint> poses;
 
-    Pose2d currentPose2D;
+    private Pose2d goalPose;
 
     Timer timer = new Timer();
 
@@ -66,17 +88,59 @@ public class FollowTrajectory extends Command {
     @Override
     public void initialize() {
 
-        timer.start();
+    SwerveDriveState state = s_Swerve.getStateCopy();
 
+    // The rotation component of the pose should be the direction of travel
+    poses = PathPlannerPath.waypointsFromPoses(
+    new Pose2d(state.Pose.getTranslation(), new Rotation2d(Math.atan2(state.Speeds.vxMetersPerSecond, state.Speeds.vyMetersPerSecond))),
+    new Pose2d(0.5,0.5, new Rotation2d(0.0))
+    );
+
+    goalPose = new Pose2d(0.5, 0.5, new Rotation2d(0.0));
+
+    GoalEndState endState = new GoalEndState(0.0, goalPose.getRotation());
+
+    PathPlannerPath path = new PathPlannerPath(
+    poses, 
+    constraints, 
+    null, //LEAVE THIS BLANK FOR ON THE FLY GENERATION BC NOT CONTROLLABLE IN TELEOP
+    endState,
+    false);
+
+    // ModuleConfig moduleConfig = new
+    // ModuleConfig(
+    //     Constants.DriveConstants.kTrackWidth,
+    //     Constants.DriveConstants.kMaxSpeedMetersPerSecond,
+    //     Constants.DriveConstants.kMaxAccelerationMetersPerSecondSquared,
+    //     Constants.DriveConstants.kMaxAngularSpeedRadiansPerSecond,
+    //     Constants.DriveConstants.kMaxAngularAccelerationRadiansPerSecondSquared
+    // );
+
+    
+
+    // RobotConfig config = new RobotConfig(
+    //     Constants.robotMass,
+    //     Constants.MOI,
+    //     ,
+    //     moduleConfig);
+
+    timer.start();
+
+    trajectory = path.generateTrajectory(state.Speeds, state.RawHeading, null);
+
+    s_Swerve.resetOdo(trajectory.getInitialPose());
     }
 
     @Override
     public void execute() {
-        // s_Swerve.setControl(
-        // new SwerveRequest.FieldCentric()
-        // .withVelocityX(controlOutput.vxMetersPerSecond * currPose.getRotation().getCos())
-        // .withVelocityY(controlOutput.vxMetersPerSecond * currPose.getRotation().getSin())
-        // .withRotationalRate(headingPidController.calculate(currPose.getRotation().getRadians(), trajectory.sample(timer.get()).poseMeters.getRotation().getRadians()) + controlOutput.omegaRadiansPerSecond));    
+        
+        PathPlannerTrajectoryState state = trajectory.sample(timer.get());
+
+        s_Swerve.setControl(
+        new SwerveRequest.FieldCentric()
+        .withVelocityX(state.linearVelocity * state.heading.getCos())
+        .withVelocityY(state.linearVelocity * state.heading.getSin())
+        .withRotationalRate(state.heading.getRadians()));
     }
 
     @Override
@@ -86,21 +150,20 @@ public class FollowTrajectory extends Command {
     }
 
     private boolean atReference() {
-        // Pose2d currPose2d = robotState.getCurrentPose2d();
-        // Pose2d goalPose2d = ;
+        Pose2d currPose2d = robotState.getCurrentPose2d();
         
-        // Pose2d diff = currPose2d.relativeTo(goalPose2d);;
+        Pose2d diff = currPose2d.relativeTo(goalPose);
 
-        // if(Math.abs(diff.getX()) < Constants.TrajectoryConstants.poseToleranceX
-        //  && Math.abs(diff.getY()) < Constants.TrajectoryConstants.poseToleranceY
-        //  && (diff.getRotation().getRadians()) < Constants.TrajectoryConstants.poseToleranceTheta)
-        //     return true;
-        //  else
+        if(Math.abs(diff.getX()) < Constants.TrajectoryConstants.poseToleranceX
+         && Math.abs(diff.getY()) < Constants.TrajectoryConstants.poseToleranceY
+         && (diff.getRotation().getRadians()) < Constants.TrajectoryConstants.poseToleranceTheta)
+            return true;
+         else
             return false;
     }
 
     @Override
     public boolean isFinished() {
-        return atReference();
+        return atReference() || timer.hasElapsed(trajectory.getTotalTimeSeconds());
     }
 }
