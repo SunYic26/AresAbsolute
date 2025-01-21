@@ -7,9 +7,12 @@ package frc.robot.commands;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.Constants;
 import frc.robot.RobotState.RobotState;
 import frc.robot.Subsystems.CommandSwerveDrivetrain.CommandSwerveDrivetrain;
 import frc.robot.Subsystems.CommandSwerveDrivetrain.DriveControlSystems;
+
+import java.util.List;
 
 import com.pathplanner.lib.path.*;
 
@@ -21,7 +24,12 @@ public class OnTheFlyGen extends Command {
   DriveControlSystems controlSystems;
 
   Pose2d goalPose;
+
+  PathConstraints constraints = new PathConstraints(Constants.MaxSpeed, Constants.MaxAcceleration, Constants.MaxAngularRate, Constants.MaxAngularAcceleration);
   
+  PathPlannerPath path;
+  List<Waypoint> poses;
+
   Timer timer;
 
   public OnTheFlyGen(Pose2d goalPose) {
@@ -36,6 +44,17 @@ public class OnTheFlyGen extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
+    poses = PathPlannerPath.waypointsFromPoses(
+    
+  );
+
+  path = new PathPlannerPath(
+  poses, 
+  constraints, 
+  null, //LEAVE THIS BLANK FOR ON THE FLY GENERATION BC NOT CONTROLLABLE IN TELEOP
+  
+  );
+
   }
 
   // Called every time the scheduler runs while the command is scheduled.
