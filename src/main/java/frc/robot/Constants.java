@@ -12,6 +12,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
+import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants.VisionConstants.AprilTags;
@@ -21,6 +22,9 @@ import java.util.Arrays;
 import java.util.Comparator;
 
 import org.opencv.core.Point;
+
+import com.pathplanner.lib.config.ModuleConfig;
+import com.pathplanner.lib.config.RobotConfig;
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
@@ -37,8 +41,55 @@ public final class Constants {
     public static double MaxAcceleration = 5.5; //can be lowered during testing
     public static double MaxAngularRate = 1.5 * Math.PI; // 3/4 of a rotation per second max angular velocity
     public static double MaxAngularVelocity = 3 * Math.PI; // 3/4 of a rotation per second max angular velocity
-    public static double robotMass = 80; //kg
+    public static double robotMass = 17.5; //kg
     public static double MOI = 20 * Math.pow(0.6858, 2); //kg * m^2
+    public static double CoF = 0.65; //kg * m^2
+    public static double wheelRadiusInches = 1.9125; //inches
+
+    public static DCMotor motorConfig = new DCMotor(
+        Constants.KrakenConstants.nominalVoltageVolts,
+        Constants.KrakenConstants.stallTorqueNewtonMeters,
+        Constants.KrakenConstants.stallCurrentAmps,
+        Constants.KrakenConstants.freeCurrentAmps,
+        Constants.KrakenConstants.freeSpeedRadPerSec,
+    4);
+
+    public static ModuleConfig moduleConfig = new ModuleConfig(
+        Constants.wheelRadiusInches * 0.0254, //in to m
+        Constants.MaxSpeed,
+        Constants.CoF,
+        motorConfig,
+        Constants.KrakenConstants.driveCurrentLimitAmps,
+        Constants.KrakenConstants.torqueLoss,
+        4
+    );
+
+    public static RobotConfig config = new RobotConfig(
+        Constants.robotMass,
+        Constants.MOI,
+        Constants.moduleConfig,
+        Constants.moduleLocations.FL,
+        Constants.moduleLocations.FR,
+        Constants.moduleLocations.BL,
+        Constants.moduleLocations.BR
+    );
+
+    public static final class moduleLocations {
+        public static final Translation2d FL = new Translation2d(-13.5, 13.5);
+        public static final Translation2d FR = new Translation2d(13.5, 13.5);
+        public static final Translation2d BL = new Translation2d(-13.5, -13.5);
+        public static final Translation2d BR = new Translation2d(13.5, -13.5);
+    };
+
+    public static final class KrakenConstants {
+        public static final double nominalVoltageVolts = 9; //website says up to 24 volts idk man
+        public static final double stallTorqueNewtonMeters = 7;
+        public static final double stallCurrentAmps = 366;
+        public static final double freeCurrentAmps = 2;
+        public static final double freeSpeedRadPerSec = 5800;
+        public static final double driveCurrentLimitAmps = 60;
+        public static final double torqueLoss = 60;
+    }
 
     public static final double dt = 0.02; // 3/4 of a rotation per second max angular velocity
     

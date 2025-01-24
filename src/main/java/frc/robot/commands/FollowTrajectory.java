@@ -20,6 +20,7 @@ import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import frc.robot.Subsystems.CommandSwerveDrivetrain.DriveControlSystems;
+import frc.robot.generated.TunerConstants;
 import frc.robot.Subsystems.CommandSwerveDrivetrain.CommandSwerveDrivetrain;
 import edu.wpi.first.math.controller.LTVUnicycleController ;
 import edu.wpi.first.math.controller.PIDController;
@@ -32,6 +33,7 @@ import frc.robot.RobotState.RobotState;
 import frc.robot.Constants.TrajectoryConstants;
 import edu.wpi.first.math.numbers.N2;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.Vector;
 
@@ -88,7 +90,7 @@ public class FollowTrajectory extends Command {
     @Override
     public void initialize() {
 
-    SwerveDriveState state = s_Swerve.getStateCopy();
+    SwerveDriveState state = s_Swerve.getState();
 
     // The rotation component of the pose should be the direction of travel
     poses = PathPlannerPath.waypointsFromPoses(
@@ -107,26 +109,9 @@ public class FollowTrajectory extends Command {
     endState,
     false);
 
-    // ModuleConfig moduleConfig = new
-    // ModuleConfig(
-    //     Constants.DriveConstants.kTrackWidth,
-    //     Constants.DriveConstants.kMaxSpeedMetersPerSecond,
-    //     Constants.DriveConstants.kMaxAccelerationMetersPerSecondSquared,
-    //     Constants.DriveConstants.kMaxAngularSpeedRadiansPerSecond,
-    //     Constants.DriveConstants.kMaxAngularAccelerationRadiansPerSecondSquared
-    // );
-
-    
-
-    // RobotConfig config = new RobotConfig(
-    //     Constants.robotMass,
-    //     Constants.MOI,
-    //     ,
-    //     moduleConfig);
-
     timer.start();
 
-    trajectory = path.generateTrajectory(state.Speeds, state.RawHeading, null);
+    trajectory = path.generateTrajectory(state.Speeds, state.RawHeading, Constants.config);
 
     s_Swerve.resetOdo(trajectory.getInitialPose());
     }
@@ -135,6 +120,12 @@ public class FollowTrajectory extends Command {
     public void execute() {
         
         PathPlannerTrajectoryState state = trajectory.sample(timer.get());
+
+        System.out.println("x: "  + state.linearVelocity * state.heading.getCos());
+        System.out.println("y: "  + state.linearVelocity * state.heading.getSin());
+        System.out.println("ref: " + atReference());
+        System.out.println("traj time: " + trajectory.getTotalTimeSeconds());
+        System.out.println("timer: " + timer.hasElapsed(trajectory.getTotalTimeSeconds()));
 
         s_Swerve.setControl(
         new SwerveRequest.FieldCentric()
@@ -164,6 +155,6 @@ public class FollowTrajectory extends Command {
 
     @Override
     public boolean isFinished() {
-        return atReference() || timer.hasElapsed(trajectory.getTotalTimeSeconds());
+        return atReference();
     }
 }
