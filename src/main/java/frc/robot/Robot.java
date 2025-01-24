@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+import au.grapplerobotics.CanBridge;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import org.littletonrobotics.junction.LogFileUtil;
@@ -102,7 +103,7 @@ public class Robot extends TimedRobot {
       // }
 
       // Logger.start(); // Start logging! No more data receivers, replay sources, or metadata values may be added.
-      
+      CanBridge.runTCP();
       drivetrain = CommandSwerveDrivetrain.getInstance();
       robotState = RobotState.getInstance();
       vision = Vision.getInstance();
