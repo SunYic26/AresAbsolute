@@ -22,14 +22,6 @@ public class CancelableCommand extends Command {
     }
   
     public void end(boolean interrupted) {
-        // if (interrupted) {
-        //     System.out.println("Command interrupted, cancelling commands");
-        //     CommandScheduler.getInstance().cancelAll();
-        // } 
-        //idk if cancel all will have unforseen concquences 
-        // but if it does we can change it to only kill parent
-
-        //future iggy note: it breaks the robot
     }
   
     public boolean isFinished() {

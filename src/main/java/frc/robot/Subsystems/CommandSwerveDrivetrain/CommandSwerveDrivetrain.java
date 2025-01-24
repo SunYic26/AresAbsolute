@@ -252,37 +252,9 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         }
     }
     
-
-    // private void limit() {
-    //     for (SwerveModule module : Modules) {
-    //         CurrentLimitsConfigs configs = new CurrentLimitsConfigs();
-    //         configs.SupplyCurrentLimit = 20;
-    //         configs.SupplyCurrentLimitEnable = true;
-    //         configs.StatorCurrentLimit = 40;
-    //         configs.StatorCurrentLimitEnable = true;
-            
-
-    //         module.getDriveMotor().getConfigurator().apply(configs);
-    //         module.getSteerMotor().getConfigurator().apply(configs);
-    //     }
-    // }
-
-    
-
     public Command applyRequest(Supplier<SwerveRequest> requestSupplier) {
         return run(() -> setControl(requestSupplier.get()));
     }
-
-    // public Command applyRequest(double driverLY, double driverLX, double driverRX) {
-    //     return run(() -> setControl(
-
-    //     new SwerveRequest.FieldCentric()
-    //     .withVelocityX(driverLX)
-    //     .withVelocityY(driverLY)
-    //     .withRotationalRate(driverRX)
-
-    //     ));
-    // }
 
     private void startSimThread() {
         m_lastSimTime = Utils.getCurrentTimeSeconds();
@@ -308,20 +280,6 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     public void resetOdoUtil(Pose2d pose){ //IDK if this works as we want it to
         s_Swerve.resetPose(pose);
     }
-
-    // public void resetOdoUtil(Pose2d pose){
-    //     try {
-    //         m_stateLock.writeLock().lock();
-
-    //         for (int i = 0; i < ModuleCount; ++i) {
-    //             Modules[i].resetPosition();
-    //             m_modulePositions[i] = Modules[i].getPosition(true);
-    //         }
-    //         m_odometry.resetPosition(Rotation2d.fromDegrees(m_yawGetter.getValue()), m_modulePositions, pose);
-    //     } finally {
-    //         m_stateLock.writeLock().unlock();
-    //     }
-    // }
 
     public Pose2d getPose(){
         return s_Swerve.getState().Pose;

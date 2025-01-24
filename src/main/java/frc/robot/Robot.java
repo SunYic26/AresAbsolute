@@ -51,54 +51,54 @@ public class Robot extends LoggedRobot {
     public Robot() { 
       // oops just realized logging needs to be in the constructor lol
       // metadata
-      // Logger.recordMetadata("ProjectName", BuildConstants.MAVEN_NAME);
-      // Logger.recordMetadata("BuildDate", BuildConstants.BUILD_DATE);
-      // Logger.recordMetadata("GitSHA", BuildConstants.GIT_SHA);
-      // Logger.recordMetadata("GitDate", BuildConstants.GIT_DATE);
-      // Logger.recordMetadata("GitBranch", BuildConstants.GIT_BRANCH);
-      // switch (BuildConstants.DIRTY) {
-      //   case 0:
-      //     Logger.recordMetadata("GitDirty", "All changes committed");
-      //     break;
-      //   case 1:
-      //     Logger.recordMetadata("GitDirty", "Uncomitted changes");
-      //     break;
-      //   default:
-      //     Logger.recordMetadata("GitDirty", "Unknown");
-      //     break;
-      // }
-      // // actual logging
-      // // Automatically switch between sim and real deployment - to run REPLAY you must manually change Constants.deployMode
-      // if (isReal()) {
-      //   Constants.deployMode = Constants.Mode.REAL;
-      // } else {
-      //   Constants.deployMode = Constants.Mode.SIM;
-      // }
+      Logger.recordMetadata("ProjectName", BuildConstants.MAVEN_NAME);
+      Logger.recordMetadata("BuildDate", BuildConstants.BUILD_DATE);
+      Logger.recordMetadata("GitSHA", BuildConstants.GIT_SHA);
+      Logger.recordMetadata("GitDate", BuildConstants.GIT_DATE);
+      Logger.recordMetadata("GitBranch", BuildConstants.GIT_BRANCH);
+      switch (BuildConstants.DIRTY) {
+        case 0:
+          Logger.recordMetadata("GitDirty", "All changes committed");
+          break;
+        case 1:
+          Logger.recordMetadata("GitDirty", "Uncomitted changes");
+          break;
+        default:
+          Logger.recordMetadata("GitDirty", "Unknown");
+          break;
+      }
+      // actual logging
+      // Automatically switch between sim and real deployment - to run REPLAY you must manually change Constants.deployMode
+      if (isReal()) {
+        Constants.deployMode = Constants.Mode.REAL;
+      } else {
+        Constants.deployMode = Constants.Mode.SIM;
+      }
 
-      // // Set up data receivers & replay source
-      // switch (Constants.deployMode) {
-      //   case REAL:
-      //     // Running on a real robot, log to a USB stick ("/U/logs")
-      //     System.out.println("Running in REAL mode");
-      //     Logger.addDataReceiver(new WPILOGWriter());
-      //     Logger.addDataReceiver(new NT4Publisher());
-      //     break;
+      // Set up data receivers & replay source
+      switch (Constants.deployMode) {
+        case REAL:
+          // Running on a real robot, log to a USB stick ("/U/logs")
+          System.out.println("Running in REAL mode");
+          Logger.addDataReceiver(new WPILOGWriter());
+          Logger.addDataReceiver(new NT4Publisher());
+          break;
 
-      //   case SIM:
-      //     // Running a physics simulator, log to NT
-      //     System.out.println("Running in SIM mode");
-      //     Logger.addDataReceiver(new NT4Publisher());
-      //     break;
+        case SIM:
+          // Running a physics simulator, log to NT
+          System.out.println("Running in SIM mode");
+          Logger.addDataReceiver(new NT4Publisher());
+          break;
 
-      //   case REPLAY:
-      //     // Replaying a log, set up replay source
-      //     System.out.println("Running in REPLAY mode");
-      //     setUseTiming(false); // Run as fast as possible
-      //     String logPath = LogFileUtil.findReplayLog();
-      //     Logger.setReplaySource(new WPILOGReader(logPath));
-      //     Logger.addDataReceiver(new WPILOGWriter(LogFileUtil.addPathSuffix(logPath, "_sim")));
-      //     break;
-      // }
+        case REPLAY:
+          // Replaying a log, set up replay source
+          System.out.println("Running in REPLAY mode");
+          setUseTiming(false); // Run as fast as possible
+          String logPath = LogFileUtil.findReplayLog();
+          Logger.setReplaySource(new WPILOGReader(logPath));
+          Logger.addDataReceiver(new WPILOGWriter(LogFileUtil.addPathSuffix(logPath, "_sim")));
+          break;
+      }
 
       // Logger.start(); // Start logging! No more data receivers, replay sources, or metadata values may be added.
       
@@ -115,18 +115,17 @@ public class Robot extends LoggedRobot {
     firstAuto.addOption(AutoCommand.meter2().name, AutoCommand.meter2());
     firstAuto.addOption(AutoCommand.meter3().name, AutoCommand.meter3());
     firstAuto.addOption(AutoCommand.meter4().name, AutoCommand.meter4());
-    //firstAuto.addOption(AutoCommand.meterForwardTest().name, AutoCommand.meterForwardTest());
-    // AutoCommand.loadAutos();
+    // AutoCommand.loadAutos(); TODO ethan fix this
     SmartDashboard.putData("first auto", firstAuto);
 
-    // if(isReal()){
-    //   Logger.addDataReceiver(new WPILOGWriter()); // should be savig to usb
-    //   Logger.addDataReceiver(new NT4Publisher());
-    // }
-    // else {
-    //   Logger.addDataReceiver(new NT4Publisher());
-    // }
-    // Logger.start();
+    if(isReal()){
+      Logger.addDataReceiver(new WPILOGWriter()); // should be savig to usb
+      Logger.addDataReceiver(new NT4Publisher());
+    }
+    else {
+      Logger.addDataReceiver(new NT4Publisher());
+    }
+    Logger.start();
 
     //start the logger here
     m_robotContainer = new RobotContainer();
@@ -150,7 +149,6 @@ public class Robot extends LoggedRobot {
     if(secondAuto.getSelected() != secondSavedChoice){
       secondSavedChoice = secondAuto.getSelected();
       m_autonomousCommand.addCommands(secondSavedChoice.getCommand());
-      // updateThirdAuto();
     }
     if(thirdAuto.getSelected() != thirdSavedChoice){
       thirdSavedChoice = thirdAuto.getSelected();
@@ -214,20 +212,5 @@ public class Robot extends LoggedRobot {
       SmartDashboard.putData("second auto", secondAuto);
   }
 
-  // private void updateThirdAuto() {
-  //   if(thirdAuto != null){
-  //     thirdAuto.close();
-  //   }
-  //   thirdAuto = new SendableChooser<AutoCommand>();
-  //   secondSavedChoice = secondAuto.getSelected();
-  //   AutoCommand.clearContinuations();
-  //   AutoCommand.fillAutosList(secondSavedChoice);
-  //     for(int i = 0; i < AutoCommand.getPotentialContinuations().size(); i++){
-  //       thirdAuto.addOption(AutoCommand.getPotentialContinuations().get(i).name, 
-  //       AutoCommand.getPotentialContinuations().get(i));
-  //     }
-  //     SmartDashboard.putData("third auto", thirdAuto);
-  // }
-  
 }
 

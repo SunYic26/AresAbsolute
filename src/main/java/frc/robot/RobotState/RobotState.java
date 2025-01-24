@@ -256,21 +256,6 @@ public class RobotState { //will estimate pose with odometry and correct drift w
         return map.getInterpolated(new IDouble(timestamp));
         }
 
-
-        // /**
-        //  * Gets interpolated odometry pose using predicted robot velocity from latest
-        //  * odometry update.
-        //  *
-        //  * @param lookahead_time Scalar for predicted velocity.
-        //  * @return Predcited odometry pose at lookahead time.
-        //  */
-        // public synchronized Pose2d getPredictedOdomToVehicle(double lookahead_time) {
-		//     return getLatestOdomToVehicle()
-		// 		.getValue()
-		// 		.transformBy(Pose2d.exp(vehicle_velocity_predicted.scaled(lookahead_time)));
-	    // } TODO lookahead for auto
-
-
         public synchronized ITranslation2d getLatestFilteredPose() {
 		    return getInterpolatedValue(filteredPoses, filteredPoses.lastKey().value, ITranslation2d.identity());
 	    }
