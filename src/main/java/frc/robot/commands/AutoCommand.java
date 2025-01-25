@@ -18,14 +18,6 @@ public class AutoCommand {
     private static ArrayList<AutoCommand> autoList2 = new ArrayList<AutoCommand>();
 
     //if you have questions ask ethan
-    // public static void loadAutos(){
-    //     pathKeys.put("Test1", Test1());
-    //     pathKeys.put("Test2", Test2());
-    //     pathKeys.put("Test3", Test3());
-    //     pathKeys.put("Test4", Test4());
-
-    //     //pathKeys.put("meterForwardTest", meterForwardTest());
-    // }
 
     public AutoCommand(String name, Command autoCommand, EndPoint endPoint){
         this.name = name;

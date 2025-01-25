@@ -76,8 +76,6 @@ public class DriveControlSystems {
 
         SmartDashboard.putNumber("requested velocity x", driverLX);
         SmartDashboard.putNumber("requested velocity y", driverLY);
-        // Logger.recordOutput("JoystickProcessing/RequestedX", driverLX);
-        // Logger.recordOutput("JoystickProcessing/RequestedY", driverLY);
 
         if(homing == true){
             driverRX = homingL1();
@@ -87,11 +85,11 @@ public class DriveControlSystems {
 
         double[][] wheelFeedFwX = calculateFeedforward();
         
-        return new SwerveRequest.FieldCentric().withVelocityX(driverLX).withVelocityY(driverLY).withRotationalRate(driverRX);
-        // .withSpeeds(speeds)
-        // .withWheelForceFeedforwardsX(wheelFeedFwX[0])
-        //  .withWheelForceFeedforwardsY(wheelFeedFwX[1])
-        //  .withDriveRequestType(com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType.Velocity);
+        return new SwerveRequest.ApplyFieldSpeeds()
+        .withSpeeds(speeds)
+        .withWheelForceFeedforwardsX(wheelFeedFwX[0])
+        .withWheelForceFeedforwardsY(wheelFeedFwX[1])
+        .withDriveRequestType(com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType.Velocity);
         // .withDesaturateWheelSpeeds(true);
     }
 
@@ -142,25 +140,6 @@ public class DriveControlSystems {
 
 
     // =======---===[ ⚙ Heading control ]===---========
-    // public double headingControl(double driverRX){ //TODO tune high and low PID values
-    //     if (!pidHeading.atSetpoint()) {
-    //         double velocity = drivetrain.robotWheelVelocity();
-    //         updateGains(velocity);
-            
-    //         // driverRX = pidHeading.calculate(robotState.robotYaw(), lastHeading);
-    //         SmartDashboard.putBoolean("headingON", true);
-//    Logger.recordOutput("HeadingControl/Active", true);
-
-    //     } else {
-    //         SmartDashboard.putBoolean("headingON", false);
-    //         SmartDashboard.putNumber("lastHeading", lastHeading);
-//    Logger.recordOutput("HeadingControl/Active", false);
-//    Logger.recordOutput("HeadingControl/LastHeading", lastHeading);
-    //     }
-
-    //     return driverRX;
-    // } 
-    // TODO fix this later bruh
 
     public void updateGains(double velocity) {
         double speedRatio = Math.abs(Constants.MaxSpeed/velocity); //velocity is from wheels so could be off

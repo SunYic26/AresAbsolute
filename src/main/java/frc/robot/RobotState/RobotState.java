@@ -118,8 +118,6 @@ public class RobotState { //will estimate pose with odometry and correct drift w
 
                 robotOdomVelocity.put(new IDouble(timestamp), OdomVelocity);
             
-            //    .complimentaryFilter(robotVelocity, 0.1); Could reimplement this if our pigeon values improve 
-
             // double robotVelocityMagnitude = robotVelocity.toMagnitude();
             IDouble robotAngularMagnitude = getInterpolatedValue(robotAngularVelocity, timestamp, new IDouble(0.0));
             ITwist2d robotAcceleration = getInterpolatedValue(robotAccelerations, timestamp, ITwist2d.identity());

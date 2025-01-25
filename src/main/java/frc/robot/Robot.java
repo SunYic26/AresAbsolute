@@ -22,6 +22,7 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.lib.AccelerationIntegrator;
 import frc.robot.RobotState.RobotState;
 import frc.robot.Subsystems.CommandSwerveDrivetrain.DriveControlSystems;
+import frc.robot.Subsystems.Elevator;
 import frc.robot.Subsystems.CommandSwerveDrivetrain.CommandSwerveDrivetrain;
 import frc.robot.Subsystems.Vision.Vision;
 import frc.robot.commands.AutoCommand;
@@ -46,6 +47,7 @@ public class Robot extends LoggedRobot {
   private final Vision vision;
 
   private CommandSwerveDrivetrain drivetrain;
+  private Elevator elevator;
   private RobotState robotState;
  
     public Robot() { 
@@ -102,6 +104,7 @@ public class Robot extends LoggedRobot {
 
       // Logger.start(); // Start logging! No more data receivers, replay sources, or metadata values may be added.
       
+      elevator = Elevator.getInstance();
       drivetrain = CommandSwerveDrivetrain.getInstance();
       robotState = RobotState.getInstance();
       vision = Vision.getInstance();

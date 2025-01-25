@@ -110,8 +110,13 @@ public class FollowTrajectory extends Command {
     false);
 
     timer.start();
+    ChassisSpeeds chassisSpeeds = new ChassisSpeeds(
+    state.Speeds.vxMetersPerSecond + 1e-5,
+    state.Speeds.vyMetersPerSecond + 1e-5,
+    state.Speeds.omegaRadiansPerSecond + 1e-5);
 
-    trajectory = path.generateTrajectory(state.Speeds, state.RawHeading, Constants.config);
+
+    trajectory = path.generateTrajectory(chassisSpeeds, state.RawHeading, Constants.config);
 
     s_Swerve.resetOdo(trajectory.getInitialPose());
     }

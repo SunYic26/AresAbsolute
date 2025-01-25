@@ -23,11 +23,14 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.Subsystems.Elevator;
 import frc.robot.Subsystems.CommandSwerveDrivetrain.CommandSwerveDrivetrain;
+import frc.robot.commands.SetElevator;
 import frc.robot.commands.CommandFactory.CommandFactory;
 import frc.robot.commands.CommandFactory.CommandFactory.*;
 import frc.robot.Constants.FieldConstants.ReefConstants.ReefPoleLevel;
 import frc.robot.Subsystems.CommandSwerveDrivetrain.DriveControlSystems;
+import frc.robot.Subsystems.Elevator.ElevatorState;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 
 public class RobotContainer {
@@ -78,6 +81,8 @@ public class RobotContainer {
         drivetrain.applyRequest(() -> controlSystem.drive(-driver.getLeftY(), driver.getLeftX(), -driver.getRightX()) // Drive counterclockwise with negative X (left)
     ));
     //bindings
+
+    driver.a().onTrue(new InstantCommand( () -> new SetElevator(ElevatorState.L2)));
 
     driver.rightBumper().onTrue(new InstantCommand( () -> reefPoleLevel = reefPoleLevel.raiseLevel()));
     driver.leftBumper().onTrue(new InstantCommand(() -> reefPoleLevel = reefPoleLevel.decreaseLevel()));
