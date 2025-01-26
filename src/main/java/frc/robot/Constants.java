@@ -98,6 +98,7 @@ public final class Constants {
 
     public static final class HardwarePorts {
         // motor id
+        public static final int laserID = 29;
     }
 
     //change for next game
