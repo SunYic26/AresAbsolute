@@ -46,9 +46,9 @@ public class LaserCAN extends SubsystemBase {
 
   @Override
   public void periodic() {
-    if(getLaserMeasurement().status == LaserCan.LASERCAN_STATUS_VALID_MEASUREMENT){
-      SmartDashboard.putNumber("lasercan measurement", getLaserMeasurement().distance_mm);
-    }
+    // if(getLaserMeasurement().status == LaserCan.LASERCAN_STATUS_VALID_MEASUREMENT){
+    //   SmartDashboard.putNumber("lasercan measurement", getLaserMeasurement().distance_mm);
+    // }
 
   }
 }
