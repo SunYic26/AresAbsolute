@@ -197,8 +197,8 @@ public final class Constants {
         // motor id
         public static final int topOuttake = 21;
         public static final int botOuttake = 22;
-        public static final int intakeRollerID = 11;
-        public static final int intakePivotID = 12;
+        public static final int intakeRollerID = 42;
+        public static final int intakePivotID = 41;
 
         public static final int elevatorLeaderId = 31;
         public static final int elevatorFollowerId = 32;
