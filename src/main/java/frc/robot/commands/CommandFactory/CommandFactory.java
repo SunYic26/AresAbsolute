@@ -14,7 +14,6 @@ import frc.robot.Constants.FieldConstants.ReefConstants;
 import frc.robot.Subsystems.Intake;
 import frc.robot.Subsystems.Intake.RollerState;
 //import frc.robot.commands.CancelableCommand;
-import frc.robot.commands.FollowTrajectory;
 import frc.robot.commands.SetIntakePivot;
 import frc.robot.Constants;
 import frc.robot.Constants.FieldConstants;
@@ -37,16 +36,6 @@ public class CommandFactory {
                 new InstantCommand(()-> Intake.getInstance().setRollerSpeed(RollerState.OFF.getRollerSpeed()))
             )
         );
-    }
-
-    public static Command AutoReefScore(ReefPoleSide side, ReefPoleLevel level){
-        // return new SequentialCommandGroup(
-           // return new ParallelCommandGroup(
-                return new FollowTrajectory(side);
-                // put elevator to level based on ReefPoleLevel
-            // );
-            // outtake to score
-        //);// raceWith(new CancelableCommand());
     }
 
     public static Command Outtake() {

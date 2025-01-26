@@ -37,13 +37,13 @@ import com.pathplanner.lib.config.RobotConfig;
 public final class Constants {
 
 
-    public static double MaxSpeed = 5.5; //can be lowered during testing
+    public static double MaxSpeed = 6; //can be lowered during testing
     public static double MaxAcceleration = 5.5; //can be lowered during testing
     public static double MaxAngularRate = 1.5 * Math.PI; // 3/4 of a rotation per second max angular velocity
     public static double MaxAngularVelocity = 3 * Math.PI;
-    public static double robotMass = 30; //kg
-    public static double MOI = robotMass * Math.pow(0.6858, 2); //kg * m^2
-    public static double CoF = 0.65; // coefficient of friction
+    public static double robotMass = 58.9; //kg
+    public static double MOI = 0.14782; //sum of kg * m^2 to center of rotation
+    public static double CoF = 1; // coefficient of friction TODO get better one
     public static double wheelRadiusInches = 1.9125; //inches
 
     public static DCMotor motorConfig = new DCMotor(

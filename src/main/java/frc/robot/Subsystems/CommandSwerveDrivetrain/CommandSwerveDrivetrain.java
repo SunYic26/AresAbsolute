@@ -1,7 +1,9 @@
 package frc.robot.Subsystems.CommandSwerveDrivetrain;
 
 import java.sql.Driver;
+import java.util.List;
 import java.util.Optional;
+import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 
 import static edu.wpi.first.units.Units.*;
@@ -22,8 +24,17 @@ import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants;
 import com.ctre.phoenix6.swerve.SwerveModule;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 import com.ctre.phoenix6.swerve.SwerveRequest;
+import com.pathplanner.lib.commands.FollowPathCommand;
+import com.pathplanner.lib.config.PIDConstants;
+import com.pathplanner.lib.controllers.PPHolonomicDriveController;
+import com.pathplanner.lib.path.GoalEndState;
+import com.pathplanner.lib.path.PathConstraints;
+import com.pathplanner.lib.path.PathPlannerPath;
+import com.pathplanner.lib.path.Waypoint;
+import com.pathplanner.lib.util.DriveFeedforwards;
 
 import choreo.trajectory.SwerveSample;
+import choreo.util.ChoreoAllianceFlipUtil.Flipper;
 import edu.wpi.first.math.MatBuilder;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.Nat;
@@ -32,6 +43,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.interpolation.Interpolator;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
@@ -42,6 +54,7 @@ import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.lib.Interpolating.Geometry.IPose2d;
@@ -51,9 +64,11 @@ import frc.robot.Constants;
 import frc.robot.generated.TunerConstants;
 import frc.robot.generated.TunerConstants.TunerSwerveDrivetrain;
 import frc.robot.RobotContainer;
+import frc.robot.Constants.FieldConstants.ReefConstants.ReefPoleSide;
 import frc.robot.Constants.robotPIDs.HeadingControlPID;
 import frc.robot.RobotState.RobotState;
 // import frc.robot.Subsystems.CommandSwerveDrivetrain.DriveControlSystems;
+import frc.robot.commands.CancelableCommand;
 
 /**
  * Class that extends the Phoenix SwerveDrivetrain class and implements subsystem
@@ -256,6 +271,15 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         return run(() -> setControl(requestSupplier.get()));
     }
 
+    public Command applyFieldSpeeds(ChassisSpeeds speeds, DriveFeedforwards feedforwards) {
+        return run(() -> setControl(
+        new SwerveRequest.ApplyFieldSpeeds()
+        .withSpeeds(speeds)
+        .withWheelForceFeedforwardsX(feedforwards.robotRelativeForcesX())
+        .withWheelForceFeedforwardsY(feedforwards.robotRelativeForcesY()))
+        );
+    }
+
     private void startSimThread() {
         m_lastSimTime = Utils.getCurrentTimeSeconds();
 
@@ -283,6 +307,10 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
 
     public Pose2d getPose(){
         return s_Swerve.getState().Pose;
+    }
+
+    public ChassisSpeeds getRobotRelativeSpeeds(){
+        return s_Swerve.getState().Speeds;
     }
 
     public void resetOdo(Pose2d pose){
@@ -322,6 +350,52 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
             velocity += s_Swerve.getStateCopy().ModuleStates[i].speedMetersPerSecond;
         }
         return velocity/4;
+    }
+
+    public void autoPath() {
+        
+    }
+
+
+    public void     followOnTheFlyPath(ReefPoleSide side) {
+    System.out.println("in command");
+    SmartDashboard.putBoolean("help", true);
+
+    SwerveDriveState state = this.getState();
+    Pose2d goalPose = new Pose2d(0.5,0.5, new Rotation2d(Math.atan2(state.Speeds.vxMetersPerSecond, state.Speeds.vyMetersPerSecond)));
+
+    List<Waypoint> waypoints = PathPlannerPath.waypointsFromPoses(
+    new Pose2d(state.Pose.getTranslation(), new Rotation2d(Math.atan2(state.Speeds.vxMetersPerSecond, state.Speeds.vyMetersPerSecond))),
+    goalPose
+    );
+
+    GoalEndState endState = new GoalEndState(0, goalPose.getRotation());
+
+        PathPlannerPath path = new PathPlannerPath(
+        waypoints, 
+        new PathConstraints(Constants.MaxSpeed, Constants.MaxAcceleration, Constants.MaxAngularRate, Constants.MaxAngularVelocity), 
+        null, //LEAVE THIS BLANK FOR ON THE FLY GENERATION BC NOT CONTROLLABLE IN TELEOP
+        endState,
+        false);
+
+        System.out.println(" hi ");
+
+        var command = new FollowPathCommand(
+            path, //path to follow
+            this::getPose, //init pose
+            this::getRobotRelativeSpeeds, //init speed
+            this::applyFieldSpeeds, //
+            new PPHolonomicDriveController( // PPHolonomicController is the built in path following controller for holonomic drive trains
+                        new PIDConstants(10, 0.0, 0.0), // Translation PID constants
+                        new PIDConstants(5, 0.0, 0.0) // Rotation PID constants
+                ),
+            Constants.config,
+            () -> { return false; } //if path should be flipped
+            );
+
+            command.addRequirements(s_Swerve);
+            
+            command.schedule();
     }
 
     public void followAutoTrajectory(SwerveSample sample){

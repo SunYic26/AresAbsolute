@@ -25,10 +25,12 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Subsystems.Elevator;
 import frc.robot.Subsystems.CommandSwerveDrivetrain.CommandSwerveDrivetrain;
+import frc.robot.commands.CancelableCommand;
 import frc.robot.commands.SetElevator;
 import frc.robot.commands.CommandFactory.CommandFactory;
 import frc.robot.commands.CommandFactory.CommandFactory.*;
 import frc.robot.Constants.FieldConstants.ReefConstants.ReefPoleLevel;
+import frc.robot.Constants.FieldConstants.ReefConstants.ReefPoleSide;
 import frc.robot.Subsystems.CommandSwerveDrivetrain.DriveControlSystems;
 import frc.robot.Subsystems.Elevator.ElevatorState;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
@@ -87,8 +89,7 @@ public class RobotContainer {
     driver.rightBumper().onTrue(new InstantCommand( () -> reefPoleLevel = reefPoleLevel.raiseLevel()));
     driver.leftBumper().onTrue(new InstantCommand(() -> reefPoleLevel = reefPoleLevel.decreaseLevel()));
 
-    driver.x().onTrue(CommandFactory.AutoReefScore(Constants.FieldConstants.ReefConstants.ReefPoleSide.LEFT, reefPoleLevel)); //left closest reef
-    driver.b().onTrue(CommandFactory.AutoReefScore(Constants.FieldConstants.ReefConstants.ReefPoleSide.RIGHT, reefPoleLevel)); //right closest reef
+    driver.x().onTrue(new InstantCommand(() -> drivetrain.followOnTheFlyPath(ReefPoleSide.LEFT))); //left closest reef
 
     driverBack.onTrue(new InstantCommand(() -> drivetrain.resetOdo()));
   }
