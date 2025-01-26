@@ -27,12 +27,15 @@ import frc.robot.Subsystems.Elevator;
 import frc.robot.Subsystems.CommandSwerveDrivetrain.CommandSwerveDrivetrain;
 import frc.robot.commands.CancelableCommand;
 import frc.robot.commands.SetElevator;
+import frc.robot.commands.SetIntakePivot;
 import frc.robot.commands.CommandFactory.CommandFactory;
 import frc.robot.commands.CommandFactory.CommandFactory.*;
 import frc.robot.Constants.FieldConstants.ReefConstants.ReefPoleLevel;
 import frc.robot.Constants.FieldConstants.ReefConstants.ReefPoleSide;
 import frc.robot.Subsystems.CommandSwerveDrivetrain.DriveControlSystems;
 import frc.robot.Subsystems.Elevator.ElevatorState;
+import frc.robot.Subsystems.Intake.PivotState;
+import frc.robot.Subsystems.Intake;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 
 public class RobotContainer {
@@ -56,6 +59,7 @@ public class RobotContainer {
 
   //instances
   private final CommandSwerveDrivetrain drivetrain = CommandSwerveDrivetrain.getInstance(); // Drivetrain
+  private final Intake intake = Intake.getInstance();
 
   /* Driver Buttons */
   private final Trigger driverBack = driver.back();
@@ -84,7 +88,9 @@ public class RobotContainer {
     ));
     //bindings
 
-    driver.a().onTrue(new InstantCommand( () -> new SetElevator(ElevatorState.L2)));
+    driver.a().onTrue(new SetIntakePivot(PivotState.UP));
+    driver.b().onTrue(new SetIntakePivot(PivotState.DOWN));
+    driver.y().onTrue(new InstantCommand(() -> intake.stopPivot()));
 
     driver.rightBumper().onTrue(new InstantCommand( () -> reefPoleLevel = reefPoleLevel.raiseLevel()));
     driver.leftBumper().onTrue(new InstantCommand(() -> reefPoleLevel = reefPoleLevel.decreaseLevel()));
@@ -92,6 +98,9 @@ public class RobotContainer {
     driver.x().onTrue(new InstantCommand(() -> drivetrain.followOnTheFlyPath(ReefPoleSide.LEFT))); //left closest reef
 
     driverBack.onTrue(new InstantCommand(() -> drivetrain.resetOdo()));
+
+
+    driver.start().onTrue(new InstantCommand(()-> intake.resetPivotPosition()));
   }
 
   public Boolean pollInput() {

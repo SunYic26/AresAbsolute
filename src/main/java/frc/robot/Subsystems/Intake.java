@@ -9,6 +9,7 @@ import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.ControlRequest;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.hardware.core.CoreTalonFX;
+import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.controls.VoltageOut;
 
@@ -34,21 +35,23 @@ public class Intake extends SubsystemBase {
     pivot = new TalonFX(Constants.HardwarePorts.intakePivotID);
     roller = new TalonFX(Constants.HardwarePorts.intakeRollerID);
 
-    configMotor(pivot, NeutralModeValue.Brake);
-    configMotor(roller, NeutralModeValue.Brake);
+    configMotor(pivot, NeutralModeValue.Brake, InvertedValue.Clockwise_Positive);
+    configMotor(roller, NeutralModeValue.Brake, InvertedValue.CounterClockwise_Positive);
   }
 
-  private void configMotor(TalonFX motor, NeutralModeValue neutralMode){
+  private void configMotor(TalonFX motor, NeutralModeValue neutralMode, InvertedValue direction){
     motor.setNeutralMode(neutralMode);
     TalonFXConfiguration config = new TalonFXConfiguration();
     CurrentLimitsConfigs currentLimitsConfigs = new CurrentLimitsConfigs();
-    
+    config.MotorOutput.Inverted = direction;
     currentLimitsConfigs.SupplyCurrentLimit = Constants.CurrentLimits.intakeContinuousCurrentLimit;
     currentLimitsConfigs.SupplyCurrentLimitEnable = true;
     currentLimitsConfigs.StatorCurrentLimit = Constants.CurrentLimits.intakePeakCurrentLimit;
     currentLimitsConfigs.StatorCurrentLimitEnable = true;
 
     config.CurrentLimits = currentLimitsConfigs;
+
+    motor.getConfigurator().apply(config);
   }
 
   public enum PivotState{
@@ -87,6 +90,10 @@ public class Intake extends SubsystemBase {
 
   public double getRollerCurrent(){
     return roller.getStatorCurrent().getValueAsDouble();
+  }
+  
+  public void resetPivotPosition(){
+    pivot.setPosition(0);
   }
 
   public void setPivotVoltage(double voltage){

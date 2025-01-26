@@ -23,6 +23,7 @@ import frc.lib.AccelerationIntegrator;
 import frc.robot.RobotState.RobotState;
 import frc.robot.Subsystems.CommandSwerveDrivetrain.DriveControlSystems;
 import frc.robot.Subsystems.Elevator;
+import frc.robot.Subsystems.Intake;
 import frc.robot.Subsystems.CommandSwerveDrivetrain.CommandSwerveDrivetrain;
 import frc.robot.Subsystems.Vision.Vision;
 import frc.robot.commands.AutoCommand;
@@ -49,6 +50,7 @@ public class Robot extends LoggedRobot {
   private CommandSwerveDrivetrain drivetrain;
   private Elevator elevator;
   private RobotState robotState;
+  private Intake intake;
  
     public Robot() { 
       // oops just realized logging needs to be in the constructor lol
@@ -108,6 +110,7 @@ public class Robot extends LoggedRobot {
       drivetrain = CommandSwerveDrivetrain.getInstance();
       robotState = RobotState.getInstance();
       vision = Vision.getInstance();
+      intake = Intake.getInstance();
     }
 
   @Override
@@ -181,6 +184,7 @@ public class Robot extends LoggedRobot {
     if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();
     }
+
   }
 
   @Override
