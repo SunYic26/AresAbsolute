@@ -13,7 +13,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 public class SetIntakePivot extends Command {
   private Intake s_Intake;
   private double angleSetpoint;
-  private PIDController controller = new PIDController(0, 0, 0);
+  private PIDController controller = new PIDController(0.75, 0, 0);
   public SetIntakePivot(PivotState state) {
     s_Intake = Intake.getInstance();
     angleSetpoint = state.getPosition();

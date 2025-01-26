@@ -33,6 +33,9 @@ public class Intake extends SubsystemBase {
   public Intake() {
     pivot = new TalonFX(Constants.HardwarePorts.intakePivotID);
     roller = new TalonFX(Constants.HardwarePorts.intakeRollerID);
+
+    configMotor(pivot, NeutralModeValue.Brake);
+    configMotor(roller, NeutralModeValue.Brake);
   }
 
   private void configMotor(TalonFX motor, NeutralModeValue neutralMode){
@@ -46,20 +49,18 @@ public class Intake extends SubsystemBase {
     currentLimitsConfigs.StatorCurrentLimitEnable = true;
 
     config.CurrentLimits = currentLimitsConfigs;
-
-    motor.optimizeBusUtilization();
   }
 
   public enum PivotState{
-    UP(10), //arbitrary numbers for now
-    DOWN(5);
+    UP(0), //arbitrary numbers for now
+    DOWN(1.056153);
 
     private double position;
     private PivotState(double position){
       this.position = position;
     }
     public double getPosition(){
-      return position;
+      return position; 
     }
   }
 
