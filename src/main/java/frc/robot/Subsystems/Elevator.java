@@ -31,9 +31,9 @@ public class Elevator extends SubsystemBase {
 
   public enum ElevatorState {
     L1(0),
-    L2(1),
-    L3(2),
-    L4(3);
+    L2(38.437),
+    L3(103.387),
+    L4(140);
     private double encoderPosition;
     private ElevatorState(double encoderPosition){
       this.encoderPosition = encoderPosition;
@@ -65,7 +65,7 @@ public class Elevator extends SubsystemBase {
 
     config.CurrentLimits = currentLimitsConfigs;
     motor.getConfigurator().apply(config);
-    motor.getPosition().setUpdateFrequency(30);
+    motor.getPosition().setUpdateFrequency(50);
      // motor.optimizeBusUtilization();
   }
 
@@ -81,8 +81,16 @@ public class Elevator extends SubsystemBase {
     return leader.getVelocity().getValueAsDouble();
   }
 
+  public double getFollowerVoltage(){
+    return follower.getMotorVoltage().getValueAsDouble();
+  }
+
   public double getAcceleration() {
     return leader.getAcceleration().getValueAsDouble();
+  }
+
+  public void zeroPosition() {
+    leader.setPosition(0);
   }
 
   public void setVoltage(double voltage){

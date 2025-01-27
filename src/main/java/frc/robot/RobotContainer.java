@@ -60,6 +60,7 @@ public class RobotContainer {
   //instances
   private final CommandSwerveDrivetrain drivetrain = CommandSwerveDrivetrain.getInstance(); // Drivetrain
   private final Intake intake = Intake.getInstance();
+  private final Elevator elevator = Elevator.getInstance();
 
   /* Driver Buttons */
   private final Trigger driverBack = driver.back();
@@ -88,19 +89,26 @@ public class RobotContainer {
     ));
     //bindings
 
-    driver.a().onTrue(new SetIntakePivot(PivotState.UP));
-    driver.b().onTrue(new SetIntakePivot(PivotState.DOWN));
-    driver.y().onTrue(new InstantCommand(() -> intake.stopPivot()));
+    // driver.a().onTrue(new SetIntakePivot(PivotState.UP));
+    // driver.b().onTrue(new SetIntakePivot(PivotState.DOWN));
+    // driver.y().onTrue(new InstantCommand(() -> intake.stopPivot()));
+
+    // driver.a().onTrue(new InstantCommand(() -> elevator.zeroPosition()));
+    driver.a().onTrue(new SetElevator(ElevatorState.L3));
+    driver.b().onTrue(new SetElevator(ElevatorState.L1));
+    driver.y().onTrue(new SetElevator(ElevatorState.L4));
+    driver.x().onTrue(new SetElevator(ElevatorState.L2));
+
 
     driver.rightBumper().onTrue(new InstantCommand( () -> reefPoleLevel = reefPoleLevel.raiseLevel()));
     driver.leftBumper().onTrue(new InstantCommand(() -> reefPoleLevel = reefPoleLevel.decreaseLevel()));
 
-    driver.x().onTrue(new InstantCommand(() -> drivetrain.followOnTheFlyPath(ReefPoleSide.LEFT))); //left closest reef
+    // driver.x().onTrue(new InstantCommand(() -> drivetrain.followOnTheFlyPath(ReefPoleSide.LEFT))); //left closest reef
 
     driverBack.onTrue(new InstantCommand(() -> drivetrain.resetOdo()));
 
 
-    driver.start().onTrue(new InstantCommand(()-> intake.resetPivotPosition()));
+    driver.start().onTrue(new InstantCommand(()-> elevator.zeroPosition()));
   }
 
   public Boolean pollInput() {
