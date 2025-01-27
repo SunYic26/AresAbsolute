@@ -20,7 +20,7 @@ import frc.robot.Subsystems.Elevator.ElevatorState;
 public class SetElevator extends Command {
   private Elevator s_Elevator;
   private ElevatorFeedforward feedforward = new ElevatorFeedforward(0, 0.17, 0.112, 0);
-  private PIDController controller = new PIDController(0.4, 0, 0.2);
+  private PIDController controller = new PIDController(0.0000000001, 0, 0.2);
   private double goalPosition;
   private TrapezoidProfile profile = new TrapezoidProfile(new TrapezoidProfile.Constraints(Constants.elevatorMaxVelocity, Constants.elevatorMaxAcceleration));
   private Timer timer;
@@ -51,8 +51,8 @@ public class SetElevator extends Command {
   @Override
   public void execute() {
     setpoint = profile.calculate(timer.get(), initialState, goal);
-    // s_Elevator.setVoltage(feedforward.calculate(setpoint.velocity)); used to tune feedforward
-    s_Elevator.setVoltage(controller.calculate(s_Elevator.getPosition(), setpoint.position) + feedforward.calculate(setpoint.velocity));
+    s_Elevator.setVoltage(feedforward.calculate(setpoint.velocity)); // used to tune feedforward
+    // s_Elevator.setVoltage(controller.calculate(s_Elevator.getPosition(), setpoint.position) + feedforward.calculate(setpoint.velocity));
     SmartDashboard.putNumber("elevator follower voltage", s_Elevator.getFollowerVoltage());
     error = Math.abs(s_Elevator.getPosition() - setpoint.position);
     // System.out.println(s_Elevator.getFollowerVoltage());
