@@ -30,10 +30,12 @@ public class Elevator extends SubsystemBase {
   }
 
   public enum ElevatorState {
-    L1(0),
-    L2(38.437),
-    L3(103.387),
-    L4(140);
+    GROUND(0),
+    L1(16),
+    L2(17),
+    L3(18),
+    L4(19),
+    SOURCE(37.700684);
     private double encoderPosition;
     private ElevatorState(double encoderPosition){
       this.encoderPosition = encoderPosition;

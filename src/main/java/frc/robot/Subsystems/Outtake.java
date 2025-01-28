@@ -4,11 +4,10 @@
 
 package frc.robot.Subsystems;
 
-import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
-import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.hardware.TalonFX;
-import com.ctre.phoenix6.signals.NeutralModeValue;
-import com.ctre.phoenix6.configs.FeedbackConfigs;
+import com.revrobotics.spark.*;
+import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.revrobotics.spark.config.SparkFlexConfig;
+
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -19,10 +18,9 @@ public class Outtake extends SubsystemBase {
   
   private static Outtake instance;
 
-  private OuttakeProfiler outtakeProfiler;
+  // private OuttakeProfiler outtakeProfiler;
 
-  private TalonFX topRoller;
-  private TalonFX botRoller;
+  private SparkFlex roller;
 
   public static Outtake getInstance(){
     if(instance == null) instance = new Outtake();
@@ -30,10 +28,8 @@ public class Outtake extends SubsystemBase {
   }
 
   public Outtake() {
-    topRoller = new TalonFX(Constants.HardwarePorts.topOuttake);
-    botRoller = new TalonFX(Constants.HardwarePorts.botOuttake);
-    config(topRoller, false, NeutralModeValue.Brake);
-    config(botRoller, false, NeutralModeValue.Brake);
+    roller = new SparkFlex(Constants.HardwarePorts.outtakeID, MotorType.kBrushless);
+    // config(roller, InvertedValue.Clockwise_Positive, NeutralModeValue.Brake);
   }
 
   public enum OuttakeState{
@@ -53,42 +49,34 @@ public class Outtake extends SubsystemBase {
     }
   }
 
-  private void config(TalonFX motor, boolean inverted, NeutralModeValue neutralMode){
-    motor.setNeutralMode(neutralMode);
-    TalonFXConfiguration config = new TalonFXConfiguration();
-    CurrentLimitsConfigs currentLimitsConfigs = new CurrentLimitsConfigs();
+  private void config(SparkFlex motor){
+    // motor.setNeutralMode(neutralMode);
+    SparkFlexConfig config = new SparkFlexConfig();
+    // CurrentLimitsConfigs currentLimitsConfigs = new CurrentLimitsConfigs();
+    // config.MotorOutput.Inverted = direction;
     
-    currentLimitsConfigs.SupplyCurrentLimit = Constants.CurrentLimits.outtakeContinuousCurrentLimit;
-    currentLimitsConfigs.SupplyCurrentLimitEnable = true;
-    currentLimitsConfigs.StatorCurrentLimit = Constants.CurrentLimits.outtakePeakCurrentLimit;
-    currentLimitsConfigs.StatorCurrentLimitEnable = true;
+    // currentLimitsConfigs.SupplyCurrentLimit = Constants.CurrentLimits.outtakeContinuousCurrentLimit;
+    // currentLimitsConfigs.SupplyCurrentLimitEnable = true;
+    // currentLimitsConfigs.StatorCurrentLimit = Constants.CurrentLimits.outtakePeakCurrentLimit;
+    // currentLimitsConfigs.StatorCurrentLimitEnable = true;
 
-    config.CurrentLimits = currentLimitsConfigs;
-    motor.optimizeBusUtilization();
+    // config.CurrentLimits = currentLimitsConfigs;
+    // // motor.optimizeBusUtilization();
   }
 
   public void setSpeed(double speed){
-    topRoller.set(speed);
-    botRoller.set(speed);
+    roller.set(speed);
   }
 
-  public void setTopRollerSpeed(double speed){
-    topRoller.set(speed);
-  }
-
-  public void setBotRollerSpeed(double speed){
-    botRoller.set(speed);
-  }
-
-
+ 
   //returns tangential speed of rollers
-  public double getOutputSpeed(){
-    return (botRoller.getVelocity().getValueAsDouble()+topRoller.getVelocity().getValueAsDouble())*Math.PI*Constants.OuttakePhysicalConstants.outtakeRollerRadius;
-  }
+  // public double getOutputSpeed(){
+  //   return roller.getVelocity().getValueAsDouble()*Math.PI*Constants.OuttakePhysicalConstants.outtakeRollerRadius;
+  // }
     
 
   @Override
   public void periodic() {
-    SmartDashboard.putBoolean("Can score L1", outtakeProfiler.coralTrajAligned());
+    // SmartDashboard.putBoolean("Can score L1", outtakeProfiler.coralTrajAligned());
   }
 }

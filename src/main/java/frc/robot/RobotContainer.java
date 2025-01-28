@@ -28,6 +28,7 @@ import frc.robot.Subsystems.CommandSwerveDrivetrain.CommandSwerveDrivetrain;
 import frc.robot.commands.CancelableCommand;
 import frc.robot.commands.SetElevator;
 import frc.robot.commands.SetIntakePivot;
+import frc.robot.commands.SetIntakeRoller;
 import frc.robot.commands.CommandFactory.CommandFactory;
 import frc.robot.commands.CommandFactory.CommandFactory.*;
 import frc.robot.Constants.FieldConstants.ReefConstants.ReefPoleLevel;
@@ -35,6 +36,8 @@ import frc.robot.Constants.FieldConstants.ReefConstants.ReefPoleSide;
 import frc.robot.Subsystems.CommandSwerveDrivetrain.DriveControlSystems;
 import frc.robot.Subsystems.Elevator.ElevatorState;
 import frc.robot.Subsystems.Intake.PivotState;
+import frc.robot.Subsystems.Intake.RollerState;
+import frc.robot.Subsystems.Outtake;
 import frc.robot.Subsystems.Intake;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 
@@ -61,6 +64,7 @@ public class RobotContainer {
   private final CommandSwerveDrivetrain drivetrain = CommandSwerveDrivetrain.getInstance(); // Drivetrain
   private final Intake intake = Intake.getInstance();
   private final Elevator elevator = Elevator.getInstance();
+  private final Outtake outtake = Outtake.getInstance();
 
   /* Driver Buttons */
   private final Trigger driverBack = driver.back();
@@ -89,9 +93,13 @@ public class RobotContainer {
     ));
     //bindings
 
-    // driver.a().onTrue(new SetIntakePivot(PivotState.UP));
-    // driver.b().onTrue(new SetIntakePivot(PivotState.DOWN));
-    // driver.y().onTrue(new InstantCommand(() -> intake.stopPivot()));
+    driver.a().onTrue(new SetIntakePivot(PivotState.UP));
+    driver.b().onTrue(new SetIntakePivot(PivotState.DOWN));
+    driver.y().onTrue(new InstantCommand(() -> intake.stopPivot()));
+
+    driverDpadUp.onTrue(new InstantCommand(()-> outtake.setSpeed(0.5)));
+    driverDpadDown.onTrue(new InstantCommand(()-> outtake.setSpeed(-0.5)));
+    driverDpadLeft.onTrue(new InstantCommand(()-> outtake.setSpeed(0)));
 
     // driver.a().onTrue(new InstantCommand(() -> elevator.zeroPosition()));
     // driver.a().onTrue(new SetElevator(ElevatorState.L3));
@@ -100,12 +108,13 @@ public class RobotContainer {
     // driver.x().onTrue(new SetElevator(ElevatorState.L2));
 
 
-    driver.rightBumper().onTrue(new InstantCommand( () -> reefPoleLevel = reefPoleLevel.raiseLevel()));
-    driver.leftBumper().onTrue(new InstantCommand(() -> reefPoleLevel = reefPoleLevel.decreaseLevel()));
+
+    // driver.rightBumper().onTrue(new InstantCommand( () -> reefPoleLevel = reefPoleLevel.raiseLevel()));
+    // driver.leftBumper().onTrue(new InstantCommand(() -> reefPoleLevel = reefPoleLevel.decreaseLevel()));
 
     driverBack.onTrue(new InstantCommand(() -> drivetrain.resetOdo()));
 
-    driver.a().onTrue(CommandFactory.AutoScoreCoral(reefPoleLevel, ReefPoleSide.LEFT, driver));
+    // driver.a().onTrue(CommandFactory.AutoScoreCoral(reefPoleLevel, ReefPoleSide.LEFT, driver));
 
 
     driver.start().onTrue(new InstantCommand(()-> elevator.zeroPosition()));

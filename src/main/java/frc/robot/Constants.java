@@ -200,8 +200,8 @@ public final class Constants {
 
     public static final class HardwarePorts {
         // motor id
-        public static final int topOuttake = 21;
-        public static final int botOuttake = 22;
+        public static final int outtakeID = 21;
+
         public static final int intakeRollerID = 42;
         public static final int intakePivotID = 41;
 

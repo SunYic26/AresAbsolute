@@ -13,6 +13,6 @@ public class CancelableCommand extends Command {
     }
   
     public boolean isFinished() {
-      return controller.getLeftY() > 0.1 || controller.getLeftX() > 0.1 || controller.getRightX() > 0.1;;
+      return controller.getLeftY() > 0.1 || controller.getLeftX() > 0.1 || controller.getRightX() > 0.1;
     }
 }

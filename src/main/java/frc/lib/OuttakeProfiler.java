@@ -51,8 +51,8 @@ public class OuttakeProfiler {
      * must converted from meters into millimeters.
      */
     private void calculateLandingPoint(){
-        horizontalVel = Math.cos(Math.toRadians(Constants.outtakeAngle))*s_Outtake.getOutputSpeed();
-        verticalVel = Math.sin(Math.toRadians(Constants.outtakeAngle))*s_Outtake.getOutputSpeed();
+        // horizontalVel = Math.cos(Math.toRadians(Constants.outtakeAngle))*s_Outtake.getOutputSpeed();
+        // verticalVel = Math.sin(Math.toRadians(Constants.outtakeAngle))*s_Outtake.getOutputSpeed();
 
         horizontalVel += robotState.getLatestFilteredVelocity().getVx();
         verticalVel += robotState.getLatestFilteredVelocity().getVy();
