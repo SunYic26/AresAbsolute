@@ -24,6 +24,7 @@ import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants;
 import com.ctre.phoenix6.swerve.SwerveModule;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 import com.ctre.phoenix6.swerve.SwerveRequest;
+import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.commands.FollowPathCommand;
 import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
@@ -271,13 +272,22 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         return run(() -> setControl(requestSupplier.get()));
     }
 
-    public Command applyFieldSpeeds(ChassisSpeeds speeds, DriveFeedforwards feedforwards) {
-        return run(() -> setControl(
+    public void applyFieldSpeeds(ChassisSpeeds speeds, DriveFeedforwards feedforwards) {
+        System.out.println(speeds.toString());
+
+        setControl(
         new SwerveRequest.ApplyFieldSpeeds()
         .withSpeeds(speeds)
         .withWheelForceFeedforwardsX(feedforwards.robotRelativeForcesX())
-        .withWheelForceFeedforwardsY(feedforwards.robotRelativeForcesY()))
-        );
+        .withWheelForceFeedforwardsY(feedforwards.robotRelativeForcesY()));
+    }
+
+    public void applyFieldSpeeds(ChassisSpeeds speeds) {
+        System.out.println(speeds.toString());
+
+        setControl(
+        new SwerveRequest.ApplyFieldSpeeds()
+        .withSpeeds(speeds));
     }
 
     private void startSimThread() {
@@ -310,6 +320,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     }
 
     public ChassisSpeeds getRobotRelativeSpeeds(){
+        System.out.println(s_Swerve.getState().Speeds.toString());
         return s_Swerve.getState().Speeds;
     }
 
@@ -352,62 +363,6 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         return velocity/4;
     }
 
-    public void autoPath() {
-        
-    }
-
-
-    public void     followOnTheFlyPath(ReefPoleSide side) {
-    System.out.println("in command");
-    SmartDashboard.putBoolean("help", true);
-
-    SwerveDriveState state = this.getState();
-    Pose2d goalPose = new Pose2d(0.5,0.5, new Rotation2d(Math.atan2(state.Speeds.vxMetersPerSecond, state.Speeds.vyMetersPerSecond)));
-
-    List<Waypoint> waypoints = PathPlannerPath.waypointsFromPoses(
-    new Pose2d(state.Pose.getTranslation(), new Rotation2d(Math.atan2(state.Speeds.vxMetersPerSecond, state.Speeds.vyMetersPerSecond))),
-    goalPose
-    );
-
-    GoalEndState endState = new GoalEndState(0, goalPose.getRotation());
-
-        PathPlannerPath path = new PathPlannerPath(
-        waypoints, 
-        new PathConstraints(Constants.MaxSpeed, Constants.MaxAcceleration, Constants.MaxAngularRate, Constants.MaxAngularVelocity), 
-        null, //LEAVE THIS BLANK FOR ON THE FLY GENERATION BC NOT CONTROLLABLE IN TELEOP
-        endState,
-        false);
-
-        System.out.println(" hi ");
-
-        var command = new FollowPathCommand(
-            path, //path to follow
-            this::getPose, //init pose
-            this::getRobotRelativeSpeeds, //init speed
-            this::applyFieldSpeeds, //
-            new PPHolonomicDriveController( // PPHolonomicController is the built in path following controller for holonomic drive trains
-                        new PIDConstants(10, 0.0, 0.0), // Translation PID constants
-                        new PIDConstants(5, 0.0, 0.0) // Rotation PID constants
-                ),
-            Constants.config,
-            () -> { return false; } //if path should be flipped
-            );
-
-            command.addRequirements(s_Swerve);
-            
-            command.schedule();
-    }
-
-    public void followAutoTrajectory(SwerveSample sample){
-        Pose2d currPose = robotState.getCurrentPose2d();
-
-        setControl(new SwerveRequest.FieldCentric()
-        .withVelocityX(sample.vx + xController.calculate(currPose.getX(), sample.x))
-        .withVelocityY(sample.vy + yController.calculate(currPose.getY(), sample.y))
-        .withRotationalRate(sample.omega + thetaController.calculate(currPose.getRotation().getRadians(), sample.heading))
-        );
-    }
-
     public void updateOdometryByVision(Pose3d estimatedPose){
         System.out.println("Pose received");
         if(estimatedPose != null){
@@ -421,20 +376,28 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         }
     }
 
+    public void followAutoTrajectory(SwerveSample sample){
+        Pose2d currPose = robotState.getCurrentPose2d();
+
+        setControl(new SwerveRequest.FieldCentric()
+        .withVelocityX(sample.vx + xController.calculate(currPose.getX(), sample.x))
+        .withVelocityY(sample.vy + yController.calculate(currPose.getY(), sample.y))
+        .withRotationalRate(sample.omega + thetaController.calculate(currPose.getRotation().getRadians(), sample.heading))
+        );
+    }
+
     private Pose2d autoStartPose = new Pose2d(2.0, 2.0, new Rotation2d());
 
     public void setAutoStartPose(Pose2d pose){
         autoStartPose = pose;
     }
 
-
-
     @Override
     public void periodic() {
         // System.out.println(robotState);
         Pose2d currentPose = getPose();
         if(robotState != null){
-             robotState.odometryUpdate(currentPose, getWheelVelocities(), Timer.getFPGATimestamp());
+             robotState.odometryUpdate(this.getState(), Timer.getFPGATimestamp());
 
             ITranslation2d currFilteredPose = robotState.getLatestFilteredPose();
 

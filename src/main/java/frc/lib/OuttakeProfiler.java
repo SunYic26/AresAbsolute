@@ -54,8 +54,8 @@ public class OuttakeProfiler {
         horizontalVel = Math.cos(Math.toRadians(Constants.outtakeAngle))*s_Outtake.getOutputSpeed();
         verticalVel = Math.sin(Math.toRadians(Constants.outtakeAngle))*s_Outtake.getOutputSpeed();
 
-        horizontalVel += robotState.getLatestRobotVelocity().getX();
-        verticalVel += robotState.getLatestRobotVelocity().getY();
+        horizontalVel += robotState.getLatestFilteredVelocity().getVx();
+        verticalVel += robotState.getLatestFilteredVelocity().getVy();
         
 
         //horizontalVel += s_Swerve.getWheelVelocities()[0];

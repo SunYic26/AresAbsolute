@@ -9,10 +9,13 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Subsystems.Intake.PivotState;
 import frc.robot.Constants.FieldConstants.ReefConstants;
 import frc.robot.Subsystems.Intake;
 import frc.robot.Subsystems.Intake.RollerState;
+import frc.robot.commands.CancelableCommand;
+import frc.robot.commands.DriveToPose;
 //import frc.robot.commands.CancelableCommand;
 import frc.robot.commands.SetIntakePivot;
 import frc.robot.Constants;
@@ -36,6 +39,13 @@ public class CommandFactory {
                 new InstantCommand(()-> Intake.getInstance().setRollerSpeed(RollerState.OFF.getRollerSpeed()))
             )
         );
+    }
+
+    public static Command AutoScoreCoral(ReefPoleLevel level, ReefPoleSide side,CommandXboxController controller){
+        return new ParallelCommandGroup(
+            //align elevator to reef level
+            new DriveToPose(side)
+        ).raceWith(new CancelableCommand(controller));
     }
 
     public static Command Outtake() {

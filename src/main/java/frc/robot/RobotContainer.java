@@ -94,25 +94,21 @@ public class RobotContainer {
     // driver.y().onTrue(new InstantCommand(() -> intake.stopPivot()));
 
     // driver.a().onTrue(new InstantCommand(() -> elevator.zeroPosition()));
-    driver.a().onTrue(new SetElevator(ElevatorState.L3));
-    driver.b().onTrue(new SetElevator(ElevatorState.L1));
-    driver.y().onTrue(new SetElevator(ElevatorState.L4));
-    driver.x().onTrue(new SetElevator(ElevatorState.L2));
+    // driver.a().onTrue(new SetElevator(ElevatorState.L3));
+    // driver.b().onTrue(new SetElevator(ElevatorState.L1));
+    // driver.y().onTrue(new SetElevator(ElevatorState.L4));
+    // driver.x().onTrue(new SetElevator(ElevatorState.L2));
 
 
     driver.rightBumper().onTrue(new InstantCommand( () -> reefPoleLevel = reefPoleLevel.raiseLevel()));
     driver.leftBumper().onTrue(new InstantCommand(() -> reefPoleLevel = reefPoleLevel.decreaseLevel()));
 
-    // driver.x().onTrue(new InstantCommand(() -> drivetrain.followOnTheFlyPath(ReefPoleSide.LEFT))); //left closest reef
-
     driverBack.onTrue(new InstantCommand(() -> drivetrain.resetOdo()));
+
+    driver.a().onTrue(CommandFactory.AutoScoreCoral(reefPoleLevel, ReefPoleSide.LEFT, driver));
 
 
     driver.start().onTrue(new InstantCommand(()-> elevator.zeroPosition()));
-  }
-
-  public Boolean pollInput() {
-    return driver.getLeftY() > 0.1 || driver.getLeftX() > 0.1 || driver.getRightX() > 0.1;
   }
 
   public Command getAutonomousCommand() {

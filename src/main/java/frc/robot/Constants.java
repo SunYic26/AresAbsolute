@@ -180,7 +180,12 @@ public final class Constants {
     // these include CAN IDs, pneumatic hub ports, etc.
 
     public static final class robotPIDs {
-        //fill with our pids
+
+
+        public static final class DriveToPosePID {
+            public static final double driveP = 6;
+            public static final double thetaP = 3;
+         }
 
         public static final class HeadingControlPID {
             public static final double highP = 12;
@@ -221,27 +226,29 @@ public final class Constants {
             public static final Pose2d BlueCage3 = new Pose2d(0,0, new Rotation2d(0));
         }
 
+        static double temp = 0.25;
+
         public static final class ReefConstants{
 
             public enum ReefPoleSide {
 
-                //BLUE SIDE, should be mirrored for red side
+                //BLUE SIDE
                 LEFT(new Pose2d[]{ //these are wrong obvi
-                    new Pose2d(1.0, 1.0, new Rotation2d(0.0)), // Point A
-                    new Pose2d(1.0, 1.0, new Rotation2d(0.0)), // Point C
-                    new Pose2d(1.0, 1.0, new Rotation2d(0.0)), // Point E
-                    new Pose2d(1.0, 1.0, new Rotation2d(0.0)), // Point G
-                    new Pose2d(1.0, 1.0, new Rotation2d(0.0)), // Point I
-                    new Pose2d(1.0, 1.0, new Rotation2d(0.0))  // Point K
+                    new Pose2d(temp, temp, new Rotation2d(0.0)), // Point A
+                    new Pose2d(temp, temp, new Rotation2d(0.0)), // Point C
+                    new Pose2d(temp, temp, new Rotation2d(0.0)), // Point E
+                    new Pose2d(temp, temp, new Rotation2d(0.0)), // Point G
+                    new Pose2d(temp, temp, new Rotation2d(0.0)), // Point I
+                    new Pose2d(temp, temp, new Rotation2d(0.0))  // Point K
                 }),
 
                 RIGHT(new Pose2d[]{
-                    new Pose2d(1.0, 1.0, new Rotation2d(0.0)), // Point B
-                    new Pose2d(1.0, 1.0, new Rotation2d(0.0)), // Point D
-                    new Pose2d(1.0, 1.0, new Rotation2d(0.0)), // Point F
-                    new Pose2d(1.0, 1.0, new Rotation2d(0.0)), // Point H
-                    new Pose2d(1.0, 1.0, new Rotation2d(0.0)), // Point J
-                    new Pose2d(1.0, 1.0, new Rotation2d(0.0))  // Point L
+                    new Pose2d(temp, temp, new Rotation2d(0.0)), // Point B
+                    new Pose2d(temp, temp, new Rotation2d(0.0)), // Point D
+                    new Pose2d(temp, temp, new Rotation2d(0.0)), // Point F
+                    new Pose2d(temp, temp, new Rotation2d(0.0)), // Point H
+                    new Pose2d(temp, temp, new Rotation2d(0.0)), // Point J
+                    new Pose2d(temp, temp, new Rotation2d(0.0))  // Point L
                 });
 
                 private final Pose2d[] waypoints;
