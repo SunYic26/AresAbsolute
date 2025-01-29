@@ -1,6 +1,10 @@
 package frc.robot.Subsystems.Vision;    
 
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.ListIterator;
 
 // import org.littletonrobotics.junction.Logger;
 import org.opencv.photo.Photo;
@@ -31,7 +35,7 @@ public class Vision extends SubsystemBase {
     private static Vision instance;
     private static PhotonCamera centerCamera;
 
-    private static PhotonPipelineResult cameraResult;
+    private static List<PhotonPipelineResult> cameraResult;
 
     private double lastProcessedTimestamp = -1;
 
@@ -66,32 +70,49 @@ public class Vision extends SubsystemBase {
     }
 
     public void updateAprilTagResults() {
-        cameraResult = centerCamera.getLatestResult();
-
+        cameraResult.clear();
+        cameraResult.add(centerCamera.getLatestResult());
     }
 
-    public PhotonPipelineResult getLatestAprilTagResult(){
-        updateAprilTagResults();
-        return cameraResult;
+    public List<List<PhotonTrackedTarget>> getAllTargets(){
+        List<List<PhotonTrackedTarget>> targets = new ArrayList<>();
+
+        for (PhotonPipelineResult result : cameraResult) {
+            targets.add(result.getTargets());
+        }
+
+        return targets;
     }
 
-    public List<PhotonTrackedTarget> getTargets(){
-        return cameraResult.getTargets();
+    public List<PhotonPipelineResult> getValidTargets(List<PhotonPipelineResult> camera) {
+        List<PhotonPipelineResult> results = new ArrayList<>();
+
+        for (PhotonPipelineResult photonPipelineResult : camera) {
+            PhotonTrackedTarget target = photonPipelineResult.getBestTarget();
+            if(photonPipelineResult.hasTargets()
+            && target.getFiducialId() >= 1
+            && target.getFiducialId() <= Constants.VisionConstants.aprilTagMax
+            && target.getPoseAmbiguity() < 0.2 && target.getPoseAmbiguity() > -1) {
+            results.add(photonPipelineResult);
+            } 
+        }
+
+        return results;
     }
 
-    public Boolean hasValidTarget(PhotonPipelineResult camera) {
-        if(camera.hasTargets()) {
-            PhotonTrackedTarget target = camera.getBestTarget();
+    private List<MultiTargetPNPResult> getMultiTags() {
+       List<MultiTargetPNPResult> multiTagResults = new ArrayList<>();
 
-            return
-            target.getFiducialId() >= 1 &&
-            target.getFiducialId() <= Constants.VisionConstants.aprilTagMax &&
-            target.getPoseAmbiguity() < 0.2 && target.getPoseAmbiguity() > -1;
-        } else {return false;}
+        for (PhotonPipelineResult photonPipelineResult : cameraResult) {
+            if(photonPipelineResult.getMultiTagResult().isPresent() && multitagChecks(photonPipelineResult.getMultiTagResult().get())) {
+                multiTagResults.add(photonPipelineResult.getMultiTagResult().get());
+            }
+        }
+
+        return multiTagResults;
     }
 
-    private Boolean shouldUseMultiTag() {
-        MultiTargetPNPResult multiTagResult = cameraResult.getMultiTagResult().get();
+    private Boolean multitagChecks(MultiTargetPNPResult multiTagResult) {
 
         if(multiTagResult.estimatedPose.bestReprojErr > VisionLimits.k_reprojectionLimit) {
             SmartDashboard.putString("Multitag updates", "high error");
@@ -127,46 +148,41 @@ public class Vision extends SubsystemBase {
     /**
      * calculates field-relative robot pose from vision reading, feed to pose estimator (Kalman filter)
      */
-    public void updateVision() throws Exception{
+    public void updateVision() throws Exception {
 
-        if(cameraResult.getTimestampSeconds() == lastProcessedTimestamp) {
-            SmartDashboard.putString("Vision accepter", "Vision failed: old");
-            // Logger.recordOutput("Vision/Vision accepter", "Vision failed: old");
-            return;
-        }
-        
         //ensure this works
         if(Math.abs(robotState.robotAngularVelocityMagnitude()[0]) > VisionLimits.k_rotationLimitDPS) {
             SmartDashboard.putString("Vision accepter", "Vision failed: High rotation");
             return;
         } 
+        
+        for (PhotonPipelineResult photonPipelineResult : cameraResult) {
+            if (photonPipelineResult.getTimestampSeconds() == lastProcessedTimestamp) {
+                cameraResult.remove(photonPipelineResult);
+            }
+        }
 
-        if(!cameraResult.getMultiTagResult().isEmpty()) {
-            if(hasValidTarget(cameraResult)) 
-            { //using fallback tag
-                VisionOutput newPose = new VisionOutput(photonPoseEstimator.update(cameraResult).get());
+        List<MultiTargetPNPResult> multiTagResults = getMultiTags();
+
+        if(!multiTagResults.isEmpty()) {
+            for (MultiTargetPNPResult multiTagResult : multiTagResults) {
+                // VisionOutput newPose = new VisionOutput(multiTagResult);
+                // robotState.visionUpdate(newPose); 
+            }
+        } else {
+            List<PhotonPipelineResult> results = getValidTargets(cameraResult);
+            for (PhotonPipelineResult photonPipelineResult : results) {
+                VisionOutput newPose = new VisionOutput(photonPoseEstimator.update(photonPipelineResult).get());
                 robotState.visionUpdate(newPose); 
             }
-        } else if (shouldUseMultiTag()) { //using multitag
-            VisionOutput newPose = new VisionOutput(photonPoseEstimator.update(cameraResult).get());
-            robotState.visionUpdate(newPose); 
-        } else if (hasValidTarget(cameraResult)){ // manually making the pose
-            Pose3d targetPose = aprilTagFieldLayout.getTagPose(cameraResult.getBestTarget().getFiducialId()).orElse(null);
-            Pose3d newPose = PhotonUtils.estimateFieldToRobotAprilTag(
-            cameraResult.getBestTarget().getBestCameraToTarget(), targetPose, cameraToRobotTransform);
-            robotState.visionUpdate(new VisionOutput(newPose, cameraResult.getTimestampSeconds(),
-            cameraResult.getBestTarget(), PoseStrategy.CLOSEST_TO_LAST_POSE));
-        } else { SmartDashboard.putString("Vision accepter", "Vision failed: no targets");} 
-        // lastProcessedTimestamp = cameraResult.getTimestampSeconds();
+        } 
     }
 
     @Override
     public void periodic() {
         updateAprilTagResults();
-        if(!cameraResult.targets.isEmpty()) {
             try {
                 updateVision();
             } catch (Exception e){}
-        }
     }
 }

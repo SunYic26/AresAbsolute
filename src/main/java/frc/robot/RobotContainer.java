@@ -116,7 +116,6 @@ public class RobotContainer {
 
     // driver.a().onTrue(CommandFactory.AutoScoreCoral(reefPoleLevel, ReefPoleSide.LEFT, driver));
 
-
     driver.start().onTrue(new InstantCommand(()-> elevator.zeroPosition()));
   }
 

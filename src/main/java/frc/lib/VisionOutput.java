@@ -4,6 +4,7 @@ import java.util.Collections;
 
 import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonPoseEstimator.PoseStrategy;
+import org.photonvision.targeting.MultiTargetPNPResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
 import edu.wpi.first.math.geometry.Pose3d;
@@ -21,6 +22,14 @@ public class VisionOutput extends EstimatedRobotPose {
     public VisionOutput(EstimatedRobotPose pose)  {
         super(pose.estimatedPose, pose.timestampSeconds, pose.targetsUsed, pose.strategy);
     }
+
+    //TODO
+    // public VisionOutput(MultiTargetPNPResult multiTagResult)  {
+
+    //     //transform the multitag to our frame of refrence, get all these values from the multitag
+
+    //     super(pose.estimatedPose, pose.timestampSeconds, pose.targetsUsed, pose.strategy);
+    // }
 
     static private double meanArea = 0.0;
     static private double meanAmbiguity = 0.0; //TODO get a default value for these but we need like a field or smth
