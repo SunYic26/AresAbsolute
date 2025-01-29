@@ -18,6 +18,7 @@ import org.photonvision.targeting.PhotonTrackedTarget;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
+import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
@@ -25,6 +26,7 @@ import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.lib.MultiTagOutput;
 import frc.lib.VisionOutput;
 import frc.robot.Constants;
 import frc.robot.Constants.VisionConstants.VisionLimits;
@@ -34,6 +36,8 @@ import frc.robot.Subsystems.CommandSwerveDrivetrain.CommandSwerveDrivetrain;
 public class Vision extends SubsystemBase {
     private static Vision instance;
     private static PhotonCamera centerCamera;
+
+    List<MultiTagOutput> multiTagResults = new ArrayList<>();
 
     private static List<PhotonPipelineResult> cameraResult;
 
@@ -100,12 +104,12 @@ public class Vision extends SubsystemBase {
         return results;
     }
 
-    private List<MultiTargetPNPResult> getMultiTags() {
-       List<MultiTargetPNPResult> multiTagResults = new ArrayList<>();
+    private List<MultiTagOutput> getMultiTags() {
+        List<MultiTagOutput> multiTagResults = new ArrayList<>();
 
         for (PhotonPipelineResult photonPipelineResult : cameraResult) {
             if(photonPipelineResult.getMultiTagResult().isPresent() && multitagChecks(photonPipelineResult.getMultiTagResult().get())) {
-                multiTagResults.add(photonPipelineResult.getMultiTagResult().get());
+                multiTagResults.add(new MultiTagOutput(photonPipelineResult.getMultiTagResult().get(), photonPipelineResult.getTimestampSeconds(), photonPipelineResult.getBestTarget()));
             }
         }
 
@@ -161,20 +165,26 @@ public class Vision extends SubsystemBase {
                 cameraResult.remove(photonPipelineResult);
             }
         }
+        
+        multiTagResults = getMultiTags();
 
-        List<MultiTargetPNPResult> multiTagResults = getMultiTags();
+        if(!multiTagResults.isEmpty()) { //Use multitag if available
+            for (MultiTagOutput multiTagResult : multiTagResults) {
+                Pose3d robotPose = PhotonUtils.estimateFieldToRobotAprilTag(
+                    multiTagResult.getMultiTag().estimatedPose.best, new Pose3d(robotState.getCurrentPose2d()) , cameraToRobotTransform);
+                VisionOutput newPose = new VisionOutput(robotPose, multiTagResult.getTimestamp(),  multiTagResult.getBestTarget(), PoseStrategy.CLOSEST_TO_LAST_POSE);
 
-        if(!multiTagResults.isEmpty()) {
-            for (MultiTargetPNPResult multiTagResult : multiTagResults) {
-                // VisionOutput newPose = new VisionOutput(multiTagResult);
-                // robotState.visionUpdate(newPose); 
-            }
-        } else {
-            List<PhotonPipelineResult> results = getValidTargets(cameraResult);
-            for (PhotonPipelineResult photonPipelineResult : results) {
-                VisionOutput newPose = new VisionOutput(photonPoseEstimator.update(photonPipelineResult).get());
                 robotState.visionUpdate(newPose); 
             }
+        } else { // if no multitags, use single tag
+            List<PhotonPipelineResult> results = getValidTargets(cameraResult);
+
+            if(!results.isEmpty()) {
+                for (PhotonPipelineResult photonPipelineResult : results) {
+                    VisionOutput newPose = new VisionOutput(photonPoseEstimator.update(photonPipelineResult).get());
+                    robotState.visionUpdate(newPose); 
+                } 
+            } else SmartDashboard.putString("Vision accepter", "Vision failed: No valid targets");
         } 
     }
 

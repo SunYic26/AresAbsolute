@@ -23,14 +23,6 @@ public class VisionOutput extends EstimatedRobotPose {
         super(pose.estimatedPose, pose.timestampSeconds, pose.targetsUsed, pose.strategy);
     }
 
-    //TODO
-    // public VisionOutput(MultiTargetPNPResult multiTagResult)  {
-
-    //     //transform the multitag to our frame of refrence, get all these values from the multitag
-
-    //     super(pose.estimatedPose, pose.timestampSeconds, pose.targetsUsed, pose.strategy);
-    // }
-
     static private double meanArea = 0.0;
     static private double meanAmbiguity = 0.0; //TODO get a default value for these but we need like a field or smth
     static private int count = 0;
