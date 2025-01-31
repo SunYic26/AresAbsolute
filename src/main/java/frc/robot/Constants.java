@@ -38,7 +38,7 @@ public final class Constants {
 
     public static double intakePivotCurrentThreshold = 60;
     public static double MaxSpeed = 6; //can be lowered during testing
-    public static double MaxAcceleration = 5.5; //can be lowered during testing
+    public static double MaxAcceleration = 4; //can be lowered during testing
     public static double MaxAngularRate = 1.5 * Math.PI; // 3/4 of a rotation per second max angular velocity
     public static double MaxAngularVelocity = 3 * Math.PI;
     public static double robotMass = 58.9; //kg
@@ -183,8 +183,8 @@ public final class Constants {
 
 
         public static final class DriveToPosePID {
-            public static final double driveP = 6;
-            public static final double thetaP = 3;
+            public static final double driveP = 4.5;
+            public static final double thetaP = 1.25;
          }
 
         public static final class HeadingControlPID {

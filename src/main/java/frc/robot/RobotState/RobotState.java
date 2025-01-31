@@ -113,7 +113,10 @@ public class RobotState { //will estimate pose with odometry and correct drift w
             UKF.setXhat(VecBuilder.fill(state.Pose.getX(), state.Pose.getY()));
         } else {
 
-            IChassisSpeeds OdomVelocity = new IChassisSpeeds(state.Speeds);
+            IChassisSpeeds OdomVelocity = new IChassisSpeeds(state.Speeds).complimentaryFilter(
+                getInterpolatedValue(odometryPoses, prevOdomTimestamp.get(), IPose2d.identity())
+                .getVelocityBetween(new IPose2d(state.Pose), timestamp - prevOdomTimestamp.get()),
+                0.75);
 
             robotOdomVelocity.put(new IDouble(timestamp), OdomVelocity);
             
@@ -130,10 +133,10 @@ public class RobotState { //will estimate pose with odometry and correct drift w
 
                 double curvature = Math.min(0.03, (
                     Math.hypot(robotAcceleration.getX(), robotAcceleration.getY()) / //acceleration over velocity
-                    (750 * (OdomVelocity.toMagnitude() + 1))
+                    (800 * (OdomVelocity.toMagnitude() + 1))
                     ));
 
-                double angular = 0.0005 * (robotAngularMagnitude.value / Constants.MaxAngularRate);
+                double angular = 0.00025 * (robotAngularMagnitude.value / Constants.MaxAngularRate);
 
                 SmartDashboard.putNumber("Curvature", curvature);
                 SmartDashboard.putNumber("Angular", angular);

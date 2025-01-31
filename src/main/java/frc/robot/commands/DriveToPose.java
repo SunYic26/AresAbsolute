@@ -25,9 +25,9 @@ import frc.robot.Subsystems.CommandSwerveDrivetrain.CommandSwerveDrivetrain;
  */
 public class DriveToPose extends Command {
     private final ProfiledPIDController driveController = new ProfiledPIDController(
-            Constants.robotPIDs.DriveToPosePID.driveP, 0.0, 0.0, new TrapezoidProfile.Constraints(0.0, 0.0), 0.02);
+            Constants.robotPIDs.DriveToPosePID.driveP, 0.1, 0.015, new TrapezoidProfile.Constraints(Constants.MaxSpeed, Constants.MaxAcceleration), 0.02);
     private final ProfiledPIDController thetaController = new ProfiledPIDController(
-            Constants.robotPIDs.DriveToPosePID.thetaP, 0.0, 0.0, new TrapezoidProfile.Constraints(0.0, 0.0), 0.02);
+            Constants.robotPIDs.DriveToPosePID.thetaP, 0.1, 0.03, new TrapezoidProfile.Constraints(Constants.MaxSpeed, Constants.MaxAcceleration), 0.02);
     private CommandSwerveDrivetrain s_Swerve;
     private Pose2d targetPose;
     private RobotState robotState;

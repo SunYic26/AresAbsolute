@@ -15,6 +15,7 @@ import frc.robot.Constants.FieldConstants.ReefConstants;
 import frc.robot.Subsystems.Intake;
 import frc.robot.Subsystems.Intake.RollerState;
 import frc.robot.commands.CancelableCommand;
+import frc.robot.commands.DriveToPose;
 // import frc.robot.commands.DriveToPose;
 //import frc.robot.commands.CancelableCommand;
 import frc.robot.commands.SetIntakePivot;
@@ -52,10 +53,10 @@ public class CommandFactory {
             );
     }
 
-    public static Command AutoScoreCoral(ReefPoleLevel level, ReefPoleSide side,CommandXboxController controller){
+    public static Command AutoScoreCoral(ReefPoleLevel level, ReefPoleSide side, CommandXboxController controller){
         return new ParallelCommandGroup(
             //align elevator to reef level
-            // new DriveToPose(side)
+            new DriveToPose(side)
         ).raceWith(new CancelableCommand(controller));
     }
 

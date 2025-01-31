@@ -100,8 +100,8 @@ public class RobotContainer {
 
     // driver.a().onTrue(new SetIntakePivot(PivotState.UP));
     // driver.b().onTrue(new SetIntakePivot(PivotState.DOWN));
-    driver.x().onTrue(CommandFactory.Intake());
-    driver.y().onTrue(CommandFactory.Lift());
+    // driver.x().onTrue(CommandFactory.Intake());
+    // driver.y().onTrue(CommandFactory.Lift());
     driverBack.onTrue(new InstantCommand(()-> intake.stopPivot()));
 
     driverDpadRight.onTrue(new SmartIntake());
@@ -128,12 +128,12 @@ public class RobotContainer {
 
 
 
-    // driver.rightBumper().onTrue(new InstantCommand( () -> reefPoleLevel = reefPoleLevel.raiseLevel()));
-    // driver.leftBumper().onTrue(new InstantCommand(() -> reefPoleLevel = reefPoleLevel.decreaseLevel()));
+    driver.rightBumper().onTrue(new InstantCommand( () -> reefPoleLevel = reefPoleLevel.raiseLevel()));
+    driver.leftBumper().onTrue(new InstantCommand(() -> reefPoleLevel = reefPoleLevel.decreaseLevel()));
 
     driverBack.onTrue(new InstantCommand(() -> drivetrain.resetOdo()));
 
-    // driver.a().onTrue(CommandFactory.AutoScoreCoral(reefPoleLevel, ReefPoleSide.LEFT, driver));
+    driver.a().onTrue(CommandFactory.AutoScoreCoral(reefPoleLevel, ReefPoleSide.LEFT, driver));
 
 
     // driver.start().onTrue(new InstantCommand(()-> elevator.zeroPosition()));
