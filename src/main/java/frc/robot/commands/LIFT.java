@@ -10,11 +10,11 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj2.command.Command;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
-public class SetIntakePivot extends Command {
+public class LIFT extends Command {
   private Intake s_Intake;
   private double angleSetpoint;
-  private PIDController controller = new PIDController(1.9, 0, 0);
-  public SetIntakePivot(PivotState state) {
+  private PIDController controller = new PIDController(2.8, 0, 0);
+  public LIFT(PivotState state) {
     s_Intake = Intake.getInstance();
     angleSetpoint = state.getPosition();
   }
@@ -22,13 +22,13 @@ public class SetIntakePivot extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-
+    s_Intake.setPivotSpeed(-0.5);
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    s_Intake.setPivotVoltage(controller.calculate(s_Intake.getPosition(), angleSetpoint));
+    // s_Intake.setPivotVoltage(controller.calculate(s_Intake.getPosition(), angleSetpoint));
 
   }
 

@@ -4,43 +4,44 @@
 
 package frc.robot.commands;
 
-import frc.robot.Subsystems.Intake;
-import frc.robot.Subsystems.Intake.PivotState;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.Constants;
+import frc.robot.Subsystems.Intake;
+import frc.robot.Subsystems.Intake.PivotState;
+import frc.robot.Subsystems.Intake.RollerState;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
-public class SetIntakePivot extends Command {
+public class SmartIntake extends Command {
   private Intake s_Intake;
   private double angleSetpoint;
   private PIDController controller = new PIDController(1.9, 0, 0);
-  public SetIntakePivot(PivotState state) {
+  public SmartIntake() {
     s_Intake = Intake.getInstance();
-    angleSetpoint = state.getPosition();
+    addRequirements(s_Intake);
   }
 
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-
+    s_Intake.setPivotPosition(PivotState.DOWN);
+    s_Intake.setRollerSpeed(RollerState.INTAKE.getRollerSpeed());
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
-  public void execute() {
-    s_Intake.setPivotVoltage(controller.calculate(s_Intake.getPosition(), angleSetpoint));
-
-  }
+  public void execute() {}
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    s_Intake.brakePivot();
+    new LIFT(PivotState.HOLD).schedule();
+    s_Intake.brakeRoller();
   }
 
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return Math.abs(s_Intake.getPosition() - angleSetpoint) < 0.4;
+    return s_Intake.getRollerCurrent() > Constants.intakePivotCurrentThreshold;
   }
 }

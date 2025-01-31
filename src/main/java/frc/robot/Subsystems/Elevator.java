@@ -34,7 +34,7 @@ public class Elevator extends SubsystemBase {
     L1(16),
     L2(17),
     L3(18),
-    L4(19),
+    L4(100),
     SOURCE(37.700684);
     private double encoderPosition;
     private ElevatorState(double encoderPosition){
@@ -78,6 +78,9 @@ public class Elevator extends SubsystemBase {
   public void stop(){
     leader.set(0);
   }
+
+  
+
 
   public double getVelocity(){
     return leader.getVelocity().getValueAsDouble();

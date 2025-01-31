@@ -36,7 +36,7 @@ import com.pathplanner.lib.config.RobotConfig;
  */
 public final class Constants {
 
-
+    public static double intakePivotCurrentThreshold = 60;
     public static double MaxSpeed = 6; //can be lowered during testing
     public static double MaxAcceleration = 5.5; //can be lowered during testing
     public static double MaxAngularRate = 1.5 * Math.PI; // 3/4 of a rotation per second max angular velocity
@@ -95,7 +95,7 @@ public final class Constants {
     
     public static final int timeOutMs = 10;
 
-    public static final double elevatorMaxVelocity = 315;
+    public static final double elevatorMaxVelocity = 100;
     public static final double elevatorMaxAcceleration = 205;
 
     public static final double slipFactor = 65;
@@ -201,6 +201,7 @@ public final class Constants {
     public static final class HardwarePorts {
         // motor id
         public static final int outtakeID = 21;
+        public static final int algaeID = 22;
 
         public static final int intakeRollerID = 42;
         public static final int intakePivotID = 41;

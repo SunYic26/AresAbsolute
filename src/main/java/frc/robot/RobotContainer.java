@@ -29,6 +29,7 @@ import frc.robot.commands.CancelableCommand;
 import frc.robot.commands.SetElevator;
 import frc.robot.commands.SetIntakePivot;
 import frc.robot.commands.SetIntakeRoller;
+import frc.robot.commands.SmartIntake;
 import frc.robot.commands.CommandFactory.CommandFactory;
 import frc.robot.commands.CommandFactory.CommandFactory.*;
 import frc.robot.Constants.FieldConstants.ReefConstants.ReefPoleLevel;
@@ -37,7 +38,7 @@ import frc.robot.Subsystems.CommandSwerveDrivetrain.DriveControlSystems;
 import frc.robot.Subsystems.Elevator.ElevatorState;
 import frc.robot.Subsystems.Intake.PivotState;
 import frc.robot.Subsystems.Intake.RollerState;
-import frc.robot.Subsystems.Outtake;
+import frc.robot.Subsystems.EndEffector;
 import frc.robot.Subsystems.Intake;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 
@@ -64,7 +65,7 @@ public class RobotContainer {
   private final CommandSwerveDrivetrain drivetrain = CommandSwerveDrivetrain.getInstance(); // Drivetrain
   private final Intake intake = Intake.getInstance();
   private final Elevator elevator = Elevator.getInstance();
-  private final Outtake outtake = Outtake.getInstance();
+  private final EndEffector endEffector = EndEffector.getInstance();
 
   /* Driver Buttons */
   private final Trigger driverBack = driver.back();
@@ -92,17 +93,35 @@ public class RobotContainer {
         drivetrain.applyRequest(() -> controlSystem.drive(-driver.getLeftY(), -driver.getLeftX(), -driver.getRightX()) // Drive counterclockwise with negative X (left)
     ));
     //bindings
+    
+    driver.leftTrigger().onTrue(CommandFactory.OffEverything());
+    // driver.a().onTrue(new InstantCommand(()->intake.testUnbrake()));
+    // driver.b().onTrue(new InstantCommand(()->intake.testBrake()));
 
-    driver.a().onTrue(new SetIntakePivot(PivotState.UP));
-    driver.b().onTrue(new SetIntakePivot(PivotState.DOWN));
-    driver.y().onTrue(new InstantCommand(() -> intake.stopPivot()));
+    // driver.a().onTrue(new SetIntakePivot(PivotState.UP));
+    // driver.b().onTrue(new SetIntakePivot(PivotState.DOWN));
+    driver.x().onTrue(CommandFactory.Intake());
+    driver.y().onTrue(CommandFactory.Lift());
+    driverBack.onTrue(new InstantCommand(()-> intake.stopPivot()));
 
-    driverDpadUp.onTrue(new InstantCommand(()-> outtake.setSpeed(0.5)));
-    driverDpadDown.onTrue(new InstantCommand(()-> outtake.setSpeed(-0.5)));
-    driverDpadLeft.onTrue(new InstantCommand(()-> outtake.setSpeed(0)));
+    driverDpadRight.onTrue(new SmartIntake());
+
+    driverDpadLeft.onTrue(new InstantCommand(()-> intake.setRollerSpeed(RollerState.INTAKE.getRollerSpeed())));
+    driverDpadUp.onTrue(new InstantCommand(()->intake.setRollerSpeed(RollerState.OUTTAKE.getRollerSpeed())));
+    driverDpadDown.onTrue(new InstantCommand(()->intake.brakeRoller()));
+    
+    // driver.y().onTrue(new InstantCommand(() -> intake.stopPivot()));
+    driver.start().onTrue(new InstantCommand(()-> intake.resetPivotPosition()));
+    // driver.b().onTrue(new InstantCommand(()-> endEffector.setAlgaeSpeed(-0.5)));
+    // driver.a().onTrue(new InstantCommand(()-> endEffector.setAlgaeSpeed(0)));
+    // driver.x().onTrue(new InstantCommand(()-> endEffector.setAlgaeSpeed(0.5)));
+
+    // driverDpadUp.onTrue(new InstantCommand(()-> endEffector.setSpeed(0.5)));
+   //  driverDpadDown.onTrue(new InstantCommand(()-> endEffector.setSpeed(-0.5)));
+    // driverDpadLeft.onTrue(new InstantCommand(()-> endEffector.setSpeed(0)));
 
     // driver.a().onTrue(new InstantCommand(() -> elevator.zeroPosition()));
-    // driver.a().onTrue(new SetElevator(ElevatorState.L3));
+    // driver.a().onTrue(new SetElevator(ElevatorState.GROUND));
     // driver.b().onTrue(new SetElevator(ElevatorState.L1));
     // driver.y().onTrue(new SetElevator(ElevatorState.L4));
     // driver.x().onTrue(new SetElevator(ElevatorState.L2));
@@ -117,7 +136,7 @@ public class RobotContainer {
     // driver.a().onTrue(CommandFactory.AutoScoreCoral(reefPoleLevel, ReefPoleSide.LEFT, driver));
 
 
-    driver.start().onTrue(new InstantCommand(()-> elevator.zeroPosition()));
+    // driver.start().onTrue(new InstantCommand(()-> elevator.zeroPosition()));
   }
 
   public Command getAutonomousCommand() {

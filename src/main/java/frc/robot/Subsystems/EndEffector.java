@@ -5,7 +5,10 @@
 package frc.robot.Subsystems;
 
 import com.revrobotics.spark.*;
+import com.revrobotics.spark.SparkBase.PersistMode;
+import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkFlexConfig;
 
 
@@ -14,22 +17,25 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.lib.OuttakeProfiler;
 import frc.robot.Constants;
 
-public class Outtake extends SubsystemBase {
+public class EndEffector extends SubsystemBase {
   
-  private static Outtake instance;
+  private static EndEffector instance;
 
   // private OuttakeProfiler outtakeProfiler;
 
-  private SparkFlex roller;
+  private SparkFlex outtake;
+  private SparkFlex algae;
 
-  public static Outtake getInstance(){
-    if(instance == null) instance = new Outtake();
+  public static EndEffector getInstance(){
+    if(instance == null) instance = new EndEffector();
     return instance;
   }
 
-  public Outtake() {
-    roller = new SparkFlex(Constants.HardwarePorts.outtakeID, MotorType.kBrushless);
+  public EndEffector() {
+    outtake = new SparkFlex(Constants.HardwarePorts.outtakeID, MotorType.kBrushless);
     // config(roller, InvertedValue.Clockwise_Positive, NeutralModeValue.Brake);
+    algae = new SparkFlex(Constants.HardwarePorts.algaeID, MotorType.kBrushless);
+
   }
 
   public enum OuttakeState{
@@ -52,6 +58,11 @@ public class Outtake extends SubsystemBase {
   private void config(SparkFlex motor){
     // motor.setNeutralMode(neutralMode);
     SparkFlexConfig config = new SparkFlexConfig();
+    config.smartCurrentLimit(50)
+    .idleMode(IdleMode.kBrake)
+    .voltageCompensation(12)
+    .inverted(false);
+    motor.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     // CurrentLimitsConfigs currentLimitsConfigs = new CurrentLimitsConfigs();
     // config.MotorOutput.Inverted = direction;
     
@@ -65,9 +76,12 @@ public class Outtake extends SubsystemBase {
   }
 
   public void setSpeed(double speed){
-    roller.set(speed);
+    outtake.set(speed);
   }
 
+  public void setAlgaeSpeed(double speed){
+    algae.set(speed);
+  }
  
   //returns tangential speed of rollers
   // public double getOutputSpeed(){
