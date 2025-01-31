@@ -131,18 +131,28 @@ public class RobotState { //will estimate pose with odometry and correct drift w
             if(OdomVelocity.toMagnitude() > 0) { //manually increase P (our predicted error in pos)
                 Matrix<N2,N2> P = UKF.getP();
 
-                double curvature = Math.min(0.03, (
-                    Math.hypot(robotAcceleration.getX(), robotAcceleration.getY()) / //acceleration over velocity
-                    (800 * (OdomVelocity.toMagnitude() + 1))
-                    ));
+                // double curvature = Math.min(0.03, (
+                //     Math.hypot(robotAcceleration.getX(), robotAcceleration.getY()) / //acceleration over velocity
+                //     (800 * (OdomVelocity.toMagnitude() + 1))
+                //     ));
 
-                double angular = 0.00025 * (robotAngularMagnitude.value / Constants.MaxAngularRate);
+                // double angular = 0.00025 * (robotAngularMagnitude.value / Constants.MaxAngularRate);
 
-                SmartDashboard.putNumber("Curvature", curvature);
-                SmartDashboard.putNumber("Angular", angular);
+
+
+                //please look in desmos before changing these
+                //https://www.desmos.com/3d/zqtpwpccds
+
+                double kv = 0.0000035/1.5; //velocity weight
+                double ka = 0.000018/1.5; //acceleration weight
+                double ktheta = 0.000001; //angular velocity weight
+
+                double error = kv * Math.pow(OdomVelocity.toMagnitude(), 2) * (1 - Math.exp(-robotAngularMagnitude.value)) 
+                             + ka * Math.pow(robotAcceleration.toMagnitude(), 2) * (1 + Math.exp(-OdomVelocity.toMagnitude())
+                             + ktheta * robotAngularMagnitude.value * OdomVelocity.toMagnitude());
 
                 //Make sure we dont get a crazy low number
-                double newP = P.get(0, 0) + Math.max(1e-8, (curvature + angular));
+                double newP = P.get(0, 0) + Math.max(0.001, (error));
 
                 P.set(0, 0, newP);
                 P.set(1, 1, newP);
