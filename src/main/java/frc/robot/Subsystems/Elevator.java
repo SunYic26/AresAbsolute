@@ -11,6 +11,7 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
@@ -21,6 +22,8 @@ public class Elevator extends SubsystemBase {
 
   private TalonFX follower;
   private TalonFX leader;
+
+  private DigitalInput beam;
 
   public static Elevator getInstance(){
     if(instance == null){
@@ -53,6 +56,8 @@ public class Elevator extends SubsystemBase {
     configMotor(follower, InvertedValue.Clockwise_Positive, NeutralModeValue.Brake);
 
     follower.setControl(new Follower(Constants.HardwarePorts.elevatorLeaderId, true));
+
+    beam = new DigitalInput(Constants.HardwarePorts.beamPort);
   }
 
   private void configMotor(TalonFX motor, InvertedValue direction, NeutralModeValue neutralMode){
@@ -102,10 +107,15 @@ public class Elevator extends SubsystemBase {
     leader.setVoltage(voltage);
   }
 
+  public boolean getBeamResult(){
+    return beam.get();
+  }
+
   @Override
   public void periodic() {
     SmartDashboard.putNumber("elevator position", getPosition());
     SmartDashboard.putNumber("elevator acceleration", getAcceleration());
     SmartDashboard.putNumber("elevator velocity", getVelocity());
+    SmartDashboard.putBoolean("beam break result", getBeamResult());
   }
 }
