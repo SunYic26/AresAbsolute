@@ -50,6 +50,18 @@ public class IChassisSpeeds implements Interpolable<IChassisSpeeds> {
         return Math.hypot(this.vx, this.vy);
     }
 
+    /**
+     * @param other Second IChassisSpeeds to merge
+     * @param identity Trust in second IChassisSpeeds from 0 - 1
+     * @return Interpolated value at timestep
+     */
+    public IChassisSpeeds complimentaryFilter(IChassisSpeeds other, double alpha) {
+        return new IChassisSpeeds(
+            alpha * other.getVx() + (1-alpha) * this.getVx(),
+            alpha * other.getVy() + (1-alpha) * this.getVy(),
+            alpha * other.getOmega() + (1-alpha) * this.getOmega());
+    }
+
     @Override
     public IChassisSpeeds interpolate(IChassisSpeeds other, double x) {
         if (x <= 0) {

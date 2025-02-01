@@ -94,7 +94,7 @@ public class RobotContainer {
     ));
     //bindings
     
-    // driver.leftTrigger().onTrue(CommandFactory.OffEverything());
+    driver.leftTrigger().onTrue(CommandFactory.OffEverything());
     // driver.a().onTrue(new InstantCommand(()->intake.testUnbrake()));
     // driver.b().onTrue(new InstantCommand(()->intake.testBrake()));
 
@@ -128,12 +128,12 @@ public class RobotContainer {
 
 
 
-    // driver.rightBumper().onTrue(new InstantCommand( () -> reefPoleLevel = reefPoleLevel.raiseLevel()));
-    // driver.leftBumper().onTrue(new InstantCommand(() -> reefPoleLevel = reefPoleLevel.decreaseLevel()));
+    driver.rightBumper().onTrue(new InstantCommand( () -> reefPoleLevel = reefPoleLevel.raiseLevel()));
+    driver.leftBumper().onTrue(new InstantCommand(() -> reefPoleLevel = reefPoleLevel.decreaseLevel()));
 
     driverBack.onTrue(new InstantCommand(() -> drivetrain.resetOdo()));
 
-    // driver.a().onTrue(CommandFactory.AutoScoreCoral(reefPoleLevel, ReefPoleSide.LEFT, driver));
+    driver.a().onTrue(CommandFactory.AutoScoreCoral(reefPoleLevel, ReefPoleSide.LEFT, driver));
 
 
     // driver.start().onTrue(new InstantCommand(()-> elevator.zeroPosition()));
