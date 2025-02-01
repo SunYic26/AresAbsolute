@@ -33,11 +33,11 @@ public class Elevator extends SubsystemBase {
   }
 
   public enum ElevatorState {
-    GROUND(0),
-    L1(16),
-    L2(17),
-    L3(18),
-    L4(100),
+    GROUND(1.5),
+    L1(40),
+    L2(80),
+    L3(120),
+    L4(165),
     SOURCE(37.700684);
     private double encoderPosition;
     private ElevatorState(double encoderPosition){
@@ -80,10 +80,17 @@ public class Elevator extends SubsystemBase {
     return leader.getPosition().getValueAsDouble();
   }
 
+  public double getCurrent(){
+    return leader.getStatorCurrent().getValueAsDouble();
+  }
+
   public void stop(){
     leader.set(0);
   }
 
+  public void setSpeed(double speed){
+    leader.set(speed);
+  }
   
 
 

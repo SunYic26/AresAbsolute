@@ -97,6 +97,7 @@ public final class Constants {
 
     public static final double elevatorMaxVelocity = 100;
     public static final double elevatorMaxAcceleration = 205;
+    public static final double elevatorCurrentThreshold = 20;
 
     public static final double slipFactor = 65;
     public static final double slipThreshold = 0.15;

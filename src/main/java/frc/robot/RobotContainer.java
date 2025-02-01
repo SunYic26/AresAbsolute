@@ -25,11 +25,13 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Subsystems.Elevator;
 import frc.robot.Subsystems.CommandSwerveDrivetrain.CommandSwerveDrivetrain;
+import frc.robot.commands.AltSetElevator;
 import frc.robot.commands.CancelableCommand;
 import frc.robot.commands.SetElevator;
 import frc.robot.commands.SetIntakePivot;
 import frc.robot.commands.SetIntakeRoller;
 import frc.robot.commands.SmartIntake;
+import frc.robot.commands.ZeroElevator;
 import frc.robot.commands.CommandFactory.CommandFactory;
 import frc.robot.commands.CommandFactory.CommandFactory.*;
 import frc.robot.Constants.FieldConstants.ReefConstants.ReefPoleLevel;
@@ -98,20 +100,20 @@ public class RobotContainer {
     // driver.a().onTrue(new InstantCommand(()->intake.testUnbrake()));
     // driver.b().onTrue(new InstantCommand(()->intake.testBrake()));
 
-    driver.a().onTrue(new SetIntakePivot(PivotState.UP));
-    driver.b().onTrue(new SetIntakePivot(PivotState.DOWN));
-    driver.x().onTrue(CommandFactory.Intake());
-    driver.y().onTrue(CommandFactory.Lift());
-    driverBack.onTrue(new InstantCommand(()-> intake.stopPivot()));
+    // driver.a().onTrue(new SetIntakePivot(PivotState.UP));
+    // driver.b().onTrue(new SetIntakePivot(PivotState.DOWN));
+    // driver.x().onTrue(CommandFactory.Intake());
+    // driver.y().onTrue(CommandFactory.Lift());
+    // driverBack.onTrue(new InstantCommand(()-> intake.stopPivot()));
 
-    driverDpadRight.onTrue(new SmartIntake());
+    // driverDpadRight.onTrue(new SmartIntake());
 
-    driverDpadLeft.onTrue(new InstantCommand(()-> intake.setRollerSpeed(RollerState.INTAKE.getRollerSpeed())));
-    driverDpadUp.onTrue(new InstantCommand(()->intake.setRollerSpeed(RollerState.OUTTAKE.getRollerSpeed())));
-    driverDpadDown.onTrue(new InstantCommand(()->intake.brakeRoller()));
+    // driverDpadLeft.onTrue(new InstantCommand(()-> intake.setRollerSpeed(RollerState.INTAKE.getRollerSpeed())));
+    // driverDpadUp.onTrue(new InstantCommand(()->intake.setRollerSpeed(RollerState.OUTTAKE.getRollerSpeed())));
+    // driverDpadDown.onTrue(new InstantCommand(()->intake.brakeRoller()));
     
     // driver.y().onTrue(new InstantCommand(() -> intake.stopPivot()));
-    driver.start().onTrue(new InstantCommand(()-> intake.resetPivotPosition()));
+    // driver.start().onTrue(new InstantCommand(()-> intake.resetPivotPosition()));
     // driver.b().onTrue(new InstantCommand(()-> endEffector.setAlgaeSpeed(-0.5)));
     // driver.a().onTrue(new InstantCommand(()-> endEffector.setAlgaeSpeed(0)));
     // driver.x().onTrue(new InstantCommand(()-> endEffector.setAlgaeSpeed(0.5)));
@@ -121,10 +123,10 @@ public class RobotContainer {
     // driverDpadLeft.onTrue(new InstantCommand(()-> endEffector.setSpeed(0)));
 
     // driver.a().onTrue(new InstantCommand(() -> elevator.zeroPosition()));
-    // driver.a().onTrue(new SetElevator(ElevatorState.GROUND));
-    // driver.b().onTrue(new SetElevator(ElevatorState.L1));
-    // driver.y().onTrue(new SetElevator(ElevatorState.L4));
-    // driver.x().onTrue(new SetElevator(ElevatorState.L2));
+    driver.a().onTrue(new AltSetElevator(ElevatorState.GROUND));
+    driver.b().onTrue(new AltSetElevator(ElevatorState.L1));
+    driver.y().onTrue(new AltSetElevator(ElevatorState.L3));
+    driver.x().onTrue(new AltSetElevator(ElevatorState.L2));
 
 
 
@@ -136,7 +138,7 @@ public class RobotContainer {
     driver.a().onTrue(CommandFactory.AutoScoreCoral(reefPoleLevel, ReefPoleSide.LEFT, driver));
 
 
-    // driver.start().onTrue(new InstantCommand(()-> elevator.zeroPosition()));
+    driver.start().onTrue(new ZeroElevator());
   }
 
   public Command getAutonomousCommand() {
