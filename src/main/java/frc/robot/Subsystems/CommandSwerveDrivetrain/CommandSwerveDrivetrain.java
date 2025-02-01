@@ -48,6 +48,8 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.StructArrayPublisher;
 import edu.wpi.first.units.measure.Velocity;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Notifier;
@@ -84,7 +86,10 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
 
     RobotState robotState;
 
+
     // private DriveControlSystems controlSystem  = new DriveControlSystems(); //only for trajectory following
+
+    StructArrayPublisher<SwerveModuleState> publisher = NetworkTableInstance.getDefault().getStructArrayTopic("MyStates", SwerveModuleState.struct).publish();
 
     private static CommandSwerveDrivetrain s_Swerve;
 
@@ -406,7 +411,15 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         }else{
             robotState = RobotState.getInstance();
         }
-        
+
+        SwerveModuleState[] states = new SwerveModuleState[] {
+            s_Swerve.getModule(0).getCurrentState(),
+            s_Swerve.getModule(1).getCurrentState(),
+            s_Swerve.getModule(2).getCurrentState(),
+            s_Swerve.getModule(3).getCurrentState()
+        };
+        // StructArrayPublisher<SwerveModuleState> publisher = NetworkTableInstance.getDefault().getStructArrayTopic("MyStates", SwerveModuleState.struct).publish();
+        publisher.set(states);
 
         //allows driver to see if resetting worked
         // SmartDashboard.putBoolean("Odo Reset (last 5 sec)", lastTimeReset != -1 && Timer.getFPGATimestamp() - lastTimeReset < 5);

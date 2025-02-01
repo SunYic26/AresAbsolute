@@ -55,8 +55,8 @@ public class Intake extends SubsystemBase {
     config.CurrentLimits = currentLimitsConfigs;
 
     Slot0Configs position = new Slot0Configs();
-    position.kP = 4;
-    position.kI = 2.15;
+    position.kP = 1.4;
+    position.kI = 0;
 
 
     motor.getConfigurator().apply(config);
@@ -77,7 +77,7 @@ public class Intake extends SubsystemBase {
     config.CurrentLimits = currentLimitsConfigs;
 
     Slot0Configs position = new Slot0Configs();
-    position.kP = 1.2;
+    position.kP = 1.7;
 
     motor.getConfigurator().apply(config);
     motor.getConfigurator().apply(position);
@@ -128,6 +128,10 @@ public class Intake extends SubsystemBase {
 
   public double getPosition(){
     return pivot.getPosition().getValueAsDouble();
+  }
+
+  public double getPivotCurrent(){
+    return pivot.getStatorCurrent().getValueAsDouble();
   }
 
   public void brakePivot(){
