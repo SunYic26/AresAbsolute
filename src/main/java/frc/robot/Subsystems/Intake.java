@@ -114,9 +114,9 @@ public class Intake extends SubsystemBase {
     roller.setControl(new PositionVoltage(roller.getPosition().getValueAsDouble()));
   }
 
-  // public void testBrake(){
-  //   roller.setControl(new StaticBrake());
-  // }
+  public void testBrake(){
+    roller.setControl(new StaticBrake());
+  }
 
   // public void testUnbrake(){
   //   roller.setControl(new VoltageOut(0.3));
