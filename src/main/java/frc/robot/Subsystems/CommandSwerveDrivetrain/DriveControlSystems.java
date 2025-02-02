@@ -99,7 +99,7 @@ public class DriveControlSystems {
 
     public double[][] calculateFeedforward() {
         double[][] wheelFeedFwX = new double[2][4];
-        //TODO tune
+        //TODO tune (PLS)
         double Kv = 0.01;  // velocity gain
         double Ka = 0.01;  // acceleration gain
         double Kf = 0;  // friction gain
