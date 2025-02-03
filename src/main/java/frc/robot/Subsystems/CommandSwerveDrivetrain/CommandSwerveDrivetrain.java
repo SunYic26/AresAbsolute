@@ -312,7 +312,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
 
     public void resetOdo(){ //not being used, drivetrain.seedFieldRelative() instead for field centric driving
         tareEverything();
-        robotState.reset(0.02, IPose2d.identity(), ITwist2d.identity());
+        robotState.reset(0.02, IPose2d.identity());
         robotState.resetUKF(IPose2d.identity());
     }
     
@@ -331,7 +331,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
 
     public void resetOdo(Pose2d pose){
         resetOdoUtil(pose);
-        robotState.reset(0.02, new IPose2d(pose), ITwist2d.identity());
+        robotState.reset(0.02, new IPose2d(pose));
         robotState.resetUKF(new IPose2d(pose));
     }
 
