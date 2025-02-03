@@ -39,11 +39,11 @@ public class Intake extends SubsystemBase {
     roller = new TalonFX(Constants.HardwarePorts.intakeRollerID);
 
     configPivot(pivot, NeutralModeValue.Brake, InvertedValue.Clockwise_Positive);
-    configMotor(roller, NeutralModeValue.Brake, InvertedValue.Clockwise_Positive);
+    configRoller(roller, NeutralModeValue.Brake, InvertedValue.Clockwise_Positive);
   }
 
   private void configPivot(TalonFX motor, NeutralModeValue neutralMode, InvertedValue direction){
-    motor.setNeutralMode(neutralMode);
+    // motor.setNeutralMode(neutralMode);
     TalonFXConfiguration config = new TalonFXConfiguration();
     CurrentLimitsConfigs currentLimitsConfigs = new CurrentLimitsConfigs();
     config.MotorOutput.Inverted = direction;
@@ -51,6 +51,7 @@ public class Intake extends SubsystemBase {
     currentLimitsConfigs.SupplyCurrentLimitEnable = true;
     currentLimitsConfigs.StatorCurrentLimit = Constants.CurrentLimits.intakePeakCurrentLimit;
     currentLimitsConfigs.StatorCurrentLimitEnable = true;
+    config.MotorOutput.NeutralMode = neutralMode;
 
     config.CurrentLimits = currentLimitsConfigs;
 
@@ -64,8 +65,8 @@ public class Intake extends SubsystemBase {
   }
 
 
-  private void configMotor(TalonFX motor, NeutralModeValue neutralMode, InvertedValue direction){
-    motor.setNeutralMode(neutralMode);
+  private void configRoller(TalonFX motor, NeutralModeValue neutralMode, InvertedValue direction){
+    // motor.setNeutralMode(neutralMode);
     TalonFXConfiguration config = new TalonFXConfiguration();
     CurrentLimitsConfigs currentLimitsConfigs = new CurrentLimitsConfigs();
     config.MotorOutput.Inverted = direction;
@@ -73,6 +74,7 @@ public class Intake extends SubsystemBase {
     currentLimitsConfigs.SupplyCurrentLimitEnable = true;
     currentLimitsConfigs.StatorCurrentLimit = Constants.CurrentLimits.intakePeakCurrentLimit;
     currentLimitsConfigs.StatorCurrentLimitEnable = true;
+    config.MotorOutput.NeutralMode = neutralMode;
 
     config.CurrentLimits = currentLimitsConfigs;
 

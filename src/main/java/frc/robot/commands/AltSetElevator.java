@@ -30,9 +30,12 @@ public class AltSetElevator extends Command {
   // private State goal;
   // private double error;
   private double pidoutput;
-
-  private ProfiledPIDController controller = new ProfiledPIDController(1.2, 0, 0, constraints);
-
+  private State initialState;
+  private State setpoint;
+  private Timer timer;
+  private TrapezoidProfile profile = new TrapezoidProfile(constraints);
+  // private ProfiledPIDController controller = new ProfiledPIDController(1.2, 0, 0, constraints);
+  private PIDController controller = new PIDController(1.2, 0, 0);
   public AltSetElevator(ElevatorState state) {
     this(state.getEncoderPosition());
   }
@@ -43,12 +46,15 @@ public class AltSetElevator extends Command {
     // goal = new State(goalPosition, 0.0);
     s_Elevator = Elevator.getInstance();
     addRequirements(s_Elevator);
+    timer = new Timer();
   }
 
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
+    timer.restart();
     controller.disableContinuousInput();
+    initialState = new State(s_Elevator.getPosition(), 0);
     // timer.restart();
     // initialState = new State(s_Elevator.getPosition(), s_Elevator.getVelocity());
   }
@@ -56,10 +62,13 @@ public class AltSetElevator extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    pidoutput = controller.calculate(s_Elevator.getPosition(), goalPosition); 
+    setpoint = profile.calculate(timer.get(), initialState, new State(goalPosition, 0));
+    pidoutput = controller.calculate(s_Elevator.getPosition(), setpoint.position); 
     // setpoint = profile.calculate(timer.get(), initialState, goal);
     s_Elevator.setVoltage(pidoutput); // used to tune feedforward
-    System.out.println("pid output: " + pidoutput);
+    System.out.println("desired position: " + controller.getSetpoint());
+    // System.out.println("desired position: " + controller.getSetpoint().position);
+    // System.out.println("pid output: " + pidoutput);
     // s_Elevator.setVoltage(controller.calculate(s_Elevator.getPosition(), setpoint.position) + feedforward.calculate(setpoint.velocity));
     // SmartDashboard.putNumber("elevator follower voltage", s_Elevator.getFollowerVoltage());
     // error = Math.abs(s_Elevator.getPosition() - setpoint.position);
@@ -70,6 +79,7 @@ public class AltSetElevator extends Command {
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
+    timer.stop();
     s_Elevator.stop();
     System.out.println("final error: " + (Math.abs(goalPosition - s_Elevator.getPosition())));
   }

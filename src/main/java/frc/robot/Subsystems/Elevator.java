@@ -52,6 +52,8 @@ public class Elevator extends SubsystemBase {
   public Elevator() {
     leader = new TalonFX(Constants.HardwarePorts.elevatorLeaderId);
     follower = new TalonFX(Constants.HardwarePorts.elevatorFollowerId);
+    leader.setNeutralMode(NeutralModeValue.Brake);
+    follower.setNeutralMode(NeutralModeValue.Brake);
     configMotor(leader, InvertedValue.CounterClockwise_Positive, NeutralModeValue.Brake);
     configMotor(follower, InvertedValue.Clockwise_Positive, NeutralModeValue.Brake);
 
@@ -61,7 +63,7 @@ public class Elevator extends SubsystemBase {
   }
 
   private void configMotor(TalonFX motor, InvertedValue direction, NeutralModeValue neutralMode){
-    motor.setNeutralMode(neutralMode);
+    // motor.setNeutralMode(neutralMode);
     TalonFXConfiguration config = new TalonFXConfiguration();
     CurrentLimitsConfigs currentLimitsConfigs = new CurrentLimitsConfigs();
     config.MotorOutput.Inverted = direction;
@@ -69,7 +71,7 @@ public class Elevator extends SubsystemBase {
     currentLimitsConfigs.SupplyCurrentLimitEnable = true;
     currentLimitsConfigs.StatorCurrentLimit = Constants.CurrentLimits.elevatorPeakCurrentLimit;
     currentLimitsConfigs.StatorCurrentLimitEnable = true;
-
+    config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
     config.CurrentLimits = currentLimitsConfigs;
     motor.getConfigurator().apply(config);
     motor.getPosition().setUpdateFrequency(50);
