@@ -4,6 +4,11 @@
 
 package frc.robot.Subsystems;
 
+import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.InvertedValue;
+import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.revrobotics.spark.*;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
@@ -23,8 +28,8 @@ public class EndEffector extends SubsystemBase {
 
   // private OuttakeProfiler outtakeProfiler;
 
-  private SparkFlex outtake;
-  private SparkFlex algae;
+  private TalonFX coral;
+  private TalonFX algae;
 
   public static EndEffector getInstance(){
     if(instance == null) instance = new EndEffector();
@@ -32,9 +37,11 @@ public class EndEffector extends SubsystemBase {
   }
 
   public EndEffector() {
-    outtake = new SparkFlex(Constants.HardwarePorts.outtakeID, MotorType.kBrushless);
+    coral = new TalonFX(Constants.HardwarePorts.outtakeID);
     // config(roller, InvertedValue.Clockwise_Positive, NeutralModeValue.Brake);
-    algae = new SparkFlex(Constants.HardwarePorts.algaeID, MotorType.kBrushless);
+    algae = new TalonFX(Constants.HardwarePorts.algaeID);
+    config(coral, NeutralModeValue.Brake, InvertedValue.Clockwise_Positive);
+    config(algae, NeutralModeValue.Brake, InvertedValue.CounterClockwise_Positive);
 
   }
 
@@ -55,28 +62,25 @@ public class EndEffector extends SubsystemBase {
     }
   }
 
-  private void config(SparkFlex motor){
-    // motor.setNeutralMode(neutralMode);
-    SparkFlexConfig config = new SparkFlexConfig();
-    config.smartCurrentLimit(50)
-    .idleMode(IdleMode.kBrake)
-    .voltageCompensation(12)
-    .inverted(false);
-    motor.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-    // CurrentLimitsConfigs currentLimitsConfigs = new CurrentLimitsConfigs();
-    // config.MotorOutput.Inverted = direction;
+  private void config(TalonFX motor, NeutralModeValue neutralMode, InvertedValue direction){
+    motor.setNeutralMode(neutralMode);
+    TalonFXConfiguration config = new TalonFXConfiguration();
+    config.MotorOutput.Inverted = direction;
     
-    // currentLimitsConfigs.SupplyCurrentLimit = Constants.CurrentLimits.outtakeContinuousCurrentLimit;
-    // currentLimitsConfigs.SupplyCurrentLimitEnable = true;
-    // currentLimitsConfigs.StatorCurrentLimit = Constants.CurrentLimits.outtakePeakCurrentLimit;
-    // currentLimitsConfigs.StatorCurrentLimitEnable = true;
+    CurrentLimitsConfigs currentLimitsConfigs = new CurrentLimitsConfigs();
+    config.MotorOutput.NeutralMode = neutralMode;
+    
+    currentLimitsConfigs.SupplyCurrentLimit = Constants.CurrentLimits.outtakeContinuousCurrentLimit;
+    currentLimitsConfigs.SupplyCurrentLimitEnable = true;
+    currentLimitsConfigs.StatorCurrentLimit = Constants.CurrentLimits.outtakePeakCurrentLimit;
+    currentLimitsConfigs.StatorCurrentLimitEnable = true;
 
     // config.CurrentLimits = currentLimitsConfigs;
     // // motor.optimizeBusUtilization();
   }
 
-  public void setSpeed(double speed){
-    outtake.set(speed);
+  public void setOuttakeSpeed(double speed){
+    coral.set(speed);
   }
 
   public void setAlgaeSpeed(double speed){

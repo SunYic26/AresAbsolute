@@ -66,6 +66,7 @@ public class AltSetElevator extends Command {
     pidoutput = controller.calculate(s_Elevator.getPosition(), setpoint.position); 
     // setpoint = profile.calculate(timer.get(), initialState, goal);
     s_Elevator.setVoltage(pidoutput); // used to tune feedforward
+    System.out.println("voltage: " + s_Elevator.getFollowerVoltage());
     System.out.println("desired position: " + controller.getSetpoint());
     // System.out.println("desired position: " + controller.getSetpoint().position);
     // System.out.println("pid output: " + pidoutput);
