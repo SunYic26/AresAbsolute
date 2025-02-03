@@ -135,7 +135,7 @@ public class RobotContainer {
 
     driverBack.onTrue(new InstantCommand(() -> drivetrain.resetOdo()));
 
-    driver.a().onTrue(CommandFactory.AutoScoreCoral(reefPoleLevel, ReefPoleSide.LEFT, driver));
+    // driver.a().onTrue(CommandFactory.AutoScoreCoral(reefPoleLevel, ReefPoleSide.LEFT, driver));
 
 
     driver.start().onTrue(new ZeroElevator());
