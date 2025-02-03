@@ -27,14 +27,14 @@ public class DriveToPose extends Command {
     private final ProfiledPIDController driveController = new ProfiledPIDController(
             4.5, 0.1, 0.015, new TrapezoidProfile.Constraints(Constants.MaxSpeed, Constants.MaxAcceleration), 0.02);
     private final ProfiledPIDController thetaController = new ProfiledPIDController(
-            1.25, 0.1, 0.03, new TrapezoidProfile.Constraints(Constants.MaxSpeed, Constants.MaxAcceleration), 0.02);
+            1.25, 0.1, 0.03, new TrapezoidProfile.Constraints(Constants.MaxAngularVelocity, Constants.MaxAngularRate), 0.02);
     private CommandSwerveDrivetrain s_Swerve;
     private Pose2d targetPose;
     private RobotState robotState;
     private Translation2d lastSetpointTranslation;
     private double driveErrorAbs;
     private double thetaErrorAbs;
-    private double ffMinRadius = 0.2, ffMaxRadius = 0.8;
+    private double ffMinRadius = 0.2, ffMaxRadius = 1.2;
 
     public DriveToPose(Supplier<Pose2d> targetPose) {
         this.s_Swerve = CommandSwerveDrivetrain.getInstance();
@@ -106,10 +106,13 @@ public class DriveToPose extends Command {
                         new Transform2d(new Translation2d(driveController.getSetpoint().position, 0.0), new Rotation2d()))
                 .getTranslation();
 
+        //while farther away we prioritize drive over turning
+        double distanceFactor = MathUtil.clamp(1 - (driveErrorAbs / ffMaxRadius), 0.2, 1.0); // Reduce rotation influence when far
         // Calculate theta speed
         double thetaVelocity = thetaController.getSetpoint().velocity * ffScaler
                 + thetaController.calculate(
-                        currentPose.getRotation().getRadians(), targetPose.getRotation().getRadians());
+                        currentPose.getRotation().getRadians(), targetPose.getRotation().getRadians())
+                        * distanceFactor;
         thetaErrorAbs = Math.abs(currentPose.getRotation().minus(targetPose.getRotation()).getRadians());
         if (thetaErrorAbs < thetaController.getPositionTolerance())
             thetaVelocity = 0.0;
