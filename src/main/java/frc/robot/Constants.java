@@ -202,7 +202,7 @@ public final class Constants {
     public static final class HardwarePorts {
         // motor id
         public static final int beamPort = 1;
-        public static final int laserID = 1;
+        public static final int laserID = 0; //idk
 
         public static final int outtakeID = 21;
         public static final int algaeID = 22;

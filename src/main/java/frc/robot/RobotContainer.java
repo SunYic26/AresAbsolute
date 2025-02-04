@@ -123,10 +123,10 @@ public class RobotContainer {
     // driverDpadLeft.onTrue(new InstantCommand(()-> endEffector.setSpeed(0)));
 
     // driver.a().onTrue(new InstantCommand(() -> elevator.zeroPosition()));
-    driver.a().onTrue(new AltSetElevator(ElevatorState.GROUND));
-    driver.b().onTrue(new AltSetElevator(ElevatorState.L1));
-    driver.y().onTrue(new AltSetElevator(ElevatorState.L3));
-    driver.x().onTrue(new AltSetElevator(ElevatorState.L2));
+    // driver.a().onTrue(new AltSetElevator(ElevatorState.GROUND));
+    // driver.b().onTrue(new AltSetElevator(ElevatorState.L1));
+    // driver.y().onTrue(new AltSetElevator(ElevatorState.L3));
+    // driver.x().onTrue(new AltSetElevator(ElevatorState.L2));
 
 
 
@@ -137,8 +137,7 @@ public class RobotContainer {
 
     // driver.a().onTrue(CommandFactory.AutoScoreCoral(reefPoleLevel, ReefPoleSide.LEFT, driver));
 
-
-    driver.start().onTrue(new ZeroElevator());
+    // driver.start().onTrue(new ZeroElevator());
   }
 
   public Command getAutonomousCommand() {
