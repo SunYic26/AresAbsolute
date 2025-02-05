@@ -104,6 +104,10 @@ public class AutoCommand {
         return new AutoCommand("4meters", Autos.meter4(), EndPoint.GENERIC);
     }
 
+    public static AutoCommand halfmeter(){
+        return new AutoCommand("halfmeter", Autos.halfmeter(), EndPoint.GENERIC);
+    }
+
     // public static AutoCommand meterForwardTest() {
     //     return new AutoCommand("meterForwardTest", Autos.meterForwardTest(), EndPoint.GENERIC);
     // }

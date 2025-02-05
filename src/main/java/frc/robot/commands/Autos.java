@@ -74,6 +74,10 @@ public class Autos {
     return new FollowChoreoTrajectory("4meters");
   }
 
+  public static Command halfmeter(){
+    return new FollowChoreoTrajectory("halfmeter");
+  }
+
 
   // public static Command meterForwardTest(){
   //   return new SequentialCommandGroup(
