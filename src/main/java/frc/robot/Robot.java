@@ -121,6 +121,7 @@ public class Robot extends LoggedRobot {
     firstAuto.addOption(AutoCommand.meter2().name, AutoCommand.meter2());
     firstAuto.addOption(AutoCommand.meter3().name, AutoCommand.meter3());
     firstAuto.addOption(AutoCommand.meter4().name, AutoCommand.meter4());
+    firstAuto.addOption(AutoCommand.halfmeter().name, AutoCommand.halfmeter());
     // AutoCommand.loadAutos(); TODO ethan fix this
     SmartDashboard.putData("first auto", firstAuto);
 
@@ -149,16 +150,16 @@ public class Robot extends LoggedRobot {
   public void disabledPeriodic() {
     if(firstAuto.getSelected() != firstSavedChoice){ //Note: might be able to use the onchange() method in sendable chooser
       firstSavedChoice = firstAuto.getSelected();
-      m_autonomousCommand.addCommands(firstSavedChoice.getCommand());
+      // m_autonomousCommand.addCommands(firstSavedChoice.getCommand());
       updateSecondAuto();
     }
     if(secondAuto.getSelected() != secondSavedChoice){
       secondSavedChoice = secondAuto.getSelected();
-      m_autonomousCommand.addCommands(secondSavedChoice.getCommand());
+      // m_autonomousCommand.addCommands(secondSavedChoice.getCommand());
     }
     if(thirdAuto.getSelected() != thirdSavedChoice){
       thirdSavedChoice = thirdAuto.getSelected();
-      m_autonomousCommand.addCommands(thirdSavedChoice.getCommand());
+      // m_autonomousCommand.addCommands(thirdSavedChoice.getCommand());
     }
   }
 
@@ -167,7 +168,7 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void autonomousInit() {
-
+    if(firstSavedChoice != null) m_autonomousCommand.addCommands(firstSavedChoice.getCommand());
     if (m_autonomousCommand != null) {
       m_autonomousCommand.schedule();
     }

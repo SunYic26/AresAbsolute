@@ -381,15 +381,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         }
     }
 
-    public void followAutoTrajectory(SwerveSample sample){
-        Pose2d currPose = robotState.getCurrentPose2d();
-
-        setControl(new SwerveRequest.FieldCentric()
-        .withVelocityX(sample.vx + xController.calculate(currPose.getX(), sample.x))
-        .withVelocityY(sample.vy + yController.calculate(currPose.getY(), sample.y))
-        .withRotationalRate(sample.omega + thetaController.calculate(currPose.getRotation().getRadians(), sample.heading))
-        );
-    }
+    
 
     private Pose2d autoStartPose = new Pose2d(2.0, 2.0, new Rotation2d());
 
