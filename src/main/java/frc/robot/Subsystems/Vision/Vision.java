@@ -171,8 +171,11 @@ public class Vision extends SubsystemBase {
 
         if(!multiTagResults.isEmpty()) { //Use multitag if available
             for (MultiTagOutput multiTagResult : multiTagResults) {
-                Pose3d robotPose = PhotonUtils.estimateFieldToRobotAprilTag(
-                    multiTagResult.getMultiTag().estimatedPose.best, new Pose3d(robotState.getCurrentPose2d()) , cameraToRobotTransform);
+
+                Pose3d tagPose = aprilTagFieldLayout.getTagPose(multiTagResult.getBestTarget().getFiducialId()).get();
+
+                Pose3d robotPose = PhotonUtils.estimateFieldToRobotAprilTag(multiTagResult.estimatedPose.best, tagPose, cameraToRobotTransform);
+
                 VisionOutput newPose = new VisionOutput(robotPose, multiTagResult.getTimestamp(),  multiTagResult.getBestTarget(), PoseStrategy.CLOSEST_TO_LAST_POSE);
 
                 robotState.visionUpdate(newPose); 
