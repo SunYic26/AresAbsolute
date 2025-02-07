@@ -18,6 +18,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
@@ -27,6 +28,7 @@ import frc.robot.Subsystems.Elevator;
 import frc.robot.Subsystems.CommandSwerveDrivetrain.CommandSwerveDrivetrain;
 import frc.robot.commands.AltSetElevator;
 import frc.robot.commands.CancelableCommand;
+import frc.robot.commands.FollowChoreoTrajectory;
 import frc.robot.commands.SetElevator;
 import frc.robot.commands.SetIntakePivot;
 import frc.robot.commands.SetIntakeRoller;
@@ -43,6 +45,7 @@ import frc.robot.Subsystems.Intake.RollerState;
 import frc.robot.Subsystems.EndEffector;
 import frc.robot.Subsystems.Intake;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 
 public class RobotContainer {
 
@@ -128,14 +131,15 @@ public class RobotContainer {
     // driver.y().onTrue(new AltSetElevator(ElevatorState.L3));
     // driver.x().onTrue(new AltSetElevator(ElevatorState.L2));
 
-
+    // driver.x().onTrue(new FollowChoreoTrajectory("halfmeter"));
 
     driver.rightBumper().onTrue(new InstantCommand( () -> reefPoleLevel = reefPoleLevel.raiseLevel()));
     driver.leftBumper().onTrue(new InstantCommand(() -> reefPoleLevel = reefPoleLevel.decreaseLevel()));
 
     driverBack.onTrue(new InstantCommand(() -> drivetrain.resetOdo()));
 
-    // driver.a().onTrue(CommandFactory.AutoScoreCoral(reefPoleLevel, ReefPoleSide.LEFT, driver));
+    driver.a().onTrue(CommandFactory.AutoScoreCoral(reefPoleLevel, ReefPoleSide.LEFT, driver));
+    // driver.x().onTrue(CommandFactory.autoCommand());
 
     // driver.start().onTrue(new ZeroElevator());
   }

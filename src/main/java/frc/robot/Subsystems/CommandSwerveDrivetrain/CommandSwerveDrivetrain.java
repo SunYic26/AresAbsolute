@@ -324,6 +324,10 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         return s_Swerve.getState().Pose;
     }
 
+    public SwerveModuleState getDesiredState(){
+        return s_Swerve.getModule(1).getTargetState();
+    }
+
     public ChassisSpeeds getRobotRelativeSpeeds(){
         System.out.println(s_Swerve.getState().Speeds.toString());
         return s_Swerve.getState().Speeds;
@@ -421,6 +425,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         // SmartDashboard.putNumber("AUTO INIT X", autoStartPose.getX());
         // SmartDashboard.putNumber("AUTO INIT Y", autoStartPose.getY());
          SmartDashboard.putNumber("current heading", getHeading());
+         SmartDashboard.putNumber("desired swerve state", getDesiredState().speedMetersPerSecond);
         // SmartDashboard.putNumber("DT Vel", robotAbsoluteVelocity());
 //        Logger.recordOutput("Odo Reset (last 5 sec)", lastTimeReset != -1 && Timer.getFPGATimestamp() - lastTimeReset < 5);
         // Logger.recordOutput("Swerve/ODO X", currentPose.getX());

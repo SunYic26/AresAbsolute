@@ -43,6 +43,7 @@ public class FollowChoreoTrajectory extends Command {
     timer = new Timer();
     controlSystems = DriveControlSystems.getInstance();
     robotState = RobotState.getInstance();
+    addRequirements(s_Swerve);
   }
   
   // Called when the command is initially scheduled.

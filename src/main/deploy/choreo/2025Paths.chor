@@ -1,5 +1,5 @@
 {
- "name":"2025paths",
+ "name":"2025Paths",
  "version":1,
  "type":"Swerve",
  "variables":{
@@ -9,22 +9,22 @@
  "config":{
   "frontLeft":{
    "x":{
-    "exp":"11 in",
-    "val":0.2794
+    "exp":"13.5 in",
+    "val":0.3429
    },
    "y":{
-    "exp":"11 in",
-    "val":0.2794
+    "exp":"13.5 in",
+    "val":0.3429
    }
   },
   "backLeft":{
    "x":{
-    "exp":"-11 in",
-    "val":-0.2794
+    "exp":"-13.5 in",
+    "val":-0.3429
    },
    "y":{
-    "exp":"11 in",
-    "val":0.2794
+    "exp":"13.5 in",
+    "val":0.3429
    }
   },
   "mass":{
@@ -36,37 +36,37 @@
    "val":6.0
   },
   "gearing":{
-   "exp":"6.5",
-   "val":6.5
+   "exp":"5.908",
+   "val":5.908
   },
   "radius":{
-   "exp":"2 in",
-   "val":0.0508
+   "exp":"1.8 in",
+   "val":0.04572
   },
   "vmax":{
-   "exp":"6000 RPM",
-   "val":628.3185307179587
+   "exp":"5800 RPM",
+   "val":607.3745796940267
   },
   "tmax":{
-   "exp":"1.2 N * m",
-   "val":1.2
+   "exp":"9.37 N * m",
+   "val":9.37
   },
   "cof":{
-   "exp":"1.5",
-   "val":1.5
+   "exp":"1.19",
+   "val":1.19
   },
   "bumper":{
    "front":{
-    "exp":"17 in",
-    "val":0.4318
+    "exp":"13.5 in",
+    "val":0.3429
    },
    "side":{
-    "exp":"17 in",
-    "val":0.4318
+    "exp":"13.5 in",
+    "val":0.3429
    },
    "back":{
-    "exp":"17 in",
-    "val":0.4318
+    "exp":"13.5 in",
+    "val":0.3429
    }
   },
   "differentialTrackWidth":{

@@ -16,6 +16,7 @@ import frc.robot.Subsystems.Intake;
 import frc.robot.Subsystems.Intake.RollerState;
 import frc.robot.commands.CancelableCommand;
 import frc.robot.commands.DriveToPose;
+import frc.robot.commands.FollowChoreoTrajectory;
 // import frc.robot.commands.DriveToPose;
 //import frc.robot.commands.CancelableCommand;
 import frc.robot.commands.SetIntakePivot;
@@ -43,6 +44,12 @@ public class CommandFactory {
         return new ParallelCommandGroup(
             new SetIntakePivot(PivotState.UP),
             new InstantCommand(()-> Intake.getInstance().setRollerSpeed(0))
+        );
+    }
+
+    public static Command autoCommand() {
+        return new ParallelCommandGroup(
+            new FollowChoreoTrajectory("1meter")
         );
     }
 
