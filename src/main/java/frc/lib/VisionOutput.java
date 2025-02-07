@@ -2,6 +2,7 @@ package frc.lib;
 
 import java.util.Collections;
 
+import frc.robot.LimelightHelpers;
 import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonPoseEstimator.PoseStrategy;
 import org.photonvision.targeting.MultiTargetPNPResult;
@@ -10,6 +11,7 @@ import org.photonvision.targeting.PhotonTrackedTarget;
 import edu.wpi.first.math.geometry.Pose3d;
 import frc.lib.Interpolating.Geometry.ITranslation2d;
 
+import frc.robot.LimelightHelpers.PoseEstimate;
 /**
  * VisionOutput
  */
@@ -22,6 +24,10 @@ public class VisionOutput extends EstimatedRobotPose {
     public VisionOutput(EstimatedRobotPose pose)  {
         super(pose.estimatedPose, pose.timestampSeconds, pose.targetsUsed, pose.strategy);
     }
+    
+    public VisionOutput(PoseEstimate poseEstimate){ //  ok so lowkey we never use the targets used or strategy in our code...
+        super(new Pose3d(poseEstimate.pose), poseEstimate.timestampSeconds, null, null);
+    } // its ok to just conv from 2d to 3d its not like we go flying much
 
     static private double meanArea = 0.0;
     static private double meanAmbiguity = 0.0; //TODO get a default value for these but we need like a field or smth
