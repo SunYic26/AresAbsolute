@@ -1,27 +1,33 @@
 package frc.robot.Subsystems.Vision;
 
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.networktables.*;
-import frc.lib.vision.LimeLight;
+//import frc.lib.vision.LimeLight; // not using the lib anymore
+import frc.lib.VisionOutput;
 import frc.robot.Constants;
-import static frc.robot.Constants.LimelightConstants.*; // ooooh fancy
+import static frc.robot.Constants.LimelightConstants.*;
 import frc.robot.LimelightHelpers;
-import frc.robot.Subsystems.CommandSwerveDrivetrain.Drivetrain;
+import frc.robot.RobotState.RobotState;
+import frc.robot.Subsystems.CommandSwerveDrivetrain.CommandSwerveDrivetrain;
 import org.littletonrobotics.junction.AutoLogOutput;
+import org.littletonrobotics.junction.Logger;
 
 import java.util.HashMap;
 import java.util.Map;
 
 public class LimelightSubsystem extends SubsystemBase {
     private static LimelightSubsystem instance;
-    
+
     private NetworkTable nt;
     // Two ways to get data: the Limelight Helpers class (preferred) and the limeLight object which provides access to a library someone else made and i thought would be useful
-    private LimeLight limeLight; // lib
+//    private LimeLight limeLight; // lib
     private final String name = cameraName; // simplified for convenience
 
-    private final Drivetrain drivetrain;
+    private final CommandSwerveDrivetrain drivetrain;
+    private final RobotState robotState;
 
 
     public static LimelightSubsystem getInstance() {
@@ -30,17 +36,18 @@ public class LimelightSubsystem extends SubsystemBase {
         }
         return instance;
     }
-    
+
     private LimelightSubsystem() {
-        limeLight = new LimeLight(); // init lib
+//        limeLight = new LimeLight(); // init lib
         nt = NetworkTableInstance.getDefault().getTable(name);
-        drivetrain = Drivetrain.getInstance();
+        drivetrain = CommandSwerveDrivetrain.getInstance();
+        robotState = RobotState.getInstance();
 
         LimelightHelpers.setCameraPose_RobotSpace(name,
-                limelightToRobot.getX(), limelightToRobot.getY(), limelightToRobot.getZ(), // translations assuming forward is x, right is y, up is z
-                limelightToRobot.getRotation().getX(), limelightToRobot.getRotation().getY(), limelightToRobot.getRotation().getZ()); // rotations, roll pitch yaw
+                forward, right, up,
+                roll, pitch, yaw);
     }
-    
+
     public enum LedMode {
         pipeline(0),   //0	use the LED Mode set in the current pipeline
         forceOff(1),   //1	force off
@@ -128,6 +135,11 @@ public class LimelightSubsystem extends SubsystemBase {
     public double getYOffset() {
          return LimelightHelpers.getTY(name);
     }
+    @AutoLogOutput(key = "Limelight/MegaTagRobotPose2d")
+    public Pose2d getMegaTagRobotPose2d() {return LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(name).pose;}
+    @AutoLogOutput(key = "Limelight/RobotPose3d")
+    public Pose3d getRobotPose3d() {return  LimelightHelpers.getBotPose3d_wpiBlue(name);}
+
     @AutoLogOutput(key = "Limelight/LEDMode")
     public LedMode getLEDMode(){
         return LedMode.getByValue( nt.getEntry("ledMode").getInteger(-1));
@@ -159,52 +171,27 @@ public class LimelightSubsystem extends SubsystemBase {
     public void setPipeline(Pipeline pipeline){
         LimelightHelpers.setPipelineIndex(name, pipeline.getIndex());
     }
-    
-    
+
+
     @Override
     public void periodic() {
-        //read values periodically
 
-        // System.out.println(nt);
 
-        //post to smart dashboard periodically
+
+        // Zero yaw is robot facing red alliance wall - our code should be doing this.
+        LimelightHelpers.SetRobotOrientation(name, robotState.robotYaw().getDegrees(), 0,0 ,0,0,0);
+        VisionOutput pose = new VisionOutput(LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(name));
+        robotState.visionUpdate(pose);
+
+
 
 //       Logger.recordOutput("Limelight/xOffset", getXOffset());
 //       Logger.recordOutput("Limelight/yOffset", getYOffset());
-//    //    Logger.recordOutput("Limelight/Distance", getDistance());
-//    //    SmartDashboard.putNumber("LimelightX", getXOffset());
+        //    Logger.recordOutput("Limelight/Distance", getDistance());
+        //    SmartDashboard.putNumber("LimelightX", getXOffset());
 //       SmartDashboard.putNumber("LimelightY", getYOffset());
 //        SmartDashboard.putNumber("Limelight Distance", getDistance());
 
-//        if(DriverStation.isTeleop()){
-//
-//            if(Math.abs(getXOffset()) < 20.0  && hasTarget()){      //&& Math.abs(getXOffset()) > 5.0
-//                double x = 8.23 - (getDistance() *
-//                        Math.cos(Math.toRadians(drivetrain.getGyroscopeRotation().getDegrees() + 180
-//                                - getXOffset())));
-//                double y = 4.165 - (getDistance() *
-//                        Math.sin(Math.toRadians(drivetrain.getGyroscopeRotation().getDegrees() + 180
-//                                - getXOffset())));//plus or minus xoffset???
-//
-//                drivetrain.resetOdometryFromPosition(x,y);
-//            }
-//        }
-       
+
     }
-    
-    
-
-    // @AutoLogOutput(key = "Limelight/Distance")
-    // public double getDistance() {
-    //     double limelightMountAngleDegrees = 27.0;
-    //     double limelightLensHeightInches = 35;
-    //     double goalHeightInches = 104.0;
-    //     double angleToGoalDegrees = limelightMountAngleDegrees + getYOffset();
-
-    //     //calculate distance
-    //     double distanceFromLimelightToGoalInches =
-    //             ((goalHeightInches - limelightLensHeightInches) / (Math.tan(Math.toRadians(angleToGoalDegrees))))
-    //                     + 12 + 24;
-    //     return distanceFromLimelightToGoalInches * 0.0254;
-    // }
 }

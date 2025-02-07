@@ -324,7 +324,7 @@ public class RobotState { //will estimate pose with odometry and correct drift w
         }
 
         public Rotation2d robotYaw() {
-            return new Rotation2d(pigeon.getYaw().getValue());
+            return new Rotation2d(pigeon.getYaw()/*.refresh()*/.getValue());
         }
 
         /**
