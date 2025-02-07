@@ -8,9 +8,7 @@ import edu.wpi.first.apriltag.AprilTag;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.apriltag.AprilTagPoseEstimate;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
@@ -64,6 +62,26 @@ public final class Constants {
         4
     );
 
+    public static class LimelightConstants{
+        public static final String cameraName = "limelight"; // required for all LimelightHelpers method calls - or pass a blank string if the name is the default (limelight)
+        
+        // Limelight positions relative to the robot. In METERS and DEGREES. Relative to the center of the bot, ie the pigeon i assume.
+        // I am assuming that the positives of x is forward, y is right, and z is up. LL docs say 'side' not right. Lets hope that right is positive side!
+        // TODO these are NOT REAL - measure and then add in values for camera positioning
+        public static final double forward = 0; // Meters
+        public static final double right = 0; // Meters
+        public static final double up = 0; // Meters
+        public static final double roll = 0; // Degrees
+        public static final double pitch = 0; // Degrees
+        public static final double yaw = 0; // Degrees
+
+        public static final Transform3d limelightToRobot = new Transform3d( 
+                new Translation3d(Units.inchesToMeters(forward), Units.inchesToMeters(right), Units.inchesToMeters(up)),
+                new Rotation3d(Units.degreesToRadians(roll), Units.degreesToRadians(pitch), Units.degreesToRadians(yaw))
+        );
+
+    }
+    
     public static RobotConfig config = new RobotConfig(
         Constants.robotMass,
         Constants.MOI,
