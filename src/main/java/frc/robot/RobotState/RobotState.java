@@ -85,10 +85,8 @@ public class RobotState { //will estimate pose with odometry and correct drift w
 
         IChassisSpeeds filteredVelocity = getInterpolatedValue(filteredRobotVelocities, timestamp, IChassisSpeeds.identity());
 
-        double stdev = updatePose.getStandardDeviation();
-
         //calculate std of vision estimate for UKF
-        Vector<N2> stdevs = VecBuilder.fill(Math.pow(stdev, 2), Math.pow(stdev, 2));
+        Vector<N2> stdevs = VecBuilder.fill(Math.pow(updatePose.standardDev, 2), Math.pow(updatePose.standardDev, 2));
 
                 UKF.correct(
                         VecBuilder.fill(filteredVelocity.getVx(), filteredVelocity.getVy()),
@@ -100,11 +98,9 @@ public class RobotState { //will estimate pose with odometry and correct drift w
                 filteredPoses.put(
                         new IDouble(timestamp),
                         new ITranslation2d(UKF.getXhat(0), UKF.getXhat(1)));
-                        
-        SmartDashboard.putNumber("Vision std dev", stdev);
+
+        SmartDashboard.putNumber("Vision std dev", updatePose.standardDev);
     }
-
-
 
     //if you dont understand ask iggy
     public void odometryUpdate(SwerveDriveState state, double timestamp) {

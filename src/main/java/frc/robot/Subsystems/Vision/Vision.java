@@ -199,7 +199,7 @@ public class Vision extends SubsystemBase {
 
                 Pose3d robotPose = PhotonUtils.estimateFieldToRobotAprilTag(multiTagResult.estimatedPose.best, tagPose, cameraToRobotTransform);
 
-                VisionOutput newPose = new VisionOutput(robotPose, multiTagResult.getTimestamp(),  multiTagResult.getBestTarget(), PoseStrategy.CLOSEST_TO_LAST_POSE);
+                VisionOutput newPose = new VisionOutput(robotPose, multiTagResult.getTimestamp(),  multiTagResult.getBestTarget());
                 
                 System.out.println(newPose.toString());
 
