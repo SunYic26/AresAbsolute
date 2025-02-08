@@ -40,7 +40,7 @@ public class Vision extends SubsystemBase {
 
     List<MultiTagOutput> multiTagResults = new ArrayList<>();
 
-    private static List<PhotonPipelineResult> cameraResult;
+    private static List<PhotonPipelineResult> cameraResult = new ArrayList<>();
 
     private double lastProcessedTimestamp = -1;
 
@@ -83,7 +83,8 @@ public class Vision extends SubsystemBase {
         List<List<PhotonTrackedTarget>> targets = new ArrayList<>();
 
         for (PhotonPipelineResult result : cameraResult) {
-            targets.add(result.getTargets());
+            if (!targets.isEmpty())
+                targets.add(result.getTargets());
         }
 
         return targets;
@@ -177,6 +178,8 @@ public class Vision extends SubsystemBase {
                 Pose3d robotPose = PhotonUtils.estimateFieldToRobotAprilTag(multiTagResult.estimatedPose.best, tagPose, cameraToRobotTransform);
 
                 VisionOutput newPose = new VisionOutput(robotPose, multiTagResult.getTimestamp(),  multiTagResult.getBestTarget(), PoseStrategy.CLOSEST_TO_LAST_POSE);
+                
+                System.out.println(newPose.toString());
 
                 robotState.visionUpdate(newPose); 
             }
@@ -186,6 +189,7 @@ public class Vision extends SubsystemBase {
             if(!results.isEmpty()) {
                 for (PhotonPipelineResult photonPipelineResult : results) {
                     VisionOutput newPose = new VisionOutput(photonPoseEstimator.update(photonPipelineResult).get());
+                    System.out.println(newPose.estimatedPose.toString());
                     robotState.visionUpdate(newPose); 
                 } 
             } else SmartDashboard.putString("Vision accepter", "Vision failed: No valid targets");
