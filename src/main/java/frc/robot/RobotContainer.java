@@ -61,10 +61,13 @@ public class RobotContainer {
 
   /* Setting up bindings for necessary control of the swerve drive platform */
   public final CommandXboxController driver = new CommandXboxController(0); // Driver joystick
+  public final CommandXboxController operator = new CommandXboxController(1);
 
   private DriveControlSystems controlSystem  = DriveControlSystems.getInstance();
 
   private ReefPoleLevel reefPoleLevel = ReefPoleLevel.L2; //default reef pole level
+
+  private ReefPoleLevel operatorPoleLevel = ReefPoleLevel.L2;
 
   //instances
   private final CommandSwerveDrivetrain drivetrain = CommandSwerveDrivetrain.getInstance(); // Drivetrain
@@ -87,6 +90,21 @@ public class RobotContainer {
   private final Trigger driverDpadDown = driver.povDown();
   private final Trigger driverDpadLeft = driver.povLeft();
   private final Trigger driverDpadRight = driver.povRight();
+
+  private final Trigger operatorBack = operator.back();
+  private final Trigger operatorStart = operator.start();
+  private final Trigger operatorA = operator.a();
+  private final Trigger operatorB = operator.b();
+  private final Trigger operatorX = operator.x();
+  private final Trigger operatorY = operator.y();
+  private final Trigger operatorRightBumper = operator.rightBumper();
+  private final Trigger operatorLeftBumper = operator.rightBumper();
+  private final Trigger operatorLeftTrigger = operator.leftTrigger();
+  private final Trigger operatorRightTrigger = operator.rightTrigger();
+  private final Trigger operatorDpadUp = operator.povUp();
+  private final Trigger operatorDpadDown = operator.povDown();
+  private final Trigger operatorDpadLeft = operator.povLeft();
+  private final Trigger operatorDpadRight = operator.povRight();
 
   public CommandXboxController getDriverController(){
       return driver;
@@ -142,6 +160,10 @@ public class RobotContainer {
     // driver.x().onTrue(CommandFactory.autoCommand());
 
     // driver.start().onTrue(new ZeroElevator());
+
+    operatorLeftBumper.onTrue(new InstantCommand(()-> operatorPoleLevel = operatorPoleLevel.raiseLevel()));
+
+
   }
 
   public Command getAutonomousCommand() {

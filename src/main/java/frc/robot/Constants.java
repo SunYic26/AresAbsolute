@@ -274,6 +274,31 @@ public final class Constants {
                 }
             }
 
+            public enum SourceNumber {
+                S1("S1"),
+                S2("S2");
+                private String name;
+                private SourceNumber(String name){
+                    this.name = name;
+                }
+            }
+
+            public enum ReefNumber{
+                R1,
+                R2,
+                R3,
+                R4,
+                R5,
+                R6,
+                R7,
+                R8,
+                R9,
+                R10,
+                R11,
+                R12
+            }
+
+
             public enum ReefPoleLevel { //We can also leave these empty and just use for display
                 L1(0.0),
                 L2(0.0),
