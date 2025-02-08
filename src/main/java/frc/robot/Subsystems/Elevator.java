@@ -11,6 +11,7 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
@@ -22,6 +23,8 @@ public class Elevator extends SubsystemBase {
   private TalonFX follower;
   private TalonFX leader;
 
+  private DigitalInput beam;
+
   public static Elevator getInstance(){
     if(instance == null){
       instance = new Elevator();
@@ -30,11 +33,11 @@ public class Elevator extends SubsystemBase {
   }
 
   public enum ElevatorState {
-    GROUND(0),
-    L1(16),
-    L2(17),
-    L3(18),
-    L4(19),
+    GROUND(1.5),
+    L1(40),
+    L2(80),
+    L3(120),
+    L4(165),
     SOURCE(37.700684);
     private double encoderPosition;
     private ElevatorState(double encoderPosition){
@@ -49,14 +52,18 @@ public class Elevator extends SubsystemBase {
   public Elevator() {
     leader = new TalonFX(Constants.HardwarePorts.elevatorLeaderId);
     follower = new TalonFX(Constants.HardwarePorts.elevatorFollowerId);
+    leader.setNeutralMode(NeutralModeValue.Brake);
+    follower.setNeutralMode(NeutralModeValue.Brake);
     configMotor(leader, InvertedValue.CounterClockwise_Positive, NeutralModeValue.Brake);
     configMotor(follower, InvertedValue.Clockwise_Positive, NeutralModeValue.Brake);
 
     follower.setControl(new Follower(Constants.HardwarePorts.elevatorLeaderId, true));
+
+    beam = new DigitalInput(Constants.HardwarePorts.beamPort);
   }
 
   private void configMotor(TalonFX motor, InvertedValue direction, NeutralModeValue neutralMode){
-    motor.setNeutralMode(neutralMode);
+    // motor.setNeutralMode(neutralMode);
     TalonFXConfiguration config = new TalonFXConfiguration();
     CurrentLimitsConfigs currentLimitsConfigs = new CurrentLimitsConfigs();
     config.MotorOutput.Inverted = direction;
@@ -64,7 +71,7 @@ public class Elevator extends SubsystemBase {
     currentLimitsConfigs.SupplyCurrentLimitEnable = true;
     currentLimitsConfigs.StatorCurrentLimit = Constants.CurrentLimits.elevatorPeakCurrentLimit;
     currentLimitsConfigs.StatorCurrentLimitEnable = true;
-
+    config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
     config.CurrentLimits = currentLimitsConfigs;
     motor.getConfigurator().apply(config);
     motor.getPosition().setUpdateFrequency(50);
@@ -75,9 +82,19 @@ public class Elevator extends SubsystemBase {
     return leader.getPosition().getValueAsDouble();
   }
 
+  public double getCurrent(){
+    return leader.getStatorCurrent().getValueAsDouble();
+  }
+
   public void stop(){
     leader.set(0);
   }
+
+  public void setSpeed(double speed){
+    leader.set(speed);
+  }
+  
+
 
   public double getVelocity(){
     return leader.getVelocity().getValueAsDouble();
@@ -99,10 +116,15 @@ public class Elevator extends SubsystemBase {
     leader.setVoltage(voltage);
   }
 
+  public boolean getBeamResult(){
+    return beam.get();
+  }
+
   @Override
   public void periodic() {
     SmartDashboard.putNumber("elevator position", getPosition());
     SmartDashboard.putNumber("elevator acceleration", getAcceleration());
     SmartDashboard.putNumber("elevator velocity", getVelocity());
+    SmartDashboard.putBoolean("beam break result", getBeamResult());
   }
 }

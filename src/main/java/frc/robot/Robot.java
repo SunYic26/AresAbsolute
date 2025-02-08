@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import org.littletonrobotics.junction.LogFileUtil;
@@ -13,13 +15,17 @@ import org.littletonrobotics.junction.networktables.NT4Publisher;
 import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 
+import com.ctre.phoenix6.swerve.SwerveRequest;
+
+import choreo.Choreo;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import frc.lib.AccelerationIntegrator;
+import frc.lib.SensorUtils;
 import frc.robot.RobotState.RobotState;
 import frc.robot.Subsystems.CommandSwerveDrivetrain.DriveControlSystems;
 import frc.robot.Subsystems.Elevator;
@@ -28,6 +34,8 @@ import frc.robot.Subsystems.CommandSwerveDrivetrain.CommandSwerveDrivetrain;
 import frc.robot.Subsystems.Vision.Vision;
 import frc.robot.commands.AutoCommand;
 import frc.robot.commands.Autos;
+import frc.robot.commands.FollowChoreoTrajectory;
+import frc.robot.commands.CommandFactory.CommandFactory;
 
 public class Robot extends LoggedRobot {
   private SequentialCommandGroup m_autonomousCommand = new SequentialCommandGroup();
@@ -51,6 +59,7 @@ public class Robot extends LoggedRobot {
   private Elevator elevator;
   private RobotState robotState;
   private Intake intake;
+  private DriveControlSystems controlSystems;
  
     public Robot() { 
       // oops just realized logging needs to be in the constructor lol
@@ -111,6 +120,7 @@ public class Robot extends LoggedRobot {
       robotState = RobotState.getInstance();
       vision = Vision.getInstance();
       intake = Intake.getInstance();
+      controlSystems = DriveControlSystems.getInstance();
     }
 
   @Override
@@ -121,6 +131,7 @@ public class Robot extends LoggedRobot {
     firstAuto.addOption(AutoCommand.meter2().name, AutoCommand.meter2());
     firstAuto.addOption(AutoCommand.meter3().name, AutoCommand.meter3());
     firstAuto.addOption(AutoCommand.meter4().name, AutoCommand.meter4());
+    firstAuto.addOption(AutoCommand.halfmeter().name, AutoCommand.halfmeter());
     // AutoCommand.loadAutos(); TODO ethan fix this
     SmartDashboard.putData("first auto", firstAuto);
 
@@ -149,16 +160,16 @@ public class Robot extends LoggedRobot {
   public void disabledPeriodic() {
     if(firstAuto.getSelected() != firstSavedChoice){ //Note: might be able to use the onchange() method in sendable chooser
       firstSavedChoice = firstAuto.getSelected();
-      m_autonomousCommand.addCommands(firstSavedChoice.getCommand());
+      // m_autonomousCommand.addCommands(firstSavedChoice.getCommand());
       updateSecondAuto();
     }
     if(secondAuto.getSelected() != secondSavedChoice){
       secondSavedChoice = secondAuto.getSelected();
-      m_autonomousCommand.addCommands(secondSavedChoice.getCommand());
+      // m_autonomousCommand.addCommands(secondSavedChoice.getCommand());
     }
     if(thirdAuto.getSelected() != thirdSavedChoice){
       thirdSavedChoice = thirdAuto.getSelected();
-      m_autonomousCommand.addCommands(thirdSavedChoice.getCommand());
+      // m_autonomousCommand.addCommands(thirdSavedChoice.getCommand());
     }
   }
 
@@ -167,14 +178,18 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void autonomousInit() {
-
+    if(firstSavedChoice != null) m_autonomousCommand.addCommands(firstSavedChoice.getCommand());
     if (m_autonomousCommand != null) {
       m_autonomousCommand.schedule();
     }
+    
+    // CommandFactory.autoCommand().schedule();
   }
 
   @Override
-  public void autonomousPeriodic() {}
+  public void autonomousPeriodic() {
+
+  }
 
   @Override
   public void autonomousExit() {}

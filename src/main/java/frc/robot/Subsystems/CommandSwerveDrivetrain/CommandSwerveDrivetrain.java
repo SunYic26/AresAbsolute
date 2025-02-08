@@ -48,6 +48,8 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.StructArrayPublisher;
 import edu.wpi.first.units.measure.Velocity;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Notifier;
@@ -84,7 +86,10 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
 
     RobotState robotState;
 
+
     // private DriveControlSystems controlSystem  = new DriveControlSystems(); //only for trajectory following
+
+    StructArrayPublisher<SwerveModuleState> publisher = NetworkTableInstance.getDefault().getStructArrayTopic("MyStates", SwerveModuleState.struct).publish();
 
     private static CommandSwerveDrivetrain s_Swerve;
 
@@ -307,7 +312,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
 
     public void resetOdo(){ //not being used, drivetrain.seedFieldRelative() instead for field centric driving
         tareEverything();
-        robotState.reset(0.02, IPose2d.identity(), ITwist2d.identity());
+        robotState.reset(0.02, IPose2d.identity());
         robotState.resetUKF(IPose2d.identity());
     }
     
@@ -319,6 +324,10 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         return s_Swerve.getState().Pose;
     }
 
+    public SwerveModuleState getDesiredState(){
+        return s_Swerve.getModule(1).getTargetState();
+    }
+
     public ChassisSpeeds getRobotRelativeSpeeds(){
         System.out.println(s_Swerve.getState().Speeds.toString());
         return s_Swerve.getState().Speeds;
@@ -326,7 +335,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
 
     public void resetOdo(Pose2d pose){
         resetOdoUtil(pose);
-        robotState.reset(0.02, new IPose2d(pose), ITwist2d.identity());
+        robotState.reset(0.02, new IPose2d(pose));
         robotState.resetUKF(new IPose2d(pose));
     }
 
@@ -376,15 +385,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         }
     }
 
-    public void followAutoTrajectory(SwerveSample sample){
-        Pose2d currPose = robotState.getCurrentPose2d();
-
-        setControl(new SwerveRequest.FieldCentric()
-        .withVelocityX(sample.vx + xController.calculate(currPose.getX(), sample.x))
-        .withVelocityY(sample.vy + yController.calculate(currPose.getY(), sample.y))
-        .withRotationalRate(sample.omega + thetaController.calculate(currPose.getRotation().getRadians(), sample.heading))
-        );
-    }
+    
 
     private Pose2d autoStartPose = new Pose2d(2.0, 2.0, new Rotation2d());
 
@@ -406,7 +407,15 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         }else{
             robotState = RobotState.getInstance();
         }
-        
+
+        SwerveModuleState[] states = new SwerveModuleState[] {
+            s_Swerve.getModule(0).getCurrentState(),
+            s_Swerve.getModule(1).getCurrentState(),
+            s_Swerve.getModule(2).getCurrentState(),
+            s_Swerve.getModule(3).getCurrentState()
+        };
+        // StructArrayPublisher<SwerveModuleState> publisher = NetworkTableInstance.getDefault().getStructArrayTopic("MyStates", SwerveModuleState.struct).publish();
+        publisher.set(states);
 
         //allows driver to see if resetting worked
         // SmartDashboard.putBoolean("Odo Reset (last 5 sec)", lastTimeReset != -1 && Timer.getFPGATimestamp() - lastTimeReset < 5);
@@ -416,6 +425,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         // SmartDashboard.putNumber("AUTO INIT X", autoStartPose.getX());
         // SmartDashboard.putNumber("AUTO INIT Y", autoStartPose.getY());
          SmartDashboard.putNumber("current heading", getHeading());
+         SmartDashboard.putNumber("desired swerve state", getDesiredState().speedMetersPerSecond);
         // SmartDashboard.putNumber("DT Vel", robotAbsoluteVelocity());
 //        Logger.recordOutput("Odo Reset (last 5 sec)", lastTimeReset != -1 && Timer.getFPGATimestamp() - lastTimeReset < 5);
         // Logger.recordOutput("Swerve/ODO X", currentPose.getX());

@@ -8,7 +8,7 @@ import java.awt.Point;
 import frc.lib.Hexagon;
 import frc.robot.Constants;
 import frc.robot.RobotState.RobotState;
-import frc.robot.Subsystems.Outtake;
+import frc.robot.Subsystems.EndEffector;
 import frc.robot.Subsystems.CommandSwerveDrivetrain.CommandSwerveDrivetrain;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -20,7 +20,7 @@ public class OuttakeProfiler {
     
     private static OuttakeProfiler instance;
     private RobotState robotState;
-    private Outtake s_Outtake;
+    private EndEffector s_Outtake;
     private CommandSwerveDrivetrain s_Swerve;
     private Pose2d robotPose;
 
@@ -79,7 +79,7 @@ public class OuttakeProfiler {
     private OuttakeProfiler() {
         robotState = RobotState.getInstance();
         alliance = DriverStation.getAlliance();
-        s_Outtake = Outtake.getInstance();
+        s_Outtake = EndEffector.getInstance();
         if(alliance.get() == DriverStation.Alliance.Blue){
             scoringArea = new Hexagon(new Point(), 0.75); //gave about 15 cm of clearance, actual sidelength is 0.9
         } else{

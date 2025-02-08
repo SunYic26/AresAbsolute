@@ -16,6 +16,8 @@ import frc.robot.Subsystems.Intake;
 import frc.robot.Subsystems.Intake.RollerState;
 import frc.robot.commands.CancelableCommand;
 import frc.robot.commands.DriveToPose;
+import frc.robot.commands.FollowChoreoTrajectory;
+// import frc.robot.commands.DriveToPose;
 //import frc.robot.commands.CancelableCommand;
 import frc.robot.commands.SetIntakePivot;
 import frc.robot.Constants;
@@ -32,16 +34,33 @@ public class CommandFactory {
             new ParallelCommandGroup(
                 new SetIntakePivot(PivotState.DOWN),
                 new InstantCommand(()-> Intake.getInstance().setRollerSpeed(RollerState.INTAKE.getRollerSpeed()))
-                ),
-            Commands.waitSeconds(0.1),
-            new ParallelCommandGroup(
-                new SetIntakePivot(PivotState.UP),
-                new InstantCommand(()-> Intake.getInstance().setRollerSpeed(RollerState.OFF.getRollerSpeed()))
-            )
+                )
+            
         );
     }
 
-    public static Command AutoScoreCoral(ReefPoleLevel level, ReefPoleSide side,CommandXboxController controller){
+    //add all mechanism off functions as they are tested; currently only pivot
+    public static Command OffEverything() {
+        return new ParallelCommandGroup(
+            new SetIntakePivot(PivotState.UP),
+            new InstantCommand(()-> Intake.getInstance().setRollerSpeed(0))
+        );
+    }
+
+    public static Command autoCommand() {
+        return new ParallelCommandGroup(
+            new FollowChoreoTrajectory("1meter")
+        );
+    }
+
+    public static Command Lift() {
+       return new ParallelCommandGroup(
+                new SetIntakePivot(PivotState.UP),
+                new InstantCommand(()-> Intake.getInstance().brakeRoller())
+            );
+    }
+
+    public static Command AutoScoreCoral(ReefPoleLevel level, ReefPoleSide side, CommandXboxController controller){
         return new ParallelCommandGroup(
             //align elevator to reef level
             new DriveToPose(side)

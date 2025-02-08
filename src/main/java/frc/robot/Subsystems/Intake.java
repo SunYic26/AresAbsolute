@@ -5,8 +5,11 @@
 package frc.robot.Subsystems;
 
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
+import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.ControlRequest;
+import com.ctre.phoenix6.controls.PositionVoltage;
+import com.ctre.phoenix6.controls.StaticBrake;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.hardware.core.CoreTalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
@@ -35,12 +38,12 @@ public class Intake extends SubsystemBase {
     pivot = new TalonFX(Constants.HardwarePorts.intakePivotID);
     roller = new TalonFX(Constants.HardwarePorts.intakeRollerID);
 
-    configMotor(pivot, NeutralModeValue.Brake, InvertedValue.Clockwise_Positive);
-    configMotor(roller, NeutralModeValue.Brake, InvertedValue.CounterClockwise_Positive);
+    configPivot(pivot, NeutralModeValue.Brake, InvertedValue.Clockwise_Positive);
+    configRoller(roller, NeutralModeValue.Brake, InvertedValue.Clockwise_Positive);
   }
 
-  private void configMotor(TalonFX motor, NeutralModeValue neutralMode, InvertedValue direction){
-    motor.setNeutralMode(neutralMode);
+  private void configPivot(TalonFX motor, NeutralModeValue neutralMode, InvertedValue direction){
+    // motor.setNeutralMode(neutralMode);
     TalonFXConfiguration config = new TalonFXConfiguration();
     CurrentLimitsConfigs currentLimitsConfigs = new CurrentLimitsConfigs();
     config.MotorOutput.Inverted = direction;
@@ -48,15 +51,44 @@ public class Intake extends SubsystemBase {
     currentLimitsConfigs.SupplyCurrentLimitEnable = true;
     currentLimitsConfigs.StatorCurrentLimit = Constants.CurrentLimits.intakePeakCurrentLimit;
     currentLimitsConfigs.StatorCurrentLimitEnable = true;
+    config.MotorOutput.NeutralMode = neutralMode;
 
     config.CurrentLimits = currentLimitsConfigs;
 
+    Slot0Configs position = new Slot0Configs();
+    position.kP = 1.4;
+    position.kI = 0;
+
+
     motor.getConfigurator().apply(config);
+    motor.getConfigurator().apply(position);
+  }
+
+
+  private void configRoller(TalonFX motor, NeutralModeValue neutralMode, InvertedValue direction){
+    // motor.setNeutralMode(neutralMode);
+    TalonFXConfiguration config = new TalonFXConfiguration();
+    CurrentLimitsConfigs currentLimitsConfigs = new CurrentLimitsConfigs();
+    config.MotorOutput.Inverted = direction;
+    currentLimitsConfigs.SupplyCurrentLimit = Constants.CurrentLimits.intakeContinuousCurrentLimit;
+    currentLimitsConfigs.SupplyCurrentLimitEnable = true;
+    currentLimitsConfigs.StatorCurrentLimit = Constants.CurrentLimits.intakePeakCurrentLimit;
+    currentLimitsConfigs.StatorCurrentLimitEnable = true;
+    config.MotorOutput.NeutralMode = neutralMode;
+
+    config.CurrentLimits = currentLimitsConfigs;
+
+    Slot0Configs position = new Slot0Configs();
+    position.kP = 1.7;
+
+    motor.getConfigurator().apply(config);
+    motor.getConfigurator().apply(position);
   }
 
   public enum PivotState{
     UP(0), //arbitrary numbers for now
-    DOWN(1.056153);
+    HOLD(1.433),
+    DOWN(5.4);
 
     private double position;
     private PivotState(double position){
@@ -80,12 +112,40 @@ public class Intake extends SubsystemBase {
     }
   }
 
+  public void brakeRoller(){
+    roller.setControl(new PositionVoltage(roller.getPosition().getValueAsDouble()));
+  }
+
+  public void testBrake(){
+    roller.setControl(new StaticBrake());
+  }
+
+  // public void testUnbrake(){
+  //   roller.setControl(new VoltageOut(0.3));
+  // }
+
   public void stopPivot(){
     pivot.set(0);
   }
 
   public double getPosition(){
     return pivot.getPosition().getValueAsDouble();
+  }
+
+  public double getPivotCurrent(){
+    return pivot.getStatorCurrent().getValueAsDouble();
+  }
+
+  public void brakePivot(){
+    pivot.setControl(new PositionVoltage(pivot.getPosition().getValueAsDouble()));
+  }
+
+  public void setPivotSpeed(double speed){
+    pivot.set(speed);
+  }
+
+  public void setPivotPosition(PivotState state){
+    pivot.setControl(new PositionVoltage(state.getPosition()));
   }
 
   public double getRollerCurrent(){
@@ -101,7 +161,7 @@ public class Intake extends SubsystemBase {
   }
 
   public void setRollerSpeed(double speed){
-    pivot.set(speed);
+    roller.set(speed);
   }
 
   public void setRollerVoltage(double voltage){

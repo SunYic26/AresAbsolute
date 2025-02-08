@@ -13,6 +13,7 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants;
+import frc.robot.Constants.FieldConstants.ReefConstants.ReefPoleLevel;
 import frc.robot.Subsystems.Elevator;
 import frc.robot.Subsystems.Elevator.ElevatorState;
 
@@ -28,8 +29,13 @@ public class SetElevator extends Command {
   private State setpoint;
   private State goal;
   private double error;
+
   public SetElevator(ElevatorState state) {
     this(state.getEncoderPosition());
+  }
+
+  public SetElevator(ReefPoleLevel state) {
+    this(ElevatorState.values()[state.ordinal() + 1].getEncoderPosition()); //ReefPoleLevel is doesint include ground
   }
 
   public SetElevator(double goalPosition){

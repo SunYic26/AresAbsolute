@@ -1,6 +1,7 @@
 package frc.robot.RobotState;
 
 import java.util.Optional;
+import java.util.logging.Logger;
 
 // import org.littletonrobotics.junction.Logger;
 
@@ -16,12 +17,13 @@ import edu.wpi.first.math.Vector;
 import edu.wpi.first.math.estimator.UnscentedKalmanFilter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N2;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import frc.lib.AccelerationIntegrator;
+import frc.lib.SensorUtils;
 import frc.lib.Interpolating.Geometry.IChassisSpeeds;
 import frc.lib.Interpolating.Geometry.IPose2d;
 import frc.lib.Interpolating.Geometry.ITranslation2d;
@@ -43,7 +45,8 @@ public class RobotState { //will estimate pose with odometry and correct drift w
         return instance;
     }
 
-    private static AccelerationIntegrator accelIntegrator = new AccelerationIntegrator();
+    private static SensorUtils accelFilter = new SensorUtils();
+    private static SensorUtils angularVelocityFilter = new SensorUtils();
     
     CommandSwerveDrivetrain drivetrain;
     Pigeon2 pigeon;
@@ -52,13 +55,13 @@ public class RobotState { //will estimate pose with odometry and correct drift w
 	private InterpolatingTreeMap<IDouble, ITranslation2d> filteredPoses;
     private InterpolatingTreeMap<IDouble, ITwist2d> robotIMUVelocity;
     private InterpolatingTreeMap<IDouble, IChassisSpeeds> robotOdomVelocity;
-    private InterpolatingTreeMap<IDouble, ITwist2d> robotAccelerations;
     private InterpolatingTreeMap<IDouble, IDouble> robotAngularVelocity;
+    private InterpolatingTreeMap<IDouble, ITwist2d> robotAccelerations;
     private InterpolatingTreeMap<IDouble, IChassisSpeeds> filteredRobotVelocities;
 
     Matrix<N2, N2> initialCovariance = MatBuilder.fill(Nat.N2(), Nat.N2(),
-    0.03, 0.0,
-    0.0, 0.03 );
+    0.01, 0.0,
+    0.0, 0.01 );
 
     private UnscentedKalmanFilter<N2, N2, N2> UKF;
 
@@ -73,7 +76,7 @@ public class RobotState { //will estimate pose with odometry and correct drift w
     public RobotState() {
         drivetrain = CommandSwerveDrivetrain.getInstance();
         pigeon = drivetrain.getPigeon2();  //getting the already constructed pigeon in swerve
-        reset(0.02, IPose2d.identity(), ITwist2d.identity()); //init
+        reset(0.02, IPose2d.identity()); //init
     }
 
     public synchronized void visionUpdate(VisionOutput updatePose) {
@@ -113,7 +116,11 @@ public class RobotState { //will estimate pose with odometry and correct drift w
             UKF.setXhat(VecBuilder.fill(state.Pose.getX(), state.Pose.getY()));
         } else {
 
-            IChassisSpeeds OdomVelocity = new IChassisSpeeds(state.Speeds);
+            //merge our velocities
+            IChassisSpeeds OdomVelocity = new IChassisSpeeds(state.Speeds).complimentaryFilter(
+                getInterpolatedValue(odometryPoses, prevOdomTimestamp.get(), IPose2d.identity())
+                .getVelocityBetween(new IPose2d(state.Pose), timestamp - prevOdomTimestamp.get()),
+                0.75);
 
             robotOdomVelocity.put(new IDouble(timestamp), OdomVelocity);
             
@@ -123,23 +130,27 @@ public class RobotState { //will estimate pose with odometry and correct drift w
             SmartDashboard.putNumber("Accel", robotAcceleration.toMagnitude());
             SmartDashboard.putNumber("velocity", OdomVelocity.toMagnitude());
 
-            //TODO numbers are arbitrary
-            // components of our uncertainty
-            if(OdomVelocity.toMagnitude() > 0) { //manually increase P (our predicted error in pos)
+            //We use velocity because its more accurate than our acceleration
+            if(OdomVelocity.toMagnitude() > 0) { //manually increase P (our predicted error in position)
                 Matrix<N2,N2> P = UKF.getP();
 
-                double curvature = Math.min(0.03, (
-                    Math.hypot(robotAcceleration.getX(), robotAcceleration.getY()) / //acceleration over velocity
-                    (750 * (OdomVelocity.toMagnitude() + 1))
-                    ));
+                //please look in desmos before changing these
+                //https://www.desmos.com/3d/xs2grgugoj
 
-                double angular = 0.0005 * (robotAngularMagnitude.value / Constants.MaxAngularRate);
+                double kv = 0.0000055; //velocity weight
+                double ka = 0.0000105; //acceleration weight
+                double ktheta = 0.0000015; //angular velocity weight
 
-                SmartDashboard.putNumber("Curvature", curvature);
-                SmartDashboard.putNumber("Angular", angular);
+                double acceleration = Math.max(robotAcceleration.toMagnitude(), Constants.MaxAcceleration);
+                double velocity = Math.max(OdomVelocity.toMagnitude(), Constants.MaxSpeed);
 
-                //Make sure we dont get a crazy low number
-                double newP = P.get(0, 0) + Math.max(1e-8, (curvature + angular));
+                double error = kv * Math.pow(velocity, 2) * (1 - Math.exp(-acceleration)) 
+                    + ka * Math.pow(acceleration, 2) * (1 + Math.exp(-velocity)) 
+                    + ktheta * robotAngularMagnitude.value * acceleration;
+
+                org.littletonrobotics.junction.Logger.recordOutput("Error", error);
+                
+                double newP = P.get(0, 0) + error;
 
                 P.set(0, 0, newP);
                 P.set(1, 1, newP);
@@ -202,7 +213,7 @@ public class RobotState { //will estimate pose with odometry and correct drift w
         UKF.setP(initialCovariance); 
         }
 
-        public void reset(double time, IPose2d initial_Pose2d, ITwist2d initial_Twist2d) { //init the robot state
+        public void reset(double time, IPose2d initial_Pose2d) { //init the robot state
             odometryPoses = new InterpolatingTreeMap<>(observationSize);
             odometryPoses.put(new IDouble(time), initial_Pose2d);
             filteredPoses = new InterpolatingTreeMap<>(observationSize);
@@ -212,7 +223,7 @@ public class RobotState { //will estimate pose with odometry and correct drift w
             robotOdomVelocity = new InterpolatingTreeMap<>(observationSize);
             robotOdomVelocity.put(new IDouble(time), IChassisSpeeds.identity());          
             robotAccelerations = new InterpolatingTreeMap<>(observationSize);
-            robotAccelerations.put(new IDouble(time), initial_Twist2d);
+            robotAccelerations.put(new IDouble(time), ITwist2d.identity());
             robotAngularVelocity = new InterpolatingTreeMap<>(observationSize);
             robotAngularVelocity.put(new IDouble(time), new IDouble(0.0));
             filteredRobotVelocities = new InterpolatingTreeMap<>(observationSize);
@@ -263,7 +274,7 @@ public class RobotState { //will estimate pose with odometry and correct drift w
 		    return filteredRobotVelocities.get(new IDouble(timestamp));
 	    }
 
-        public synchronized ITwist2d getLatestIMURobotVelocity() {
+        public synchronized ITwist2d getLatestIMURobotVelocity() { //DONT USE
 		    return getInterpolatedValue(robotIMUVelocity, robotIMUVelocity.lastKey().value, ITwist2d.identity()); 
 	    }
 
@@ -271,7 +282,7 @@ public class RobotState { //will estimate pose with odometry and correct drift w
 		    return getInterpolatedValue(robotOdomVelocity, robotOdomVelocity.lastKey().value, IChassisSpeeds.identity());
 	    }
 
-        public synchronized ITwist2d getIMURobotVelocity(double timestamp) {
+        public synchronized ITwist2d getIMURobotVelocity(double timestamp) { //DONT USE
 		    return getInterpolatedValue(robotIMUVelocity, timestamp, ITwist2d.identity());
 	    }
 
@@ -297,9 +308,8 @@ public class RobotState { //will estimate pose with odometry and correct drift w
         //// =======---===[ ⚙ Pigeon2.0  ]===---========
 
         public void updateSensors() {
-            double[] newAccel = rawRobotAcceleration();
-            double[] newAngularVelocity = robotAngularVelocityMagnitude();
-            robotIMUVelocity.put(new IDouble(newAccel[2]), accelIntegrator.update(newAccel));
+            double[] newAccel = accelFilter.filterAcceleration(rawRobotAcceleration());
+            double[] newAngularVelocity = angularVelocityFilter.filterAngularVelocity(robotAngularVelocityMagnitude());
             robotAngularVelocity.put(new IDouble(newAngularVelocity[1]), new IDouble(newAngularVelocity[0]));
             robotAccelerations.put(new IDouble(newAccel[2]), new ITwist2d(newAccel[0], newAccel[1]));
 
@@ -311,9 +321,8 @@ public class RobotState { //will estimate pose with odometry and correct drift w
         }
 
         public void updateSensors(double[] wheelVelocity) {
-            double[] newAccel = rawRobotAcceleration();
+            double[] newAccel = accelFilter.filterAcceleration(rawRobotAcceleration());
             double[] newAngularVelocity = robotAngularVelocityMagnitude();
-            robotIMUVelocity.put(new IDouble(newAccel[2]), accelIntegrator.update(newAccel, wheelVelocity));
             robotAngularVelocity.put(new IDouble(newAngularVelocity[1]), new IDouble(newAngularVelocity[0]));
             robotAccelerations.put(new IDouble(newAccel[2]), new ITwist2d(newAccel[0], newAccel[1]));
 

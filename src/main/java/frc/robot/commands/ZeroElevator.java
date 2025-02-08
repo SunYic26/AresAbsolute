@@ -4,43 +4,48 @@
 
 package frc.robot.commands;
 
-import frc.robot.Subsystems.Intake;
-import frc.robot.Subsystems.Intake.PivotState;
+import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.SimpleMotorFeedforward;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.math.trajectory.TrapezoidProfile.State;
+import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.Constants;
+import frc.robot.Subsystems.Elevator;
+import frc.robot.Subsystems.Elevator.ElevatorState;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
-public class SetIntakePivot extends Command {
-  private Intake s_Intake;
-  private double angleSetpoint;
-  private PIDController controller = new PIDController(1.9, 0, 0);
-  public SetIntakePivot(PivotState state) {
-    s_Intake = Intake.getInstance();
-    angleSetpoint = state.getPosition();
+public class ZeroElevator extends Command {
+  private Elevator s_Elevator;
+
+  public ZeroElevator(){
+    s_Elevator = Elevator.getInstance();
+    addRequirements(s_Elevator);
   }
 
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-
+    s_Elevator.setSpeed(-0.05);
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    s_Intake.setPivotVoltage(controller.calculate(s_Intake.getPosition(), angleSetpoint));
-
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    s_Intake.brakePivot();
+    s_Elevator.stop();
+    s_Elevator.zeroPosition();
   }
 
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return Math.abs(s_Intake.getPosition() - angleSetpoint) < 0.4;
+    return s_Elevator.getCurrent() > Constants.elevatorCurrentThreshold;
   }
 }
