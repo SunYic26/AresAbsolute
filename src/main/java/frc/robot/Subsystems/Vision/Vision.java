@@ -31,6 +31,7 @@ import frc.lib.MultiTagOutput;
 import frc.lib.VisionOutput;
 import frc.robot.Constants;
 import frc.robot.Constants.VisionConstants.VisionLimits;
+import frc.robot.LimelightHelpers;
 import frc.robot.RobotState.RobotState;
 import frc.robot.Subsystems.CommandSwerveDrivetrain.CommandSwerveDrivetrain;
 
@@ -42,9 +43,10 @@ public class Vision extends SubsystemBase {
 
     private static List<PhotonPipelineResult> cameraResult = new ArrayList<>();
 
-    private double lastProcessedTimestamp = -1;
+    private List<Double> lastProcessedTimestamp = new ArrayList<>();
 
     CommandSwerveDrivetrain s_Swerve;
+    LimelightSubsystem s_Lime;
     RobotState robotState;
     
     public double floorDistance;
@@ -69,6 +71,7 @@ public class Vision extends SubsystemBase {
         s_Swerve = CommandSwerveDrivetrain.getInstance();
         robotState = RobotState.getInstance();
 
+
         centerCamera = new PhotonCamera(Constants.VisionConstants.cameraName);
         photonPoseEstimator.setMultiTagFallbackStrategy(PoseStrategy.CLOSEST_TO_LAST_POSE);
         updateAprilTagResults();
@@ -77,6 +80,8 @@ public class Vision extends SubsystemBase {
     public void updateAprilTagResults() {
         cameraResult.clear();
         cameraResult.add(centerCamera.getLatestResult());
+
+        // Zero yaw is robot facing red alliance wall - our code should be doing this.
     }
 
     public List<List<PhotonTrackedTarget>> getAllTargets(){
@@ -150,22 +155,39 @@ public class Vision extends SubsystemBase {
         return true;
     }
 
+    private void checkTimestamps() {
+        for (PhotonPipelineResult photonPipelineResult : cameraResult) {
+            if (lastProcessedTimestamp.contains(photonPipelineResult.getTimestampSeconds())) {
+                cameraResult.remove(photonPipelineResult);
+            }
+        }
+
+        if(!lastProcessedTimestamp.isEmpty())
+            lastProcessedTimestamp.clear();
+
+        for (PhotonPipelineResult photonPipelineResult : cameraResult) {
+            lastProcessedTimestamp.add(photonPipelineResult.getTimestampSeconds());
+        }
+    }
 
     /**
      * calculates field-relative robot pose from vision reading, feed to pose estimator (Kalman filter)
      */
-    public void updateVision() throws Exception {
+    private void updateVision() throws Exception {
 
         //ensure this works
         if(Math.abs(robotState.robotAngularVelocityMagnitude()[0]) > VisionLimits.k_rotationLimitDPS) {
             SmartDashboard.putString("Vision accepter", "Vision failed: High rotation");
             return;
-        } 
+        }
         
-        for (PhotonPipelineResult photonPipelineResult : cameraResult) {
-            if (photonPipelineResult.getTimestampSeconds() == lastProcessedTimestamp) {
-                cameraResult.remove(photonPipelineResult);
-            }
+        checkTimestamps();
+
+        //limelight update
+        if(s_Lime.hasTarget()) {
+            LimelightHelpers.SetRobotOrientation(Constants.LimelightConstants.cameraName, robotState.robotYaw().getDegrees(), 0,0 ,0,0,0);
+            VisionOutput pose = new VisionOutput(LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(Constants.LimelightConstants.cameraName));
+            robotState.visionUpdate(pose);
         }
         
         multiTagResults = getMultiTags();
@@ -193,7 +215,7 @@ public class Vision extends SubsystemBase {
                     robotState.visionUpdate(newPose); 
                 } 
             } else SmartDashboard.putString("Vision accepter", "Vision failed: No valid targets");
-        } 
+        }
     }
 
     @Override

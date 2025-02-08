@@ -175,23 +175,11 @@ public class LimelightSubsystem extends SubsystemBase {
 
     @Override
     public void periodic() {
-
-
-
-        // Zero yaw is robot facing red alliance wall - our code should be doing this.
-        LimelightHelpers.SetRobotOrientation(name, robotState.robotYaw().getDegrees(), 0,0 ,0,0,0);
-        VisionOutput pose = new VisionOutput(LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(name));
-        robotState.visionUpdate(pose);
-
-
-
-//       Logger.recordOutput("Limelight/xOffset", getXOffset());
-//       Logger.recordOutput("Limelight/yOffset", getYOffset());
+        //       Logger.recordOutput("Limelight/xOffset", getXOffset());
+        //       Logger.recordOutput("Limelight/yOffset", getYOffset());
         //    Logger.recordOutput("Limelight/Distance", getDistance());
         //    SmartDashboard.putNumber("LimelightX", getXOffset());
-//       SmartDashboard.putNumber("LimelightY", getYOffset());
-//        SmartDashboard.putNumber("Limelight Distance", getDistance());
-
-
+        //       SmartDashboard.putNumber("LimelightY", getYOffset());
+        //        SmartDashboard.putNumber("Limelight Distance", getDistance());
     }
 }
