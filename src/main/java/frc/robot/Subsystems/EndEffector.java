@@ -87,7 +87,6 @@ public class EndEffector extends SubsystemBase {
   }
 
   private void config(TalonFX motor, NeutralModeValue neutralMode, InvertedValue direction){
-    motor.setNeutralMode(neutralMode);
     TalonFXConfiguration config = new TalonFXConfiguration();
     config.MotorOutput.Inverted = direction;
     
