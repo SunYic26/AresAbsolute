@@ -36,7 +36,7 @@ public class EndEffector extends SubsystemBase {
 
   private TalonFX coral;
   private TalonFX algae;
-  private LaserCan laser;
+  private LaserCan aligner;
 
   public static EndEffector getInstance(){
     if(instance == null) instance = new EndEffector();
@@ -45,7 +45,7 @@ public class EndEffector extends SubsystemBase {
 
   public EndEffector() {
     coral = new TalonFX(Constants.HardwarePorts.outtakeID);
-    laser = new LaserCan(Constants.HardwarePorts.laserID);
+    aligner = new LaserCan(Constants.HardwarePorts.laserID);
     configLaser();
     // config(roller, InvertedValue.Clockwise_Positive, NeutralModeValue.Brake);
     algae = new TalonFX(Constants.HardwarePorts.algaeID);
@@ -73,9 +73,9 @@ public class EndEffector extends SubsystemBase {
 
    private void configLaser(){
     try{
-      laser.setRangingMode(RangingMode.SHORT);
-      laser.setTimingBudget(LaserCan.TimingBudget.TIMING_BUDGET_20MS);
-      laser.setRegionOfInterest(new LaserCan.RegionOfInterest(8, 8, 4, 4)); 
+      aligner.setRangingMode(RangingMode.SHORT);
+      aligner.setTimingBudget(LaserCan.TimingBudget.TIMING_BUDGET_20MS);
+      aligner.setRegionOfInterest(new LaserCan.RegionOfInterest(8, 8, 4, 4)); 
     }
     catch(ConfigurationFailedException e){
       SmartDashboard.putBoolean("laser working", false);
@@ -83,7 +83,7 @@ public class EndEffector extends SubsystemBase {
   }
 
   public Measurement getLaserMeasurement(){
-    return laser.getMeasurement();
+    return aligner.getMeasurement();
   }
 
   private void config(TalonFX motor, NeutralModeValue neutralMode, InvertedValue direction){
@@ -120,13 +120,15 @@ public class EndEffector extends SubsystemBase {
   @Override
   public void periodic() {
     // SmartDashboard.putBoolean("Can score L1", outtakeProfiler.coralTrajAligned());
-    if(getLaserMeasurement().status == LaserCan.LASERCAN_STATUS_VALID_MEASUREMENT){
-      SmartDashboard.putNumber("lasercan measurement", getLaserMeasurement().distance_mm);
-      SmartDashboard.putBoolean("lasercan working", true);
-    }else{
-      SmartDashboard.putNumber("lasercan measurement", -1);
-      SmartDashboard.putBoolean("lasercan working", false );
-      SmartDashboard.putNumber("lasercan status", getLaserMeasurement().status);
+    if(getLaserMeasurement() != null){
+      if(getLaserMeasurement().status == LaserCan.LASERCAN_STATUS_VALID_MEASUREMENT){
+        SmartDashboard.putNumber("lasercan measurement", getLaserMeasurement().distance_mm);
+        SmartDashboard.putBoolean("lasercan working", true);
+      }else{
+        SmartDashboard.putNumber("lasercan measurement", -1);
+        SmartDashboard.putBoolean("lasercan working", false );
+        SmartDashboard.putNumber("lasercan status", getLaserMeasurement().status);
+      }
     }
   }
 }

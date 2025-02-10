@@ -31,7 +31,6 @@ import frc.robot.commands.CancelableCommand;
 import frc.robot.commands.FollowChoreoTrajectory;
 import frc.robot.commands.SetElevator;
 import frc.robot.commands.SetIntakePivot;
-import frc.robot.commands.SetIntakeRoller;
 import frc.robot.commands.SmartIntake;
 import frc.robot.commands.ZeroElevator;
 import frc.robot.commands.CommandFactory.CommandFactory;
