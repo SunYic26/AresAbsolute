@@ -14,6 +14,12 @@ import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
+
+import au.grapplerobotics.ConfigurationFailedException;
+import au.grapplerobotics.LaserCan;
+import au.grapplerobotics.interfaces.LaserCanInterface.Measurement;
+import au.grapplerobotics.interfaces.LaserCanInterface.RangingMode;
+
 import com.revrobotics.spark.config.SparkFlexConfig;
 
 
@@ -30,6 +36,7 @@ public class EndEffector extends SubsystemBase {
 
   private TalonFX coral;
   private TalonFX algae;
+  private LaserCan laser;
 
   public static EndEffector getInstance(){
     if(instance == null) instance = new EndEffector();
@@ -38,6 +45,8 @@ public class EndEffector extends SubsystemBase {
 
   public EndEffector() {
     coral = new TalonFX(Constants.HardwarePorts.outtakeID);
+    laser = new LaserCan(Constants.HardwarePorts.laserID);
+    configLaser();
     // config(roller, InvertedValue.Clockwise_Positive, NeutralModeValue.Brake);
     algae = new TalonFX(Constants.HardwarePorts.algaeID);
     config(coral, NeutralModeValue.Brake, InvertedValue.Clockwise_Positive);
@@ -60,6 +69,21 @@ public class EndEffector extends SubsystemBase {
       this.topSpeed = speed;
       this.botSpeed = speed;
     }
+  }
+
+   private void configLaser(){
+    try{
+      laser.setRangingMode(RangingMode.SHORT);
+      laser.setTimingBudget(LaserCan.TimingBudget.TIMING_BUDGET_20MS);
+      laser.setRegionOfInterest(new LaserCan.RegionOfInterest(8, 8, 4, 4)); 
+    }
+    catch(ConfigurationFailedException e){
+      SmartDashboard.putBoolean("laser working", false);
+    }
+  }
+
+  public Measurement getLaserMeasurement(){
+    return laser.getMeasurement();
   }
 
   private void config(TalonFX motor, NeutralModeValue neutralMode, InvertedValue direction){
@@ -96,5 +120,13 @@ public class EndEffector extends SubsystemBase {
   @Override
   public void periodic() {
     // SmartDashboard.putBoolean("Can score L1", outtakeProfiler.coralTrajAligned());
+    if(getLaserMeasurement().status == LaserCan.LASERCAN_STATUS_VALID_MEASUREMENT){
+      SmartDashboard.putNumber("lasercan measurement", getLaserMeasurement().distance_mm);
+      SmartDashboard.putBoolean("lasercan working", true);
+    }else{
+      SmartDashboard.putNumber("lasercan measurement", -1);
+      SmartDashboard.putBoolean("lasercan working", false );
+      SmartDashboard.putNumber("lasercan status", getLaserMeasurement().status);
+    }
   }
 }

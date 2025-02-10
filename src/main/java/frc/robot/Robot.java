@@ -17,6 +17,7 @@ import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
+import au.grapplerobotics.CanBridge;
 import choreo.Choreo;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -60,6 +61,7 @@ public class Robot extends LoggedRobot {
   private RobotState robotState;
   private Intake intake;
   private DriveControlSystems controlSystems;
+
  
     public Robot() { 
       // oops just realized logging needs to be in the constructor lol
@@ -121,6 +123,7 @@ public class Robot extends LoggedRobot {
       vision = Vision.getInstance();
       intake = Intake.getInstance();
       controlSystems = DriveControlSystems.getInstance();
+      // CanBridge.runTCP();
     }
 
   @Override
