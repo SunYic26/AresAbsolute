@@ -9,6 +9,7 @@ import org.photonvision.PhotonPoseEstimator.PoseStrategy;
 import org.photonvision.targeting.MultiTargetPNPResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import frc.lib.Interpolating.Geometry.ITranslation2d;
 
@@ -44,6 +45,13 @@ public class VisionOutput {
         this.standardDev = getStandardDeviation(targetsUsed);
     }
 
+    public VisionOutput(Pose2d estimatedPose, double timestampSeconds, double standardDev)  {
+        this.estimatedPose = new Pose3d(estimatedPose);
+        this.timestampSeconds = timestampSeconds;
+        this.targetsUsed = null;
+        this.standardDev = standardDev;
+    }
+
     public VisionOutput(Pose3d estimatedPose, double timestampSeconds, PhotonTrackedTarget targetsUsed)  {
         this.estimatedPose = estimatedPose;
         this.timestampSeconds = timestampSeconds;
@@ -63,65 +71,11 @@ public class VisionOutput {
 
 
     private static double getStandardDeviation(PoseEstimate limelighEstimate) { 
-        int count = 0;
-
-        double meanArea = 0.0;
-        double meanAmbiguity = 0.0;
-        double sumSquareDiffArea = 0.0;
-        double sumSquareDiffAmbiguity = 0.0;
-
-        for (RawFiducial fiducials : limelighEstimate.rawFiducials) {
-            count++;
-
-            double deltaArea = fiducials.ta - meanArea;
-            meanArea += deltaArea / count;
-            sumSquareDiffArea += deltaArea * (fiducials.ta - meanArea);
-
-            double deltaAmbiguity = fiducials.ambiguity - meanAmbiguity;
-            meanAmbiguity += deltaAmbiguity / count;
-            sumSquareDiffAmbiguity += deltaAmbiguity * (fiducials.ambiguity - meanAmbiguity);
-        }
-
-        //if we only have one target return default stdev
-        if(count <= 1) {
-            return 1e-4;
-        } 
-
-        double varianceArea = sumSquareDiffArea / (count - 1);
-        double varianceAmbiguity = sumSquareDiffAmbiguity / (count - 1);
-
-        // Return average of standard deviations
-        return (Math.sqrt(varianceArea) + Math.sqrt(varianceAmbiguity)) / 2;
+        return -1; //redoing this
     }
 
     private static double getStandardDeviation(List<PhotonTrackedTarget> targets) {
-        int count = 0;
-
-        double meanArea = 0.0;
-        double meanAmbiguity = 0.0;
-        double sumSquareDiffArea = 0.0;
-        double sumSquareDiffAmbiguity = 0.0;
-
-        for (PhotonTrackedTarget photonTrackedTarget : targets) {
-            count++;
-
-            double deltaArea = photonTrackedTarget.getArea() - meanArea;
-            meanArea += deltaArea / count;
-            sumSquareDiffArea += deltaArea * (photonTrackedTarget.getArea() - meanArea);
-
-            double deltaAmbiguity = photonTrackedTarget.getPoseAmbiguity() - meanAmbiguity;
-            meanAmbiguity += deltaAmbiguity / count;
-            sumSquareDiffAmbiguity += deltaAmbiguity * (photonTrackedTarget.getPoseAmbiguity() - meanAmbiguity);
-        }
-        
-        if(count <= 1) {
-            return 1e-4;
-        } 
-
-        double varianceArea = sumSquareDiffArea / (count - 1);
-        double varianceAmbiguity = sumSquareDiffAmbiguity / (count - 1);
-
-        return (Math.sqrt(varianceArea) + Math.sqrt(varianceAmbiguity)) / 2;
+        return -1;
     }
 
     public ITranslation2d getInterpolatableTransform2d() {

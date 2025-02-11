@@ -33,11 +33,13 @@ import frc.robot.commands.SetElevator;
 import frc.robot.commands.SetIntakePivot;
 import frc.robot.commands.SetIntakeRoller;
 import frc.robot.commands.SmartIntake;
+import frc.robot.commands.VisionKalmanTest;
 import frc.robot.commands.ZeroElevator;
 import frc.robot.commands.CommandFactory.CommandFactory;
 import frc.robot.commands.CommandFactory.CommandFactory.*;
 import frc.robot.Constants.FieldConstants.ReefConstants.ReefPoleLevel;
 import frc.robot.Constants.FieldConstants.ReefConstants.ReefPoleSide;
+import frc.robot.RobotState.RobotState;
 import frc.robot.Subsystems.CommandSwerveDrivetrain.DriveControlSystems;
 import frc.robot.Subsystems.Elevator.ElevatorState;
 import frc.robot.Subsystems.Intake.PivotState;
@@ -137,6 +139,8 @@ public class RobotContainer {
     driver.leftBumper().onTrue(new InstantCommand(() -> reefPoleLevel = reefPoleLevel.decreaseLevel()));
 
     driverBack.onTrue(new InstantCommand(() -> drivetrain.resetOdo()));
+
+    driver.b().onTrue(new VisionKalmanTest());
 
     driver.a().onTrue(CommandFactory.AutoScoreCoral(reefPoleLevel, ReefPoleSide.LEFT, driver));
     // driver.x().onTrue(CommandFactory.autoCommand());
