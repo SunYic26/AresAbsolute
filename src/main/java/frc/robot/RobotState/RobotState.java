@@ -85,10 +85,8 @@ public class RobotState { //will estimate pose with odometry and correct drift w
 
         IChassisSpeeds filteredVelocity = getInterpolatedValue(filteredRobotVelocities, timestamp, IChassisSpeeds.identity());
 
-        double stdev = updatePose.getStandardDeviation();
-
         //calculate std of vision estimate for UKF
-        Vector<N2> stdevs = VecBuilder.fill(Math.pow(stdev, 2), Math.pow(stdev, 2));
+        Vector<N2> stdevs = VecBuilder.fill(Math.pow(updatePose.standardDev, 2), Math.pow(updatePose.standardDev, 2));
 
                 UKF.correct(
                         VecBuilder.fill(filteredVelocity.getVx(), filteredVelocity.getVy()),
@@ -100,11 +98,9 @@ public class RobotState { //will estimate pose with odometry and correct drift w
                 filteredPoses.put(
                         new IDouble(timestamp),
                         new ITranslation2d(UKF.getXhat(0), UKF.getXhat(1)));
-                        
-        SmartDashboard.putNumber("Vision std dev", stdev);
+
+        SmartDashboard.putNumber("Vision std dev", updatePose.standardDev);
     }
-
-
 
     //if you dont understand ask iggy
     public void odometryUpdate(SwerveDriveState state, double timestamp) {
@@ -136,10 +132,10 @@ public class RobotState { //will estimate pose with odometry and correct drift w
 
                 //please look in desmos before changing these
                 //https://www.desmos.com/3d/xs2grgugoj
-
-                double kv = 0.0000055; //velocity weight
-                double ka = 0.0000105; //acceleration weight
-                double ktheta = 0.0000015; //angular velocity weight
+                
+                double kv = 0.00000185; //velocity weight
+                double ka = 0.0000022; //acceleration weight
+                double ktheta = 0.00000125; //angular velocity weight
 
                 double acceleration = Math.max(robotAcceleration.toMagnitude(), Constants.MaxAcceleration);
                 double velocity = Math.max(OdomVelocity.toMagnitude(), Constants.MaxSpeed);
@@ -333,7 +329,7 @@ public class RobotState { //will estimate pose with odometry and correct drift w
         }
 
         public Rotation2d robotYaw() {
-            return new Rotation2d(pigeon.getYaw().getValue());
+            return new Rotation2d(pigeon.getYaw()/*.refresh()*/.getValue());
         }
 
         /**
