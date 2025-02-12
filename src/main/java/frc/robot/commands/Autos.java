@@ -63,20 +63,20 @@ public class Autos {
   }
 
   public static Command meter2(){
-    return new FollowChoreoTrajectory("2meters");
+    return new FollowChoreoTrajectory("2meter");
   }
 
   public static Command meter3(){
-    return new FollowChoreoTrajectory("3meters");
+    return new FollowChoreoTrajectory("3meter");
   }
 
-  public static Command meter4(){
-    return new FollowChoreoTrajectory("4meters");
+  public static Command backandforth(){
+    return new FollowChoreoTrajectory("backandforth");
   }
 
-  public static Command halfmeter(){
-    return new FollowChoreoTrajectory("halfmeter");
-  }
+  // public static Command halfmeter(){
+  //   return new FollowChoreoTrajectory("halfmeter");
+  // }
 
 
   // public static Command meterForwardTest(){

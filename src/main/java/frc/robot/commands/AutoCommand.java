@@ -72,6 +72,7 @@ public class AutoCommand {
         return autoList2;
     }
 
+
     public static AutoCommand Test1(){
         return new AutoCommand("Test1", Autos.Test1(), EndPoint.GENERIC);
     }
@@ -93,20 +94,17 @@ public class AutoCommand {
     }
 
     public static AutoCommand meter2() {
-        return new AutoCommand("2meters", Autos.meter2(), EndPoint.GENERIC);
+        return new AutoCommand("2meter", Autos.meter2(), EndPoint.GENERIC);
     }
 
     public static AutoCommand meter3() {
-        return new AutoCommand("3meters", Autos.meter3(), EndPoint.GENERIC);
+        return new AutoCommand("3meter", Autos.meter3(), EndPoint.GENERIC);
     }
 
-    public static AutoCommand meter4() {
-        return new AutoCommand("4meters", Autos.meter4(), EndPoint.GENERIC);
+    public static AutoCommand backandforth() {
+        return new AutoCommand("backandforth", Autos.backandforth(), EndPoint.GENERIC);
     }
 
-    public static AutoCommand halfmeter(){
-        return new AutoCommand("halfmeter", Autos.halfmeter(), EndPoint.GENERIC);
-    }
 
     // public static AutoCommand meterForwardTest() {
     //     return new AutoCommand("meterForwardTest", Autos.meterForwardTest(), EndPoint.GENERIC);
