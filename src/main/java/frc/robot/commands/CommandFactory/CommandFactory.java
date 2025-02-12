@@ -23,6 +23,8 @@ import frc.robot.commands.SetIntakePivot;
 import frc.robot.Constants;
 import frc.robot.Constants.FieldConstants;
 import frc.robot.Constants.FieldConstants.ReefConstants.ReefPoleSide;
+import frc.robot.Constants.FieldConstants.ReefConstants.SourceNumber;
+import frc.robot.Constants.FieldConstants.ReefConstants.ReefNumber;
 import frc.robot.Constants.FieldConstants.ReefConstants.ReefPoleLevel;
 import frc.robot.RobotState.RobotState;
 
@@ -69,5 +71,12 @@ public class CommandFactory {
 
     public static Command Outtake() {
         return new InstantCommand(()->Intake.getInstance().setRollerSpeed(RollerState.OUTTAKE.getRollerSpeed()));
+    }
+
+
+    public static Command AutoScorefromSource(ReefPoleLevel level, SourceNumber source, ReefNumber reef){
+        return new ParallelCommandGroup(
+            
+        );
     }
 }

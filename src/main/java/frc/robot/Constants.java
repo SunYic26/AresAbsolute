@@ -219,17 +219,19 @@ public final class Constants {
 
     public static final class HardwarePorts {
         // motor id
-        public static final int beamPort = 1;
-        public static final int laserID = 0; //idk
+        public static final int beamPort = 0;
 
         public static final int outtakeID = 21;
         public static final int algaeID = 22;
+        public static final int laserID = 23;
+
+        public static final int elevatorLeaderId = 31;
+        public static final int elevatorFollowerId = 32;
 
         public static final int intakeRollerID = 42;
         public static final int intakePivotID = 41;
 
-        public static final int elevatorLeaderId = 31;
-        public static final int elevatorFollowerId = 32;
+        public static final int funnelID = 51;
     }
 
     //change for next game
@@ -291,6 +293,31 @@ public final class Constants {
                         .orElse(null);
                 }
             }
+
+            public enum SourceNumber {
+                S1("S1"),
+                S2("S2");
+                private String name;
+                private SourceNumber(String name){
+                    this.name = name;
+                }
+            }
+
+            public enum ReefNumber{
+                R1,
+                R2,
+                R3,
+                R4,
+                R5,
+                R6,
+                R7,
+                R8,
+                R9,
+                R10,
+                R11,
+                R12
+            }
+
 
             public enum ReefPoleLevel { //We can also leave these empty and just use for display
                 L1(0.0),
