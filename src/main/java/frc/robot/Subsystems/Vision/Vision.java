@@ -55,10 +55,10 @@ public class Vision extends SubsystemBase {
         new Translation3d(Units.inchesToMeters(0), Units.inchesToMeters(-13.5), Units.inchesToMeters(-1.5)),
         new Rotation3d(Units.degreesToRadians(0),Units.degreesToRadians(0),Units.degreesToRadians(0)));
 
-    public static AprilTagFieldLayout aprilTagFieldLayout = AprilTagFields.k2024Crescendo.loadAprilTagLayoutField();
+        public static AprilTagFieldLayout aprilTagFieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025Reefscape);
 
-    PhotonPoseEstimator photonPoseEstimator = new PhotonPoseEstimator(aprilTagFieldLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, cameraToRobotTransform);
-    
+        PhotonPoseEstimator photonPoseEstimator = new PhotonPoseEstimator(aprilTagFieldLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, cameraToRobotTransform);
+        
     public static Vision getInstance() {
         if (instance == null) {
             instance = new Vision();
@@ -70,9 +70,9 @@ public class Vision extends SubsystemBase {
         s_Swerve = CommandSwerveDrivetrain.getInstance();
         robotState = RobotState.getInstance();
 
-
+        System.out.println(aprilTagFieldLayout.toString());
         centerCamera = new PhotonCamera(Constants.VisionConstants.cameraName);
-        photonPoseEstimator.setMultiTagFallbackStrategy(PoseStrategy.CLOSEST_TO_LAST_POSE);
+        photonPoseEstimator.setMultiTagFallbackStrategy(PoseStrategy.AVERAGE_BEST_TARGETS);
         updateAprilTagResults();
     }
 
@@ -141,10 +141,10 @@ public class Vision extends SubsystemBase {
      */
     private void updateVision() throws Exception {
 
-        if(Math.abs(robotState.robotAngularVelocityMagnitude()[0]) > VisionLimits.k_rotationLimit) {
-            SmartDashboard.putString("Vision accepter", "Vision failed: High rotation");
-            return;
-        }
+        // if(Math.abs(robotState.robotAngularVelocityMagnitude()[0]) > VisionLimits.k_rotationLimit) {
+        //     SmartDashboard.putString("Vision accepter", "Vision failed: High rotation");
+        //     return;
+        // }
         
         if(cameraResult.getTimestampSeconds() == lastProcessedTimestamp) {
             SmartDashboard.putString("Vision accepter", "Vision failed: High rotation");
@@ -154,16 +154,16 @@ public class Vision extends SubsystemBase {
         lastProcessedTimestamp = cameraResult.getTimestampSeconds();
 
         //limelight update
-        if(s_Lime.hasTarget()) {
-            LimelightHelpers.SetRobotOrientation(Constants.LimelightConstants.cameraName, robotState.robotYaw().getDegrees(), 0,0 ,0,0,0);
-            VisionOutput pose = new VisionOutput(LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(Constants.LimelightConstants.cameraName));
-            robotState.visionUpdate(pose);
-        }
+        // if(s_Lime.hasTarget()) {
+        //     LimelightHelpers.SetRobotOrientation(Constants.LimelightConstants.cameraName, robotState.robotYaw().getDegrees(), 0,0 ,0,0,0);
+        //     VisionOutput pose = new VisionOutput(LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(Constants.LimelightConstants.cameraName));
+        //     robotState.visionUpdate(pose);
+        // }
+
         
         Optional<MultiTagOutput> multiTagResult = updateMultiTag();
 
         if(!multiTagResult.isEmpty()) { //Use multitag if available
-
             Pose3d tagPose = aprilTagFieldLayout.getTagPose(multiTagResult.get().getBestTarget().getFiducialId()).get();
 
             Pose3d robotPose = PhotonUtils.estimateFieldToRobotAprilTag(multiTagResult.get().estimatedPose.best, tagPose, cameraToRobotTransform);
@@ -172,7 +172,7 @@ public class Vision extends SubsystemBase {
             
             System.out.println(newPose.toString());
 
-            robotState.visionUpdate(newPose); 
+            robotState.visionUpdate(newPose);
 
         } else if(!getValidTargets().isEmpty()) { // if no multitags, use single tag
             VisionOutput newPose = new VisionOutput(photonPoseEstimator.update(cameraResult).get());
@@ -181,13 +181,18 @@ public class Vision extends SubsystemBase {
         }
     }
 
+    int k = 0;
     @Override
     public void periodic() {
+        if(k%2==0) { 
         updateAprilTagResults();
-            if(!cameraResult.hasTargets()) {
+            if(cameraResult.hasTargets()) {
                 try {
                     updateVision();
                 } catch (Exception e){}
             }
+        } 
+        
+        k++;
     }
 }
