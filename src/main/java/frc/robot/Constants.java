@@ -170,7 +170,7 @@ public final class Constants {
     }
 
     public static final class VisionConstants {
-        public static final String cameraName = "camera";
+        public static final String cameraName = "Camera_0";
         public static final int aprilTagMax = 16;
         public static final double aprilTagHeight = 0.122; //bottom of each april tag is 122cm above carpet | unnecessary, we have photonvision's field layout import
         public static final double cameraRollOffset = Units.degreesToRadians(0);
@@ -183,7 +183,7 @@ public final class Constants {
         public static final double centerCameraPitch = Units.degreesToRadians(15);
 
         public static final class VisionLimits {
-        public static final int k_rotationLimitDPS = 175;
+        public static final double k_rotationLimit = Math.PI;
         public static final double k_reprojectionLimit = 0.1;
         public static final double k_normThreshold = 0.1;
         public static final double k_ambiguityLimit = 0.9;
