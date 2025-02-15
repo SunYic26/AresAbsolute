@@ -84,6 +84,7 @@ public class DriveControlSystems {
             driverRX = homingL1();
         }
 
+
         ChassisSpeeds speeds = new ChassisSpeeds(driverLY, driverLX, driverRX);
 
         double[][] wheelFeedFwX = calculateFeedforward();
@@ -100,13 +101,26 @@ public class DriveControlSystems {
 
     private double[] previousVelocities = new double[4]; // To store previous velocity for each module
 
+    double Kv = 0.15;  // velocity gain
+    double Ka = 0.002;  // acceleration gain
+    double Kf = 0.002;  // friction gain
+
+    public void upKV() {
+        Kv += 0.001;
+        SmartDashboard.putNumber("KV", Kv);
+    }
+
+    public void downKV() {
+        Kv -= 0.001;
+        SmartDashboard.putNumber("KV", Kv);
+    }
+
     public double[][] calculateFeedforward() {
         double[][] wheelFeedFwX = new double[2][4];
         //TODO tune (PLS)
-        double Kv = 0.009;  // velocity gain
-        double Ka = 0.0002;  // acceleration gain
-        double Kf = 0.003;  // friction gain
 
+
+        //our accelerometer sucks im not using it
         for (int i = 0; i < 4; i++) {
             double currentVelocity = getModule(i).getCurrentState().speedMetersPerSecond;
             double angleComponent = Math.cos(getModule(i).getCurrentState().angle.getRadians());
