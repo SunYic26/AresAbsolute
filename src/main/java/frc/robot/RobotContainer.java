@@ -157,11 +157,10 @@ public class RobotContainer {
 
     driverBack.onTrue(new InstantCommand(() -> drivetrain.resetOdo()));
 
-    driver.b().onTrue(new VisionKalmanTest());
-
     driver.a().onTrue(CommandFactory.AutoScoreCoral(reefPoleLevel, ReefPoleSide.LEFT, driver));
-    // driver.x().onTrue(CommandFactory.autoCommand());
 
+    driver.b().onTrue(new InstantCommand(() -> controlSystem.upKV()));
+    driver.x().onTrue(new InstantCommand(() -> controlSystem.downKV()));
     // driver.start().onTrue(new ZeroElevator());
 
     operatorLeftBumper.onTrue(new InstantCommand(()-> operatorPoleLevel = operatorPoleLevel.raiseLevel()));
