@@ -77,7 +77,10 @@ public class Vision extends SubsystemBase {
     }
 
     public void updateAprilTagResults() {
-        cameraResult = (centerCamera.getLatestResult());
+        List<PhotonPipelineResult> unreadResults = centerCamera.getAllUnreadResults();
+        if (!unreadResults.isEmpty()){
+            cameraResult = unreadResults.get(0); // assuming first index is the latest result
+        }
 
         // Zero yaw is robot facing red alliance wall - our code should be doing this.
     }
