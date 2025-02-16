@@ -149,21 +149,6 @@ public class Vision extends SubsystemBase {
         //     return;
         // }
         
-        if(cameraResult.getTimestampSeconds() == lastProcessedTimestamp) {
-            SmartDashboard.putString("Vision accepter", "Vision failed: High rotation");
-            return;
-        }
-
-        lastProcessedTimestamp = cameraResult.getTimestampSeconds();
-
-        //limelight update
-        // if(s_Lime.hasTarget()) {
-        //     LimelightHelpers.SetRobotOrientation(Constants.LimelightConstants.cameraName, robotState.robotYaw().getDegrees(), 0,0 ,0,0,0);
-        //     VisionOutput pose = new VisionOutput(LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(Constants.LimelightConstants.cameraName));
-        //     robotState.visionUpdate(pose);
-        // }
-
-        
         Optional<MultiTagOutput> multiTagResult = updateMultiTag();
 
         if(!multiTagResult.isEmpty()) { //Use multitag if available
@@ -184,18 +169,14 @@ public class Vision extends SubsystemBase {
         }
     }
 
-    int k = 0;
     @Override
     public void periodic() {
-        if(k%2==0) { 
         updateAprilTagResults();
-            if(cameraResult.hasTargets()) {
-                try {
-                    updateVision();
-                } catch (Exception e){}
-            }
+        if(cameraResult.hasTargets()) {
+            try {
+                updateVision();
+            } catch (Exception e){}
         } 
         
-        k++;
     }
 }

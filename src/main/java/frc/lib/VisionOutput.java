@@ -71,7 +71,7 @@ public class VisionOutput {
 
 
     private static double getStandardDeviation(PoseEstimate limelighEstimate) { 
-        return -1; //redoing this
+        return -1; //If we are not using limelight im not going to do this one
     }
 
     private static double getStandardDeviation(List<PhotonTrackedTarget> targets) {
