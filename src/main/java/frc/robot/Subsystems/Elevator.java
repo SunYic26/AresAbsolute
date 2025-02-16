@@ -33,12 +33,13 @@ public class Elevator extends SubsystemBase {
   }
 
   public enum ElevatorState {
-    GROUND(1.5),
-    L1(40),
-    L2(80),
-    L3(120),
-    L4(165),
+    GROUND(0.3),
+    L1(15),
+    L2(30),
+    L3(45),
+    L4(62.6),
     SOURCE(37.700684);
+    //62.1 should be max
     private double encoderPosition;
     private ElevatorState(double encoderPosition){
       this.encoderPosition = encoderPosition;
@@ -50,14 +51,14 @@ public class Elevator extends SubsystemBase {
 
 
   public Elevator() {
-    leader = new TalonFX(Constants.HardwarePorts.elevatorLeaderId);
-    follower = new TalonFX(Constants.HardwarePorts.elevatorFollowerId);
+    leader = new TalonFX(Constants.HardwarePorts.elevatorLeaderId, "mechbus");
+    follower = new TalonFX(Constants.HardwarePorts.elevatorFollowerId, "mechbus");
     leader.setNeutralMode(NeutralModeValue.Brake);
     follower.setNeutralMode(NeutralModeValue.Brake);
     configMotor(leader, InvertedValue.CounterClockwise_Positive, NeutralModeValue.Brake);
-    configMotor(follower, InvertedValue.Clockwise_Positive, NeutralModeValue.Brake);
+    configMotor(follower, InvertedValue.CounterClockwise_Positive, NeutralModeValue.Brake);
 
-    follower.setControl(new Follower(Constants.HardwarePorts.elevatorLeaderId, true));
+    follower.setControl(new Follower(Constants.HardwarePorts.elevatorLeaderId, false));
 
     beam = new DigitalInput(Constants.HardwarePorts.beamPort);
   }
@@ -75,6 +76,7 @@ public class Elevator extends SubsystemBase {
     config.CurrentLimits = currentLimitsConfigs;
     motor.getConfigurator().apply(config);
     motor.getPosition().setUpdateFrequency(50);
+  
      // motor.optimizeBusUtilization();
   }
 

@@ -28,14 +28,14 @@ public class AltSetElevator extends Command {
   // private State initialState;
   // private State setpoint;
   // private State goal;
-  // private double error;
+  private double error;
   private double pidoutput;
   private State initialState;
   private State setpoint;
   private Timer timer;
   private TrapezoidProfile profile = new TrapezoidProfile(constraints);
   // private ProfiledPIDController controller = new ProfiledPIDController(1.2, 0, 0, constraints);
-  private PIDController controller = new PIDController(1.2, 0, 0);
+  private PIDController controller = new PIDController(0.7, 0.15, 0);
   public AltSetElevator(ElevatorState state) {
     this(state.getEncoderPosition());
   }
@@ -67,7 +67,7 @@ public class AltSetElevator extends Command {
     // setpoint = profile.calculate(timer.get(), initialState, goal);
     s_Elevator.setVoltage(pidoutput); // used to tune feedforward
     System.out.println("voltage: " + s_Elevator.getFollowerVoltage());
-    System.out.println("desired position: " + controller.getSetpoint());
+    // System.out.println("desired position: " + controller.getSetpoint());
     // System.out.println("desired position: " + controller.getSetpoint().position);
     // System.out.println("pid output: " + pidoutput);
     // s_Elevator.setVoltage(controller.calculate(s_Elevator.getPosition(), setpoint.position) + feedforward.calculate(setpoint.velocity));
@@ -88,6 +88,6 @@ public class AltSetElevator extends Command {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return Math.abs(s_Elevator.getPosition() - goalPosition) < 0.5;
+    return Math.abs(s_Elevator.getPosition() - goalPosition) < 0.07;
   }
 }
