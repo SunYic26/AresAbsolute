@@ -39,7 +39,7 @@ import frc.robot.commands.FollowChoreoTrajectory;
 import frc.robot.commands.CommandFactory.CommandFactory;
 
 public class Robot extends LoggedRobot {
-  private SequentialCommandGroup m_autonomousCommand = new SequentialCommandGroup();
+  private SequentialCommandGroup m_autonomousCommand;
   SendableChooser<AutoCommand> firstAuto = new SendableChooser<AutoCommand>();
   SendableChooser<AutoCommand> secondAuto = new SendableChooser<AutoCommand>();
   SendableChooser<AutoCommand> thirdAuto = new SendableChooser<AutoCommand>();
@@ -181,6 +181,7 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void autonomousInit() {
+    m_autonomousCommand = new SequentialCommandGroup();
     if(firstSavedChoice != null) m_autonomousCommand.addCommands(firstSavedChoice.getCommand());
     if (m_autonomousCommand != null) {
       m_autonomousCommand.schedule();

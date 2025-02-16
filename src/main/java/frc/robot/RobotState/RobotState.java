@@ -133,9 +133,9 @@ public class RobotState { //will estimate pose with odometry and correct drift w
                 //please look in desmos before changing these
                 //https://www.desmos.com/3d/xs2grgugoj
                 
-                double kv = 0.00000185; //velocity weight
-                double ka = 0.0000022; //acceleration weight
-                double ktheta = 0.00000125; //angular velocity weight
+                double kv = 0.000004; //velocity weight
+                double ka = 0.000005; //acceleration weight
+                double ktheta = 0.0000025; //angular velocity weight
 
                 double acceleration = Math.max(robotAcceleration.toMagnitude(), Constants.MaxAcceleration);
                 double velocity = Math.max(OdomVelocity.toMagnitude(), Constants.MaxSpeed);

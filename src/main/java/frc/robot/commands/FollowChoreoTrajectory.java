@@ -30,8 +30,8 @@ public class FollowChoreoTrajectory extends Command {
   private Timer timer;
   private DriveControlSystems controlSystems;
   private RobotState robotState;
-  private PIDController xController = new PIDController(0, 0, 0);
-  private PIDController yController = new PIDController(0, 0, 0);
+  private PIDController xController = new PIDController(1.1, 0, 0);
+  private PIDController yController = new PIDController(1.1, 0, 0);
   private PIDController thetaController = new PIDController(0, 0, 0);
 
   public FollowChoreoTrajectory(String name) {
@@ -99,12 +99,13 @@ public class FollowChoreoTrajectory extends Command {
     // );
 
        s_Swerve.setControl(
-        controlSystems.drive(
+        controlSystems.autoDrive(
           sample.vx + xController.calculate(currPose.getX(), sample.x),
           sample.vy + yController.calculate(currPose.getY(), sample.y),
           sample.omega + thetaController.calculate(currPose.getRotation().getRadians(), sample.heading)
         )
        ) ;
+       System.out.println("current error: " + (currPose.getX() - sample.x));
         // .withVelocityX(sample.vx + xController.calculate(currPose.getX(), sample.x))
         // .withVelocityY(sample.vy + yController.calculate(currPose.getY(), sample.y))
         // .withRotationalRate(sample.omega + thetaController.calculate(currPose.getRotation().getRadians(), sample.heading))
