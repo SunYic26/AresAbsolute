@@ -40,7 +40,10 @@ public class ZeroElevator extends Command {
   @Override
   public void end(boolean interrupted) {
     s_Elevator.stop();
-    s_Elevator.zeroPosition();
+    if(!interrupted){
+      s_Elevator.zeroPosition();
+    }
+    
   }
 
   // Returns true when the command should end.
