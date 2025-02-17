@@ -7,6 +7,7 @@ package frc.robot.Subsystems;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.Follower;
+import com.ctre.phoenix6.controls.TorqueCurrentFOC;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
@@ -24,6 +25,7 @@ public class Elevator extends SubsystemBase {
   private TalonFX follower;
   private TalonFX leader;
   private VoltageOut voltOutput;
+  private TorqueCurrentFOC torqueOutput;
 
   private DigitalInput beam;
 
@@ -64,6 +66,7 @@ public class Elevator extends SubsystemBase {
 
     beam = new DigitalInput(Constants.HardwarePorts.beamPort);
     voltOutput = new VoltageOut(0).withEnableFOC(true);
+    torqueOutput = new TorqueCurrentFOC(0);
   }
 
   private void configMotor(TalonFX motor, InvertedValue direction, NeutralModeValue neutralMode){
@@ -85,6 +88,10 @@ public class Elevator extends SubsystemBase {
 
   public double getPosition(){
     return leader.getPosition().getValueAsDouble();
+  }
+
+  public void setTorqueOutput(double output){
+    leader.setControl(torqueOutput.withOutput(output));
   }
 
   public double getCurrent(){
