@@ -187,15 +187,15 @@ public class Vision extends SubsystemBase {
     int k = 0;
     @Override
     public void periodic() {
-        if(k%2==0) { 
-        updateAprilTagResults();
-            if(cameraResult.hasTargets()) {
-                try {
-                    updateVision();
-                } catch (Exception e){}
-            }
-        } 
+        // if(k%2==0) { 
+        // updateAprilTagResults();
+        //     if(cameraResult.hasTargets()) {
+        //         try {
+        //             updateVision();
+        //         } catch (Exception e){}
+        //     }
+        // } 
         
-        k++;
+        // k++;
     }
 }

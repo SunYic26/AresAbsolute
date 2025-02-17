@@ -7,6 +7,7 @@ package frc.robot.Subsystems;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.Follower;
+import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
@@ -22,6 +23,7 @@ public class Elevator extends SubsystemBase {
 
   private TalonFX follower;
   private TalonFX leader;
+  private VoltageOut voltOutput;
 
   private DigitalInput beam;
 
@@ -37,7 +39,7 @@ public class Elevator extends SubsystemBase {
     L1(15),
     L2(30),
     L3(45),
-    L4(62.6),
+    L4(64.375),
     SOURCE(37.700684);
     //62.1 should be max
     private double encoderPosition;
@@ -61,6 +63,7 @@ public class Elevator extends SubsystemBase {
     follower.setControl(new Follower(Constants.HardwarePorts.elevatorLeaderId, false));
 
     beam = new DigitalInput(Constants.HardwarePorts.beamPort);
+    voltOutput = new VoltageOut(0).withEnableFOC(true);
   }
 
   private void configMotor(TalonFX motor, InvertedValue direction, NeutralModeValue neutralMode){
@@ -115,7 +118,7 @@ public class Elevator extends SubsystemBase {
   }
 
   public void setVoltage(double voltage){
-    leader.setVoltage(voltage);
+    leader.setControl(voltOutput.withOutput(voltage));
   }
 
   public boolean getBeamResult(){
@@ -124,5 +127,6 @@ public class Elevator extends SubsystemBase {
 
   @Override
   public void periodic() {
+    SmartDashboard.putNumber("elevator position", getPosition());
   }
 }

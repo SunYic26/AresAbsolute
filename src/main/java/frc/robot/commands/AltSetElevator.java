@@ -35,7 +35,7 @@ public class AltSetElevator extends Command {
   private Timer timer;
   private TrapezoidProfile profile = new TrapezoidProfile(constraints);
   // private ProfiledPIDController controller = new ProfiledPIDController(1.2, 0, 0, constraints);
-  private PIDController controller = new PIDController(0.7, 0.15, 0);
+  private PIDController controller = new PIDController(1.1, 0.5, 0);
   public AltSetElevator(ElevatorState state) {
     this(state.getEncoderPosition());
   }
@@ -66,20 +66,23 @@ public class AltSetElevator extends Command {
     pidoutput = controller.calculate(s_Elevator.getPosition(), setpoint.position); 
     // setpoint = profile.calculate(timer.get(), initialState, goal);
     s_Elevator.setVoltage(pidoutput); // used to tune feedforward
+    // System.out.println("current draw: " + s_Elevator.getCurrent());
     System.out.println("voltage: " + s_Elevator.getFollowerVoltage());
     // System.out.println("desired position: " + controller.getSetpoint());
     // System.out.println("desired position: " + controller.getSetpoint().position);
     // System.out.println("pid output: " + pidoutput);
     // s_Elevator.setVoltage(controller.calculate(s_Elevator.getPosition(), setpoint.position) + feedforward.calculate(setpoint.velocity));
     // SmartDashboard.putNumber("elevator follower voltage", s_Elevator.getFollowerVoltage());
-    // error = Math.abs(s_Elevator.getPosition() - setpoint.position);
+    error = Math.abs(s_Elevator.getPosition() - setpoint.position);
     // System.out.println(s_Elevator.getFollowerVoltage());
-    // System.out.println("current setpoint error " + error);
+    System.out.println("current setpoint error " + error);
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
+    System.out.println("final time: " + timer.get());
+    System.out.println("expected time: " + profile.totalTime());
     timer.stop();
     s_Elevator.stop();
     System.out.println("final error: " + (Math.abs(goalPosition - s_Elevator.getPosition())));
@@ -88,6 +91,6 @@ public class AltSetElevator extends Command {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return Math.abs(s_Elevator.getPosition() - goalPosition) < 0.07;
+    return Math.abs(s_Elevator.getPosition() - goalPosition) < 0.1;
   }
 }
