@@ -35,7 +35,7 @@ public class AltSetElevator extends Command {
   private Timer timer;
   private TrapezoidProfile profile = new TrapezoidProfile(constraints);
   // private ProfiledPIDController controller = new ProfiledPIDController(1.2, 0, 0, constraints);
-  private PIDController controller = new PIDController(1.1, 0.5, 0);
+  private PIDController controller = new PIDController(1.5, 0.5, 0.04);
   public AltSetElevator(ElevatorState state) {
     this(state.getEncoderPosition());
   }
