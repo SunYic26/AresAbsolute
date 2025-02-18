@@ -28,6 +28,7 @@ import frc.robot.Subsystems.Elevator;
 import frc.robot.Subsystems.CommandSwerveDrivetrain.CommandSwerveDrivetrain;
 import frc.robot.commands.AltSetElevator;
 import frc.robot.commands.CancelableCommand;
+import frc.robot.commands.ElevatorTest;
 import frc.robot.commands.FollowChoreoTrajectory;
 import frc.robot.commands.SetElevator;
 import frc.robot.commands.SetIntakePivot;
@@ -149,6 +150,7 @@ public class RobotContainer {
     driver.b().onTrue(new AltSetElevator(ElevatorState.L1));
     driver.y().onTrue(new AltSetElevator(ElevatorState.L3));
     driver.x().onTrue(new AltSetElevator(ElevatorState.L2));
+    // driver.x().onTrue(new ElevatorTest());
 
     // driver.x().onTrue(new FollowChoreoTrajectory("halfmeter"));
 
