@@ -98,13 +98,13 @@ public class FollowChoreoTrajectory extends Command {
     //   )
     // );
 
-       s_Swerve.setControl(
-        controlSystems.autoDrive(
-          sample.vx + xController.calculate(currPose.getX(), sample.x),
-          sample.vy + yController.calculate(currPose.getY(), sample.y),
-          sample.omega + thetaController.calculate(currPose.getRotation().getRadians(), sample.heading)
-        )
-       ) ;
+      //  s_Swerve.setControl(
+      //   // controlSystems.autoDrive(
+      //   //   sample.vx + xController.calculate(currPose.getX(), sample.x),
+      //   //   sample.vy + yController.calculate(currPose.getY(), sample.y),
+      //   //   sample.omega + thetaController.calculate(currPose.getRotation().getRadians(), sample.heading)
+      //   // )
+      //  )
        System.out.println("current error: " + (currPose.getX() - sample.x));
         // .withVelocityX(sample.vx + xController.calculate(currPose.getX(), sample.x))
         // .withVelocityY(sample.vy + yController.calculate(currPose.getY(), sample.y))

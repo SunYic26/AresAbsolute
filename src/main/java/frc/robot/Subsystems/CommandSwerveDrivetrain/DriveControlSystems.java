@@ -7,6 +7,7 @@ import com.ctre.phoenix6.swerve.SwerveModule;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.filter.SlewRateLimiter;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.interpolation.Interpolator;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.Joystick;
@@ -15,6 +16,8 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants;
 import frc.robot.RobotContainer;
 import frc.robot.generated.TunerConstants;
+
+import static edu.wpi.first.units.Units.Radians;
 
 import javax.xml.stream.events.DTD;
 
@@ -70,6 +73,8 @@ public class DriveControlSystems {
       return drivetrain.getModule(index);
     }   
 
+    Rotation2d targetHeading = new Rotation2d(0.0);
+
      // =======---===[ ⚙ Joystick processing ]===---========
     public SwerveRequest drive(double driverLY, double driverLX, double driverRX){
         driverLX = scaledDeadBand(driverLX) * Constants.MaxSpeed;
@@ -84,58 +89,30 @@ public class DriveControlSystems {
             driverRX = homingL1();
         }
 
-
-        ChassisSpeeds speeds = new ChassisSpeeds(driverLY, driverLX, driverRX);
-
-        double[][] wheelFeedFwX = calculateFeedforward();
+        targetHeading = Rotation2d.fromDegrees((driverRX * 0.02) * (180/Math.PI));
         
-        // return new SwerveRequest().FieldCentric().withVelocityX(driverLY).withVelocityY(driverLX).withRotationalRate(driverRX);
-
-        return new SwerveRequest.ApplyFieldSpeeds()
-        .withSpeeds(speeds)
-        .withWheelForceFeedforwardsX(wheelFeedFwX[0])
-        .withWheelForceFeedforwardsY(wheelFeedFwX[1])
-        .withDriveRequestType(com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType.Velocity);
-        // .withDesaturateWheelSpeeds(true);
-    }
-
-    public SwerveRequest autoDrive(double driverLY, double driverLX, double driverRX){
-
-
-        SmartDashboard.putNumber("requested velocity x", driverLX);
-        SmartDashboard.putNumber("requested velocity y", driverLY);
-
-        if(homing == true){
-            driverRX = homingL1();
-        }
-
-        ChassisSpeeds speeds = new ChassisSpeeds(driverLY, driverLX, driverRX);
-
-        double[][] wheelFeedFwX = calculateFeedforward();
-        
-        // return new SwerveRequest().FieldCentric().withVelocityX(driverLY).withVelocityY(driverLX).withRotationalRate(driverRX);
-
-        return new SwerveRequest.ApplyFieldSpeeds()
-        .withSpeeds(speeds)
-        .withWheelForceFeedforwardsX(wheelFeedFwX[0])
-        .withWheelForceFeedforwardsY(wheelFeedFwX[1])
-        .withDriveRequestType(com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType.Velocity);
-        // .withDesaturateWheelSpeeds(true);
+        return new SwerveRequest.FieldCentricFacingAngle()
+        .withVelocityX(driverLX)
+        .withVelocityY(driverLY)
+        .withTargetDirection(targetHeading)
+        .withDriveRequestType(com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType.Velocity)
+        .withSteerRequestType(com.ctre.phoenix6.swerve.SwerveModule.SteerRequestType.MotionMagicExpo)
+        .withDesaturateWheelSpeeds(true);
     }
 
     private double[] previousVelocities = new double[4]; // To store previous velocity for each module
 
-    double Kv = 0.15;  // velocity gain
+    double Kv = 0.06;  // velocity gain
     double Ka = 0.002;  // acceleration gain
     double Kf = 0.002;  // friction gain
 
     public void upKV() {
-        Kv += 0.001;
+        Ka += 0.0005;
         SmartDashboard.putNumber("KV", Kv);
     }
 
     public void downKV() {
-        Kv -= 0.001;
+        Ka -= 0.0005;
         SmartDashboard.putNumber("KV", Kv);
     }
 

@@ -9,8 +9,10 @@ import org.photonvision.PhotonPoseEstimator.PoseStrategy;
 import org.photonvision.targeting.MultiTargetPNPResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.lib.Interpolating.Geometry.ITranslation2d;
 
 import frc.robot.LimelightHelpers.PoseEstimate;
@@ -67,14 +69,19 @@ public class VisionOutput {
         this(new Pose3d(poseEstimate.pose), poseEstimate.timestampSeconds, getStandardDeviation(poseEstimate));
     }
 
-
-
-
-    private static double getStandardDeviation(PoseEstimate limelighEstimate) { 
+    private static double getStandardDeviation(PoseEstimate limelighEstimate) {
         return -1; //If we are not using limelight im not going to do this one
     }
 
     private static double getStandardDeviation(List<PhotonTrackedTarget> targets) {
+        int count = 0;
+
+        for (PhotonTrackedTarget photonTrackedTarget : targets) {
+
+            // photonTrackedTarget.area;
+            // photonTrackedTarget.skew;
+            // photonTrackedTarget.poseAmbiguity;
+        }
         return -1;
     }
 
