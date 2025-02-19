@@ -146,10 +146,10 @@ public class RobotContainer {
     // driverDpadLeft.onTrue(new InstantCommand(()-> endEffector.setSpeed(0)));
 
     // driver.a().onTrue(new InstantCommand(() -> elevator.zeroPosition()));
-    driver.a().onTrue(new AltSetElevator(ElevatorState.L4));
-    driver.b().onTrue(new AltSetElevator(ElevatorState.L1));
-    driver.y().onTrue(new AltSetElevator(ElevatorState.L3));
-    driver.x().onTrue(new AltSetElevator(ElevatorState.L2));
+    // driver.a().onTrue(new AltSetElevator(ElevatorState.L4));
+    // driver.b().onTrue(new AltSetElevator(ElevatorState.L1));
+    // driver.y().onTrue(new AltSetElevator(ElevatorState.L3));
+    // driver.x().onTrue(new AltSetElevator(ElevatorState.L2));
     // driver.a().onTrue(new InstantCommand(()-> elevator.setTorqueOutput(20)));
     // driver.b().onTrue(new InstantCommand(()-> elevator.setTorqueOutput(-20)));
     // driver.x().onTrue(new InstantCommand(()-> elevator.setTorqueOutput(0)));
@@ -165,15 +165,15 @@ public class RobotContainer {
     driver.rightBumper().onTrue(new InstantCommand( () -> reefPoleLevel = reefPoleLevel.raiseLevel()));
     driver.leftBumper().onTrue(new InstantCommand(() -> reefPoleLevel = reefPoleLevel.decreaseLevel()));
 
-    driverBack.onTrue(new InstantCommand(() -> drivetrain.resetOdo()));
+    // driverBack.onTrue(new InstantCommand(() -> drivetrain.resetOdo()));
 
     // driver.a().onTrue(CommandFactory.AutoScoreCoral(reefPoleLevel, ReefPoleSide.LEFT, driver));
 
     // driver.b().onTrue(new InstantCommand(() -> controlSystem.upKV()));
     // driver.x().onTrue(new InstantCommand(() -> controlSystem.downKV()));
-    driver.start().onTrue(new ZeroElevator());
+    // driver.start().onTrue(new ZeroElevator());
 
-    operatorLeftBumper.onTrue(new InstantCommand(()-> operatorPoleLevel = operatorPoleLevel.raiseLevel()));
+    // operatorLeftBumper.onTrue(new InstantCommand(()-> operatorPoleLevel = operatorPoleLevel.raiseLevel()));
 
 
   }

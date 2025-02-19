@@ -73,8 +73,6 @@ public class DriveControlSystems {
       return drivetrain.getModule(index);
     }   
 
-    Rotation2d targetHeading = new Rotation2d(0.0);
-
      // =======---===[ ⚙ Joystick processing ]===---========
     public SwerveRequest drive(double driverLY, double driverLX, double driverRX){
         driverLX = scaledDeadBand(driverLX) * Constants.MaxSpeed;
@@ -89,66 +87,65 @@ public class DriveControlSystems {
             driverRX = homingL1();
         }
 
-        targetHeading = Rotation2d.fromDegrees((driverRX * 0.02) * (180/Math.PI));
         
         return new SwerveRequest.FieldCentricFacingAngle()
         .withVelocityX(driverLX)
         .withVelocityY(driverLY)
-        .withTargetDirection(targetHeading)
+        .withTargetRateFeedforward(driverRX)
         .withDriveRequestType(com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType.Velocity)
         .withSteerRequestType(com.ctre.phoenix6.swerve.SwerveModule.SteerRequestType.MotionMagicExpo)
         .withDesaturateWheelSpeeds(true);
     }
 
-    private double[] previousVelocities = new double[4]; // To store previous velocity for each module
+    // private double[] previousVelocities = new double[4]; // To store previous velocity for each module
 
-    double Kv = 0.06;  // velocity gain
-    double Ka = 0.002;  // acceleration gain
-    double Kf = 0.002;  // friction gain
+    // double Kv = 0.06;  // velocity gain
+    // double Ka = 0.002;  // acceleration gain
+    // double Kf = 0.002;  // friction gain
 
-    public void upKV() {
-        Ka += 0.0005;
-        SmartDashboard.putNumber("KV", Kv);
-    }
+    // public void upKV() {
+    //     Ka += 0.0005;
+    //     SmartDashboard.putNumber("KV", Kv);
+    // }
 
-    public void downKV() {
-        Ka -= 0.0005;
-        SmartDashboard.putNumber("KV", Kv);
-    }
+    // public void downKV() {
+    //     Ka -= 0.0005;
+    //     SmartDashboard.putNumber("KV", Kv);
+    // }
 
-    public double[][] calculateFeedforward() {
-        double[][] wheelFeedFwX = new double[2][4];
-        //TODO tune (PLS)
-
-
-        //our accelerometer sucks im not using it
-        for (int i = 0; i < 4; i++) {
-            double currentVelocity = getModule(i).getCurrentState().speedMetersPerSecond;
-            double angleComponent = Math.cos(getModule(i).getCurrentState().angle.getRadians());
-
-            double X = Kv * currentVelocity * angleComponent
-            + Ka * ((currentVelocity - previousVelocities[i]) / Constants.dt) * angleComponent //acceleration
-            + Kf;
-
-            wheelFeedFwX[0][i] = X;
-        }
-
-        for (int i = 0; i < 4; i++) {
-            double currentVelocity = getModule(i).getCurrentState().speedMetersPerSecond;
-            double angleComponent = Math.sin(getModule(i).getCurrentState().angle.getRadians());
-
-            double Y = Kv * currentVelocity * angleComponent
-            + Ka * ((currentVelocity - previousVelocities[i]) / Constants.dt) * angleComponent //acceleration
-            + Kf;
-
-            previousVelocities[i] = currentVelocity;
-
-            wheelFeedFwX[1][i] = Y;
-        }
+    // public double[][] calculateFeedforward() {
+    //     double[][] wheelFeedFwX = new double[2][4];
+    //     //TODO tune (PLS)
 
 
-        return wheelFeedFwX;
-    }
+    //     //our accelerometer sucks im not using it
+    //     for (int i = 0; i < 4; i++) {
+    //         double currentVelocity = getModule(i).getCurrentState().speedMetersPerSecond;
+    //         double angleComponent = Math.cos(getModule(i).getCurrentState().angle.getRadians());
+
+    //         double X = Kv * currentVelocity * angleComponent
+    //         + Ka * ((currentVelocity - previousVelocities[i]) / Constants.dt) * angleComponent //acceleration
+    //         + Kf;
+
+    //         wheelFeedFwX[0][i] = X;
+    //     }
+
+    //     for (int i = 0; i < 4; i++) {
+    //         double currentVelocity = getModule(i).getCurrentState().speedMetersPerSecond;
+    //         double angleComponent = Math.sin(getModule(i).getCurrentState().angle.getRadians());
+
+    //         double Y = Kv * currentVelocity * angleComponent
+    //         + Ka * ((currentVelocity - previousVelocities[i]) / Constants.dt) * angleComponent //acceleration
+    //         + Kf;
+
+    //         previousVelocities[i] = currentVelocity;
+
+    //         wheelFeedFwX[1][i] = Y;
+    //     }
+
+
+    //     return wheelFeedFwX;
+    // }
 
     public double scaledDeadBand(double input) {
         if(Math.abs(input) < Constants.stickDeadband) 
@@ -186,8 +183,8 @@ public class DriveControlSystems {
 
     Double[] outputs = new Double[4]; // reset to null every call
         for (int i = 0; i < 4; i++) {  //4 is module count but i dont want to make a getter
-        
-        //gets the ratio between what the encoders think our velocity is and the real velocity
+            //gets the ratio between what the encoders think our velocity is and the real velocity
+            
         double slipRatio;
         if(currentVelocity == 0) { slipRatio = 1; } else {
             slipRatio = ((getModule(i).getCurrentState().speedMetersPerSecond) / currentVelocity); 
