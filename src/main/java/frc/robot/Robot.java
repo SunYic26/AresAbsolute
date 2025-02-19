@@ -30,12 +30,12 @@ import frc.lib.SensorUtils;
 import frc.robot.RobotState.RobotState;
 import frc.robot.Subsystems.CommandSwerveDrivetrain.DriveControlSystems;
 import frc.robot.Subsystems.Elevator;
-import frc.robot.Subsystems.Intake;
+import frc.robot.Subsystems.Slapdown;
 import frc.robot.Subsystems.CommandSwerveDrivetrain.CommandSwerveDrivetrain;
 import frc.robot.Subsystems.Vision.Vision;
-import frc.robot.commands.AutoCommand;
-import frc.robot.commands.Autos;
-import frc.robot.commands.FollowChoreoTrajectory;
+import frc.robot.commands.Autos.AutoCommand;
+import frc.robot.commands.Autos.Autos;
+import frc.robot.commands.Autos.FollowChoreoTrajectory;
 import frc.robot.commands.CommandFactory.CommandFactory;
 
 public class Robot extends LoggedRobot {
@@ -59,7 +59,7 @@ public class Robot extends LoggedRobot {
   private CommandSwerveDrivetrain drivetrain;
   private Elevator elevator;
   private RobotState robotState;
-  private Intake intake;
+  private Slapdown intake;
   private DriveControlSystems controlSystems;
 
  
@@ -121,7 +121,7 @@ public class Robot extends LoggedRobot {
       drivetrain = CommandSwerveDrivetrain.getInstance();
       robotState = RobotState.getInstance();
       vision = Vision.getInstance();
-      intake = Intake.getInstance();
+      intake = Slapdown.getInstance();
       controlSystems = DriveControlSystems.getInstance();
       // CanBridge.runTCP();
     }

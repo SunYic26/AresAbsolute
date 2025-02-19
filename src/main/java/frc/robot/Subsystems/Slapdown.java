@@ -21,26 +21,26 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
-public class Intake extends SubsystemBase {
+public class Slapdown extends SubsystemBase {
   
   private TalonFX leader;
   private TalonFX follower;
   private TalonFX roller;
   
-  private static Intake instance;
+  private static Slapdown instance;
 
-  public static Intake getInstance(){
+  public static Slapdown getInstance(){
     if(instance == null){
-      instance = new Intake();
+      instance = new Slapdown();
     }
     return instance;
   }
 
-  public Intake() {
-    leader = new TalonFX(Constants.HardwarePorts.intakeLeaderID, "mechbus");
-    follower = new TalonFX(Constants.HardwarePorts.intakeFollowerID, "mechbus");
-    roller = new TalonFX(Constants.HardwarePorts.intakeRollerID, "mechbus");
-    follower.setControl(new Follower(Constants.HardwarePorts.intakeLeaderID, true));
+  public Slapdown() {
+    leader = new TalonFX(Constants.HardwarePorts.slapdownLeaderID, "mechbus");
+    follower = new TalonFX(Constants.HardwarePorts.slapdownFollowerID, "mechbus");
+    roller = new TalonFX(Constants.HardwarePorts.slapdownRollerID, "mechbus");
+    follower.setControl(new Follower(Constants.HardwarePorts.slapdownLeaderID, true));
 
     configPivot(leader, NeutralModeValue.Brake, InvertedValue.Clockwise_Positive);
     configPivot(follower, NeutralModeValue.Brake, InvertedValue.CounterClockwise_Positive);
@@ -52,9 +52,9 @@ public class Intake extends SubsystemBase {
     TalonFXConfiguration config = new TalonFXConfiguration();
     CurrentLimitsConfigs currentLimitsConfigs = new CurrentLimitsConfigs();
     config.MotorOutput.Inverted = direction;
-    currentLimitsConfigs.SupplyCurrentLimit = Constants.CurrentLimits.intakeContinuousCurrentLimit;
+    currentLimitsConfigs.SupplyCurrentLimit = Constants.CurrentLimits.slapdownContinuousCurrentLimit;
     currentLimitsConfigs.SupplyCurrentLimitEnable = true;
-    currentLimitsConfigs.StatorCurrentLimit = Constants.CurrentLimits.intakePeakCurrentLimit;
+    currentLimitsConfigs.StatorCurrentLimit = Constants.CurrentLimits.slapdownPeakCurrentLimit;
     currentLimitsConfigs.StatorCurrentLimitEnable = true;
     config.MotorOutput.NeutralMode = neutralMode;
 
@@ -75,9 +75,9 @@ public class Intake extends SubsystemBase {
     TalonFXConfiguration config = new TalonFXConfiguration();
     CurrentLimitsConfigs currentLimitsConfigs = new CurrentLimitsConfigs();
     config.MotorOutput.Inverted = direction;
-    currentLimitsConfigs.SupplyCurrentLimit = Constants.CurrentLimits.intakeContinuousCurrentLimit;
+    currentLimitsConfigs.SupplyCurrentLimit = Constants.CurrentLimits.slapdownContinuousCurrentLimit;
     currentLimitsConfigs.SupplyCurrentLimitEnable = true;
-    currentLimitsConfigs.StatorCurrentLimit = Constants.CurrentLimits.intakePeakCurrentLimit;
+    currentLimitsConfigs.StatorCurrentLimit = Constants.CurrentLimits.slapdownPeakCurrentLimit;
     currentLimitsConfigs.StatorCurrentLimitEnable = true;
     config.MotorOutput.NeutralMode = neutralMode;
 

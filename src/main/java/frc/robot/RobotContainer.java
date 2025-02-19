@@ -26,26 +26,26 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Subsystems.Elevator;
 import frc.robot.Subsystems.CommandSwerveDrivetrain.CommandSwerveDrivetrain;
-import frc.robot.commands.AltSetElevator;
 import frc.robot.commands.CancelableCommand;
-import frc.robot.commands.ElevatorTest;
-import frc.robot.commands.FollowChoreoTrajectory;
-import frc.robot.commands.SetElevator;
-import frc.robot.commands.SetIntakePivot;
-import frc.robot.commands.SmartIntake;
 import frc.robot.commands.VisionKalmanTest;
-import frc.robot.commands.ZeroElevator;
+import frc.robot.commands.Autos.FollowChoreoTrajectory;
 import frc.robot.commands.CommandFactory.CommandFactory;
 import frc.robot.commands.CommandFactory.CommandFactory.*;
+import frc.robot.commands.Elevator.AltSetElevator;
+import frc.robot.commands.Elevator.ElevatorTest;
+import frc.robot.commands.Elevator.SetElevator;
+import frc.robot.commands.Elevator.ZeroElevator;
+import frc.robot.commands.Intake.SmartIntake;
+import frc.robot.commands.Pivot.SetSlapdownPivot;
 import frc.robot.Constants.FieldConstants.ReefConstants.ReefPoleLevel;
 import frc.robot.Constants.FieldConstants.ReefConstants.ReefPoleSide;
 import frc.robot.RobotState.RobotState;
 import frc.robot.Subsystems.CommandSwerveDrivetrain.DriveControlSystems;
 import frc.robot.Subsystems.Elevator.ElevatorState;
-import frc.robot.Subsystems.Intake.PivotState;
-import frc.robot.Subsystems.Intake.RollerState;
+import frc.robot.Subsystems.Slapdown.PivotState;
+import frc.robot.Subsystems.Slapdown.RollerState;
 import frc.robot.Subsystems.EndEffector;
-import frc.robot.Subsystems.Intake;
+import frc.robot.Subsystems.Slapdown;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 
@@ -73,7 +73,7 @@ public class RobotContainer {
 
   //instances
   private final CommandSwerveDrivetrain drivetrain = CommandSwerveDrivetrain.getInstance(); // Drivetrain
-  private final Intake intake = Intake.getInstance();
+  private final Slapdown intake = Slapdown.getInstance();
   private final Elevator elevator = Elevator.getInstance();
   private final EndEffector endEffector = EndEffector.getInstance();
 

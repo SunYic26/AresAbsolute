@@ -10,16 +10,14 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import frc.robot.Subsystems.Intake.PivotState;
+import frc.robot.Subsystems.Slapdown.PivotState;
 import frc.robot.Constants.FieldConstants.ReefConstants;
-import frc.robot.Subsystems.Intake;
-import frc.robot.Subsystems.Intake.RollerState;
+import frc.robot.Subsystems.Slapdown;
+import frc.robot.Subsystems.Slapdown.RollerState;
 import frc.robot.commands.CancelableCommand;
-import frc.robot.commands.DriveToPose;
-import frc.robot.commands.FollowChoreoTrajectory;
-// import frc.robot.commands.DriveToPose;
-//import frc.robot.commands.CancelableCommand;
-import frc.robot.commands.SetIntakePivot;
+import frc.robot.commands.Autos.FollowChoreoTrajectory;
+import frc.robot.commands.Pivot.SetSlapdownPivot;
+import frc.robot.commands.SwerveCommands.DriveToPose;
 import frc.robot.Constants;
 import frc.robot.Constants.FieldConstants;
 import frc.robot.Constants.FieldConstants.ReefConstants.ReefPoleSide;
@@ -34,8 +32,8 @@ public class CommandFactory {
     public static Command Intake(){
         return new SequentialCommandGroup(
             new ParallelCommandGroup(
-                new SetIntakePivot(PivotState.DOWN),
-                new InstantCommand(()-> Intake.getInstance().setRollerSpeed(RollerState.INTAKE.getRollerSpeed()))
+                new SetSlapdownPivot(PivotState.DOWN),
+                new InstantCommand(()-> Slapdown.getInstance().setRollerSpeed(RollerState.INTAKE.getRollerSpeed()))
                 )
             
         );
@@ -44,8 +42,8 @@ public class CommandFactory {
     //add all mechanism off functions as they are tested; currently only pivot
     public static Command OffEverything() {
         return new ParallelCommandGroup(
-            new SetIntakePivot(PivotState.UP),
-            new InstantCommand(()-> Intake.getInstance().setRollerSpeed(0))
+            new SetSlapdownPivot(PivotState.UP),
+            new InstantCommand(()-> Slapdown.getInstance().setRollerSpeed(0))
         );
     }
 
@@ -57,8 +55,8 @@ public class CommandFactory {
 
     public static Command Lift() {
        return new ParallelCommandGroup(
-                new SetIntakePivot(PivotState.UP),
-                new InstantCommand(()-> Intake.getInstance().brakeRoller())
+                new SetSlapdownPivot(PivotState.UP),
+                new InstantCommand(()-> Slapdown.getInstance().brakeRoller())
             );
     }
 
@@ -70,7 +68,7 @@ public class CommandFactory {
     }
 
     public static Command Outtake() {
-        return new InstantCommand(()->Intake.getInstance().setRollerSpeed(RollerState.OUTTAKE.getRollerSpeed()));
+        return new InstantCommand(()->Slapdown.getInstance().setRollerSpeed(RollerState.OUTTAKE.getRollerSpeed()));
     }
 
 

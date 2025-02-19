@@ -134,8 +134,8 @@ public final class Constants {
         public static final int outtakeContinuousCurrentLimit = 35;
         public static final int outtakePeakCurrentLimit = 65;
         
-        public static final int intakeContinuousCurrentLimit = 40;
-        public static final int intakePeakCurrentLimit = 70;
+        public static final int slapdownContinuousCurrentLimit = 40;
+        public static final int slapdownPeakCurrentLimit = 70;
 
         public static final int elevatorContinuousCurrentLimit = 60;
         public static final int elevatorPeakCurrentLimit = 120;
@@ -228,9 +228,9 @@ public final class Constants {
         public static final int elevatorLeaderId = 31;
         public static final int elevatorFollowerId = 32;
 
-        public static final int intakeRollerID = 43;
-        public static final int intakeLeaderID = 41;
-        public static final int intakeFollowerID = 42;
+        public static final int slapdownRollerID = 43;
+        public static final int slapdownLeaderID = 41;
+        public static final int slapdownFollowerID = 42;
 
         public static final int funnelID = 51;
     }

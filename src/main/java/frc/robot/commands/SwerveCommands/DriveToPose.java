@@ -1,4 +1,4 @@
-package frc.robot.commands;
+package frc.robot.commands.SwerveCommands;
 
 import java.awt.Robot;
 import java.util.function.Supplier;

@@ -2,7 +2,7 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot.commands;
+package frc.robot.commands.Autos;
 
 import java.util.Optional;
 
@@ -24,7 +24,6 @@ import frc.robot.RobotContainer;
 import frc.robot.RobotState.RobotState;
 import frc.robot.Subsystems.CommandSwerveDrivetrain.CommandSwerveDrivetrain;
 import frc.robot.Subsystems.Vision.Vision;
-import frc.robot.commands.FollowChoreoTrajectory;
 
 /** Add your docs here. */
 public class Autos {
