@@ -35,8 +35,8 @@ import frc.robot.commands.Elevator.AltSetElevator;
 import frc.robot.commands.Elevator.ElevatorTest;
 import frc.robot.commands.Elevator.SetElevator;
 import frc.robot.commands.Elevator.ZeroElevator;
-import frc.robot.commands.Intake.SmartIntake;
 import frc.robot.commands.Pivot.SetSlapdownPivot;
+import frc.robot.commands.Pivot.SmartIntake;
 import frc.robot.Constants.FieldConstants.ReefConstants.ReefPoleLevel;
 import frc.robot.Constants.FieldConstants.ReefConstants.ReefPoleSide;
 import frc.robot.RobotState.RobotState;
@@ -164,6 +164,10 @@ public class RobotContainer {
 
     driver.rightBumper().onTrue(new InstantCommand( () -> reefPoleLevel = reefPoleLevel.raiseLevel()));
     driver.leftBumper().onTrue(new InstantCommand(() -> reefPoleLevel = reefPoleLevel.decreaseLevel()));
+
+    driver.a().onTrue(new SetSlapdownPivot(PivotState.UP));
+    driver.b().onTrue(new SetSlapdownPivot(PivotState.DOWN));
+    driver.x().onTrue(CommandFactory.smartAlgeaIntake());
 
     // driverBack.onTrue(new InstantCommand(() -> drivetrain.resetOdo()));
 

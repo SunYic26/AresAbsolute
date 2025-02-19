@@ -4,19 +4,25 @@
 
 package frc.robot.Subsystems;
 
+import static frc.robot.Constants.LimelightConstants.roll;
+
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
+import com.ctre.phoenix6.configs.Slot1Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.ControlRequest;
 import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.controls.StaticBrake;
+import com.ctre.phoenix6.controls.TorqueCurrentFOC;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.hardware.core.CoreTalonFX;
+import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.controls.VoltageOut;
 
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
@@ -26,8 +32,12 @@ public class Slapdown extends SubsystemBase {
   private TalonFX leader;
   private TalonFX follower;
   private TalonFX roller;
+
+  private TorqueCurrentFOC torqueOutput;
   
   private static Slapdown instance;
+
+  PIDController maintainPivotController = new PIDController(2, 0, 0.1);
 
   public static Slapdown getInstance(){
     if(instance == null){
@@ -45,10 +55,12 @@ public class Slapdown extends SubsystemBase {
     configPivot(leader, NeutralModeValue.Brake, InvertedValue.Clockwise_Positive);
     configPivot(follower, NeutralModeValue.Brake, InvertedValue.CounterClockwise_Positive);
     configRoller(roller, NeutralModeValue.Brake, InvertedValue.Clockwise_Positive);
+
+    torqueOutput = new TorqueCurrentFOC(0);
   }
 
   private void configPivot(TalonFX motor, NeutralModeValue neutralMode, InvertedValue direction){
-    // motor.setNeutralMode(neutralMode);
+    motor.setNeutralMode(neutralMode);
     TalonFXConfiguration config = new TalonFXConfiguration();
     CurrentLimitsConfigs currentLimitsConfigs = new CurrentLimitsConfigs();
     config.MotorOutput.Inverted = direction;
@@ -60,9 +72,11 @@ public class Slapdown extends SubsystemBase {
 
     config.CurrentLimits = currentLimitsConfigs;
 
-    Slot0Configs position = new Slot0Configs();
-    position.kP = 1.4;
-    position.kI = 0;
+    Slot1Configs position = new Slot1Configs();
+    position.GravityType = GravityTypeValue.Arm_Cosine;
+    position.kP = 6;
+    position.kI = 1.5;
+    position.kG = 1;
 
 
     motor.getConfigurator().apply(config);
@@ -83,17 +97,18 @@ public class Slapdown extends SubsystemBase {
 
     config.CurrentLimits = currentLimitsConfigs;
 
-    Slot0Configs position = new Slot0Configs();
-    position.kP = 1.7;
+    Slot1Configs position = new Slot1Configs();
+    position.kP = 1.4;
+    position.kG = 1;
 
     motor.getConfigurator().apply(config);
     motor.getConfigurator().apply(position);
   }
 
   public enum PivotState{
-    UP(0), //arbitrary numbers for now
-    HOLD(1.433),
-    DOWN(5.4);
+    UP(-0.145),
+    HOLD(-0.095),
+    DOWN(0.8125);
 
     private double position;
     private PivotState(double position){
@@ -105,8 +120,8 @@ public class Slapdown extends SubsystemBase {
   }
 
   public enum RollerState{
-    INTAKE(0.5),
-    OUTTAKE(-0.5),
+    INTAKE(0.75),
+    OUTTAKE(-0.75),
     OFF(0);
     private double motorSpeed;
     private RollerState(double motorSpeed){
@@ -118,10 +133,14 @@ public class Slapdown extends SubsystemBase {
   }
 
   public void brakeRoller(){
-    roller.setControl(new PositionVoltage(roller.getPosition().getValueAsDouble()));
+    roller.setControl(
+      new PositionVoltage(roller.getPosition().getValueAsDouble())
+      .withLimitForwardMotion(true)
+      .withLimitReverseMotion(true)
+      .withEnableFOC(true)
+      .withSlot(1)
+      );
   }
-
-  
 
   // public void testUnbrake(){
   //   roller.setControl(new VoltageOut(0.3));
@@ -140,7 +159,21 @@ public class Slapdown extends SubsystemBase {
   }
 
   public void brakePivot(){
-    leader.setControl(new PositionVoltage(leader.getPosition().getValueAsDouble()));
+    leader.setControl(
+      new PositionVoltage(leader.getPosition().getValueAsDouble())
+      .withLimitForwardMotion(true)
+      .withEnableFOC(true)
+      .withSlot(1)
+      );
+  }
+
+  public void brakePivot(PivotState state){
+    leader.setControl(
+      new PositionVoltage(state.getPosition())
+      .withLimitForwardMotion(true)
+      .withEnableFOC(true)
+      .withSlot(1)
+      );
   }
 
   public void setPivotSpeed(double speed){
@@ -151,8 +184,8 @@ public class Slapdown extends SubsystemBase {
     leader.setControl(new PositionVoltage(state.getPosition()));
   }
 
-  public double getRollerCurrent(){
-    return roller.getStatorCurrent().getValueAsDouble();
+  public double getResistiveCurrent(){
+    return roller.getStatorCurrent().getValueAsDouble() - roller.getSupplyCurrent().getValueAsDouble();
   }
   
   public void resetPivotPosition(){

@@ -17,6 +17,7 @@ import frc.robot.Subsystems.Slapdown.RollerState;
 import frc.robot.commands.CancelableCommand;
 import frc.robot.commands.Autos.FollowChoreoTrajectory;
 import frc.robot.commands.Pivot.SetSlapdownPivot;
+import frc.robot.commands.Pivot.SmartIntake;
 import frc.robot.commands.SwerveCommands.DriveToPose;
 import frc.robot.Constants;
 import frc.robot.Constants.FieldConstants;
@@ -28,16 +29,6 @@ import frc.robot.RobotState.RobotState;
 
 /** Add your docs here. */
 public class CommandFactory {
-
-    public static Command Intake(){
-        return new SequentialCommandGroup(
-            new ParallelCommandGroup(
-                new SetSlapdownPivot(PivotState.DOWN),
-                new InstantCommand(()-> Slapdown.getInstance().setRollerSpeed(RollerState.INTAKE.getRollerSpeed()))
-                )
-            
-        );
-    }
 
     //add all mechanism off functions as they are tested; currently only pivot
     public static Command OffEverything() {
@@ -58,6 +49,17 @@ public class CommandFactory {
                 new SetSlapdownPivot(PivotState.UP),
                 new InstantCommand(()-> Slapdown.getInstance().brakeRoller())
             );
+    }
+
+    public static Command smartAlgeaIntake() {
+        return new SequentialCommandGroup(
+            new ParallelCommandGroup(
+                new SetSlapdownPivot(PivotState.DOWN),
+                new SmartIntake()
+            ),
+            new SetSlapdownPivot(PivotState.HOLD)
+        );
+            
     }
 
     public static Command AutoScoreCoral(ReefPoleLevel level, ReefPoleSide side, CommandXboxController controller){

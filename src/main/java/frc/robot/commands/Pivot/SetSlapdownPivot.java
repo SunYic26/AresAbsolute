@@ -6,6 +6,9 @@ package frc.robot.commands.Pivot;
 
 import frc.robot.Subsystems.Slapdown;
 import frc.robot.Subsystems.Slapdown.PivotState;
+
+import java.lang.Thread.State;
+
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj2.command.Command;
 
@@ -13,34 +16,38 @@ import edu.wpi.first.wpilibj2.command.Command;
 public class SetSlapdownPivot extends Command {
   private Slapdown s_Slapdown;
   private double angleSetpoint;
-  private PIDController controller = new PIDController(1.9, 0, 0);
+  private PivotState state;
+  private PIDController controller = new PIDController(3, 0, 0.3);
+
   public SetSlapdownPivot(PivotState state) {
     s_Slapdown = Slapdown.getInstance();
     angleSetpoint = state.getPosition();
+    this.state = state;
   }
 
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-
   }
-
+  
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
     s_Slapdown.setPivotVoltage(controller.calculate(s_Slapdown.getPosition(), angleSetpoint));
-
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    s_Slapdown.brakePivot();
+    s_Slapdown.setPivotVoltage(0);
+
+    if(state != PivotState.DOWN)
+      s_Slapdown.brakePivot(state);
   }
 
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return Math.abs(s_Slapdown.getPosition() - angleSetpoint) < 0.4;
+    return Math.abs(s_Slapdown.getPosition() - angleSetpoint) < 0.1;
   }
 }
