@@ -54,7 +54,11 @@ public class AltSetElevator extends Command {
   public void initialize() {
     timer.restart();
     controller.disableContinuousInput();
-    initialState = new State(s_Elevator.getPosition(), 0);
+    if(goalPosition > s_Elevator.getPosition()){
+    initialState = new State(s_Elevator.getPosition(), Constants.elevatorMaxVelocity);
+  }else{
+    initialState = new State(s_Elevator.getPosition(), -Constants.elevatorMaxVelocity);
+  }
     // timer.restart();
     // initialState = new State(s_Elevator.getPosition(), s_Elevator.getVelocity());
   }
@@ -67,7 +71,7 @@ public class AltSetElevator extends Command {
     // setpoint = profile.calculate(timer.get(), initialState, goal);
     s_Elevator.setVoltage(pidoutput); // used to tune feedforward
     // System.out.println("current draw: " + s_Elevator.getCurrent());
-    System.out.println("voltage: " + s_Elevator.getFollowerVoltage());
+    System.out.println("current: " + s_Elevator.getCurrent());
     // System.out.println("desired position: " + controller.getSetpoint());
     // System.out.println("desired position: " + controller.getSetpoint().position);
     // System.out.println("pid output: " + pidoutput);

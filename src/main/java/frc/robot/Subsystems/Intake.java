@@ -8,6 +8,7 @@ import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.ControlRequest;
+import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.controls.StaticBrake;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -22,7 +23,8 @@ import frc.robot.Constants;
 
 public class Intake extends SubsystemBase {
   
-  private TalonFX pivot;
+  private TalonFX leader;
+  private TalonFX follower;
   private TalonFX roller;
   
   private static Intake instance;
@@ -35,10 +37,13 @@ public class Intake extends SubsystemBase {
   }
 
   public Intake() {
-    pivot = new TalonFX(Constants.HardwarePorts.intakePivotID);
-    roller = new TalonFX(Constants.HardwarePorts.intakeRollerID);
+    leader = new TalonFX(Constants.HardwarePorts.intakeLeaderID, "mechbus");
+    follower = new TalonFX(Constants.HardwarePorts.intakeFollowerID, "mechbus");
+    roller = new TalonFX(Constants.HardwarePorts.intakeRollerID, "mechbus");
+    follower.setControl(new Follower(Constants.HardwarePorts.intakeLeaderID, true));
 
-    configPivot(pivot, NeutralModeValue.Brake, InvertedValue.Clockwise_Positive);
+    configPivot(leader, NeutralModeValue.Brake, InvertedValue.Clockwise_Positive);
+    configPivot(follower, NeutralModeValue.Brake, InvertedValue.CounterClockwise_Positive);
     configRoller(roller, NeutralModeValue.Brake, InvertedValue.Clockwise_Positive);
   }
 
@@ -123,27 +128,27 @@ public class Intake extends SubsystemBase {
   // }
 
   public void stopPivot(){
-    pivot.set(0);
+    leader.set(0);
   }
 
   public double getPosition(){
-    return pivot.getPosition().getValueAsDouble();
+    return leader.getPosition().getValueAsDouble();
   }
 
   public double getPivotCurrent(){
-    return pivot.getStatorCurrent().getValueAsDouble();
+    return leader.getStatorCurrent().getValueAsDouble();
   }
 
   public void brakePivot(){
-    pivot.setControl(new PositionVoltage(pivot.getPosition().getValueAsDouble()));
+    leader.setControl(new PositionVoltage(leader.getPosition().getValueAsDouble()));
   }
 
   public void setPivotSpeed(double speed){
-    pivot.set(speed);
+    leader.set(speed);
   }
 
   public void setPivotPosition(PivotState state){
-    pivot.setControl(new PositionVoltage(state.getPosition()));
+    leader.setControl(new PositionVoltage(state.getPosition()));
   }
 
   public double getRollerCurrent(){
@@ -151,11 +156,11 @@ public class Intake extends SubsystemBase {
   }
   
   public void resetPivotPosition(){
-    pivot.setPosition(0);
+    leader.setPosition(0);
   }
 
   public void setPivotVoltage(double voltage){
-    pivot.setControl(new VoltageOut(voltage));
+    leader.setControl(new VoltageOut(voltage));
   }
 
   public void setRollerSpeed(double speed){

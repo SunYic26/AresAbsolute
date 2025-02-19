@@ -228,8 +228,9 @@ public final class Constants {
         public static final int elevatorLeaderId = 31;
         public static final int elevatorFollowerId = 32;
 
-        public static final int intakeRollerID = 42;
-        public static final int intakePivotID = 41;
+        public static final int intakeRollerID = 43;
+        public static final int intakeLeaderID = 41;
+        public static final int intakeFollowerID = 42;
 
         public static final int funnelID = 51;
     }

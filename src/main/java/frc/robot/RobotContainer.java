@@ -150,7 +150,11 @@ public class RobotContainer {
     driver.b().onTrue(new AltSetElevator(ElevatorState.L1));
     driver.y().onTrue(new AltSetElevator(ElevatorState.L3));
     driver.x().onTrue(new AltSetElevator(ElevatorState.L2));
+    // driver.a().onTrue(new InstantCommand(()-> elevator.setTorqueOutput(20)));
+    // driver.b().onTrue(new InstantCommand(()-> elevator.setTorqueOutput(-20)));
+    // driver.x().onTrue(new InstantCommand(()-> elevator.setTorqueOutput(0)));
     // driver.x().onTrue(new ElevatorTest());
+
 
     // driver.x().onTrue(new FollowChoreoTrajectory("halfmeter"));
 
