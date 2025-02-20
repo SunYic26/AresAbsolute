@@ -3,6 +3,7 @@ package frc.robot.Subsystems.CommandSwerveDrivetrain;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.mechanisms.swerve.LegacySwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
+import com.ctre.phoenix6.swerve.SwerveRequest.ForwardPerspectiveValue;
 import com.ctre.phoenix6.swerve.SwerveModule;
 
 import edu.wpi.first.math.controller.PIDController;
@@ -92,6 +93,7 @@ public class DriveControlSystems {
         .withVelocityX(driverLX)
         .withVelocityY(driverLY)
         .withTargetRateFeedforward(driverRX)
+        .withForwardPerspective(ForwardPerspectiveValue.BlueAlliance)
         .withDriveRequestType(com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType.Velocity)
         .withSteerRequestType(com.ctre.phoenix6.swerve.SwerveModule.SteerRequestType.MotionMagicExpo)
         .withDesaturateWheelSpeeds(true);

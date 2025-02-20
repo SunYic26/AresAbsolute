@@ -35,6 +35,7 @@ import frc.robot.commands.Elevator.AltSetElevator;
 import frc.robot.commands.Elevator.ElevatorTest;
 import frc.robot.commands.Elevator.SetElevator;
 import frc.robot.commands.Elevator.ZeroElevator;
+import frc.robot.commands.Funnel.SetFunnel;
 import frc.robot.commands.Pivot.SetSlapdownPivot;
 import frc.robot.commands.Pivot.SmartIntake;
 import frc.robot.Constants.FieldConstants.ReefConstants.ReefPoleLevel;
@@ -42,9 +43,11 @@ import frc.robot.Constants.FieldConstants.ReefConstants.ReefPoleSide;
 import frc.robot.RobotState.RobotState;
 import frc.robot.Subsystems.CommandSwerveDrivetrain.DriveControlSystems;
 import frc.robot.Subsystems.Elevator.ElevatorState;
+import frc.robot.Subsystems.Funnel.FunnelState;
 import frc.robot.Subsystems.Slapdown.PivotState;
 import frc.robot.Subsystems.Slapdown.RollerState;
 import frc.robot.Subsystems.EndEffector;
+import frc.robot.Subsystems.Funnel;
 import frc.robot.Subsystems.Slapdown;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -76,6 +79,7 @@ public class RobotContainer {
   private final Slapdown intake = Slapdown.getInstance();
   private final Elevator elevator = Elevator.getInstance();
   private final EndEffector endEffector = EndEffector.getInstance();
+  private final Funnel funnel = Funnel.getInstance();
 
   /* Driver Buttons */
   private final Trigger driverBack = driver.back();
@@ -147,13 +151,15 @@ public class RobotContainer {
 
     // driver.a().onTrue(new InstantCommand(() -> elevator.zeroPosition()));
     // driver.a().onTrue(new AltSetElevator(ElevatorState.L4));
-    // driver.b().onTrue(new AltSetElevator(ElevatorState.L1));
+    // driver.povUp().onTrue(new AltSetElevator(ElevatorState.L1));
     // driver.y().onTrue(new AltSetElevator(ElevatorState.L3));
     // driver.x().onTrue(new AltSetElevator(ElevatorState.L2));
     // driver.a().onTrue(new InstantCommand(()-> elevator.setTorqueOutput(20)));
     // driver.b().onTrue(new InstantCommand(()-> elevator.setTorqueOutput(-20)));
     // driver.x().onTrue(new InstantCommand(()-> elevator.setTorqueOutput(0)));
-    // driver.x().onTrue(new ElevatorTest());
+    // driver.x().onTrue(new InstantCommand(()-> elevator.setSpeed(0.1)));
+    // driver.b().onTrue(new InstantCommand(()-> elevator.setSpeed(-0.1)));
+    // driver.a().onTrue(new InstantCommand(()-> elevator.stop()));
 
 
     // driver.x().onTrue(new FollowChoreoTrajectory("halfmeter"));
@@ -162,20 +168,22 @@ public class RobotContainer {
     // driverA.onTrue(new InstantCommand(()-> elevator.setSpeed(-0.1)));
     // driverB.onTrue(new InstantCommand(()-> elevator.setSpeed(0)));
 
-    driver.rightBumper().onTrue(new InstantCommand( () -> reefPoleLevel = reefPoleLevel.raiseLevel()));
+    driver.rightBumper().onTrue(new InstantCommand(() -> reefPoleLevel = reefPoleLevel.raiseLevel()));
     driver.leftBumper().onTrue(new InstantCommand(() -> reefPoleLevel = reefPoleLevel.decreaseLevel()));
 
-    driver.a().onTrue(new SetSlapdownPivot(PivotState.UP));
-    driver.b().onTrue(new SetSlapdownPivot(PivotState.DOWN));
-    driver.x().onTrue(CommandFactory.smartAlgeaIntake());
+    // driver.a().onTrue(new SetSlapdownPivot(PivotState.UP));
+    // driver.b().onTrue(new SetSlapdownPivot(PivotState.DOWN));
+    // driver.x().onTrue(CommandFactory.smartAlgeaIntake());
 
-    // driverBack.onTrue(new InstantCommand(() -> drivetrain.resetOdo()));
+    driver.back().onTrue(new InstantCommand(() -> drivetrain.resetOdo()));
 
     // driver.a().onTrue(CommandFactory.AutoScoreCoral(reefPoleLevel, ReefPoleSide.LEFT, driver));
 
     // driver.b().onTrue(new InstantCommand(() -> controlSystem.upKV()));
     // driver.x().onTrue(new InstantCommand(() -> controlSystem.downKV()));
-    // driver.start().onTrue(new ZeroElevator());
+    // driver.y().onTrue(new ZeroElevator());
+    driver.a().onTrue(new InstantCommand(() -> funnel.setSpeed(0.5)));
+    driver.b().onTrue(new SetFunnel(FunnelState.OFF));
 
     // operatorLeftBumper.onTrue(new InstantCommand(()-> operatorPoleLevel = operatorPoleLevel.raiseLevel()));
 

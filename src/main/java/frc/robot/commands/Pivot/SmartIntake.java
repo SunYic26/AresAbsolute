@@ -5,6 +5,7 @@
 package frc.robot.commands.Pivot;
 
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants;
 import frc.robot.Subsystems.Slapdown;
@@ -14,6 +15,7 @@ import frc.robot.Subsystems.Slapdown.RollerState;
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
 public class SmartIntake extends Command {
   private Slapdown s_Slapdown;
+  Timer timer = new Timer();
   
   public SmartIntake() {
     s_Slapdown = Slapdown.getInstance();
@@ -22,6 +24,7 @@ public class SmartIntake extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
+    timer.restart();
     s_Slapdown.setRollerSpeed(RollerState.INTAKE.getRollerSpeed());
   }
 
@@ -37,7 +40,7 @@ public class SmartIntake extends Command {
 
   // Returns true when the command should end.
   @Override
-  public boolean isFinished() {
-    return s_Slapdown.getResistiveCurrent() > Constants.intakePivotCurrentThreshold;
+  public boolean isFinished() { //the timer should ensure we dont finish the command early as the motor overcomes static friction
+    return s_Slapdown.getResistiveCurrent() > Constants.intakePivotCurrentThreshold && timer.hasElapsed(0.1);
   }
 }

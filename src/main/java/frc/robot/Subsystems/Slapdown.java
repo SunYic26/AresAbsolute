@@ -54,7 +54,7 @@ public class Slapdown extends SubsystemBase {
 
     configPivot(leader, NeutralModeValue.Brake, InvertedValue.Clockwise_Positive);
     configPivot(follower, NeutralModeValue.Brake, InvertedValue.CounterClockwise_Positive);
-    configRoller(roller, NeutralModeValue.Brake, InvertedValue.Clockwise_Positive);
+    configRoller(roller, NeutralModeValue.Brake, InvertedValue.CounterClockwise_Positive);
 
     torqueOutput = new TorqueCurrentFOC(0);
   }
@@ -120,8 +120,8 @@ public class Slapdown extends SubsystemBase {
   }
 
   public enum RollerState{
-    INTAKE(0.75),
-    OUTTAKE(-0.75),
+    INTAKE(0.5425),
+    OUTTAKE(-0.5425),
     OFF(0);
     private double motorSpeed;
     private RollerState(double motorSpeed){
@@ -185,7 +185,7 @@ public class Slapdown extends SubsystemBase {
   }
 
   public double getResistiveCurrent(){
-    return roller.getStatorCurrent().getValueAsDouble() - roller.getSupplyCurrent().getValueAsDouble();
+    return roller.getSupplyCurrent().getValueAsDouble();
   }
   
   public void resetPivotPosition(){
