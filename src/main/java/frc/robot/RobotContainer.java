@@ -150,10 +150,11 @@ public class RobotContainer {
     // driverDpadLeft.onTrue(new InstantCommand(()-> endEffector.setSpeed(0)));
 
     // driver.a().onTrue(new InstantCommand(() -> elevator.zeroPosition()));
-    // driver.a().onTrue(new AltSetElevator(ElevatorState.L4));
-    // driver.povUp().onTrue(new AltSetElevator(ElevatorState.L1));
-    // driver.y().onTrue(new AltSetElevator(ElevatorState.L3));
-    // driver.x().onTrue(new AltSetElevator(ElevatorState.L2));
+    driver.a().onTrue(new AltSetElevator(ElevatorState.L4));
+    driver.povUp().onTrue(new AltSetElevator(ElevatorState.L1));
+    driver.y().onTrue(new AltSetElevator(ElevatorState.L3));
+    driver.x().onTrue(new AltSetElevator(ElevatorState.L2));
+    driverB.onTrue(new AltSetElevator(ElevatorState.GROUND));
     // driver.a().onTrue(new InstantCommand(()-> elevator.setTorqueOutput(20)));
     // driver.b().onTrue(new InstantCommand(()-> elevator.setTorqueOutput(-20)));
     // driver.x().onTrue(new InstantCommand(()-> elevator.setTorqueOutput(0)));
@@ -164,9 +165,10 @@ public class RobotContainer {
 
     // driver.x().onTrue(new FollowChoreoTrajectory("halfmeter"));
 
-    // driverX.onTrue(new InstantCommand(()-> elevator.setSpeed(0.1)));
-    // driverA.onTrue(new InstantCommand(()-> elevator.setSpeed(-0.1)));
+    // driverX.onTrue(new InstantCommand(()-> elevator.setSpeed(1)));
+    // driverA.onTrue(new InstantCommand(()-> elevator.setSpeed(-1)));
     // driverB.onTrue(new InstantCommand(()-> elevator.setSpeed(0)));
+    driverStart.onTrue(new ZeroElevator());
 
     driver.rightBumper().onTrue(new InstantCommand(() -> reefPoleLevel = reefPoleLevel.raiseLevel()));
     driver.leftBumper().onTrue(new InstantCommand(() -> reefPoleLevel = reefPoleLevel.decreaseLevel()));
@@ -182,8 +184,8 @@ public class RobotContainer {
     // driver.b().onTrue(new InstantCommand(() -> controlSystem.upKV()));
     // driver.x().onTrue(new InstantCommand(() -> controlSystem.downKV()));
     // driver.y().onTrue(new ZeroElevator());
-    driver.a().onTrue(new InstantCommand(() -> funnel.setSpeed(0.5)));
-    driver.b().onTrue(new SetFunnel(FunnelState.OFF));
+    // driver.a().onTrue(new InstantCommand(() -> funnel.setSpeed(0.5)));
+    // driver.b().onTrue(new SetFunnel(FunnelState.OFF));
 
     // operatorLeftBumper.onTrue(new InstantCommand(()-> operatorPoleLevel = operatorPoleLevel.raiseLevel()));
 

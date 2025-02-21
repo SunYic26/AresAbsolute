@@ -54,13 +54,7 @@ public class AltSetElevator extends Command {
   public void initialize() {
     timer.restart();
     controller.disableContinuousInput();
-    if(goalPosition > s_Elevator.getPosition()){
-    initialState = new State(s_Elevator.getPosition(), Constants.elevatorMaxVelocity);
-  }else{
-    initialState = new State(s_Elevator.getPosition(), -Constants.elevatorMaxVelocity);
-  }
-    // timer.restart();
-    // initialState = new State(s_Elevator.getPosition(), s_Elevator.getVelocity());
+    initialState = new State(s_Elevator.getPosition(), s_Elevator.getVelocity());
   }
 
   // Called every time the scheduler runs while the command is scheduled.

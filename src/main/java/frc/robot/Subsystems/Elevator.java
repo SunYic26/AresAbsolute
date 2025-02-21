@@ -41,7 +41,7 @@ public class Elevator extends SubsystemBase {
     L1(15),
     L2(30),
     L3(45),
-    L4(64.375),
+    L4(62),
     SOURCE(37.700684);
     //62.1 should be max
     private double encoderPosition;
@@ -138,5 +138,6 @@ public class Elevator extends SubsystemBase {
   public void periodic() {
     SmartDashboard.putNumber("elevator position", getPosition());
     SmartDashboard.putBoolean("beam break result", getBeamResult());
+    SmartDashboard.putNumber("elevator stator current", getCurrent());
   }
 }
