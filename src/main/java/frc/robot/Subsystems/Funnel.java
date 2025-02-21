@@ -52,6 +52,7 @@ public class Funnel extends SubsystemBase {
     config.MotorOutput.Inverted = direction;
 
     roller.getConfigurator().apply(config);
+    roller.optimizeBusUtilization();
   }
 
   public void setSpeed(double speed){

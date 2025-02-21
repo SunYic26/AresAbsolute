@@ -82,6 +82,8 @@ public class Elevator extends SubsystemBase {
     config.CurrentLimits = currentLimitsConfigs;
     motor.getConfigurator().apply(config);
     motor.getPosition().setUpdateFrequency(50);
+    motor.getStatorCurrent().setUpdateFrequency(50);
+    motor.optimizeBusUtilization();
   
      // motor.optimizeBusUtilization();
   }

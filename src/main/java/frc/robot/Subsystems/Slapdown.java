@@ -60,7 +60,7 @@ public class Slapdown extends SubsystemBase {
   }
 
   private void configPivot(TalonFX motor, NeutralModeValue neutralMode, InvertedValue direction){
-    motor.setNeutralMode(neutralMode);
+    // motor.setNeutralMode(neutralMode);
     TalonFXConfiguration config = new TalonFXConfiguration();
     CurrentLimitsConfigs currentLimitsConfigs = new CurrentLimitsConfigs();
     config.MotorOutput.Inverted = direction;
@@ -81,6 +81,10 @@ public class Slapdown extends SubsystemBase {
 
     motor.getConfigurator().apply(config);
     motor.getConfigurator().apply(position);
+    motor.getStatorCurrent().setUpdateFrequency(50);
+    motor.getPosition().setUpdateFrequency(50);
+    motor.getSupplyCurrent().setUpdateFrequency(50);
+    motor.optimizeBusUtilization(); 
   }
 
 
