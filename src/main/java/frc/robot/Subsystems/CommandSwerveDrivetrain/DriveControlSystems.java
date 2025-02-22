@@ -88,15 +88,15 @@ public class DriveControlSystems {
             driverRX = homingL1();
         }
 
-        
-        return new SwerveRequest.FieldCentricFacingAngle()
-        .withVelocityX(driverLX)
-        .withVelocityY(driverLY)
-        .withTargetRateFeedforward(driverRX)
-        .withForwardPerspective(ForwardPerspectiveValue.BlueAlliance)
-        .withDriveRequestType(com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType.Velocity)
-        .withSteerRequestType(com.ctre.phoenix6.swerve.SwerveModule.SteerRequestType.MotionMagicExpo)
-        .withDesaturateWheelSpeeds(true);
+        return new SwerveRequest.FieldCentric().withVelocityX(driverLY).withVelocityY(-driverLX).withRotationalRate(driverRX);
+        // return new SwerveRequest.FieldCentricFacingAngle()
+        // .withVelocityX(driverLY)
+        // .withVelocityY(-driverLX)
+        // .withTargetRateFeedforward(driverRX)
+        // .withForwardPerspective(ForwardPerspectiveValue.BlueAlliance)
+        // .withDriveRequestType(com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType.Velocity)
+        // .withSteerRequestType(com.ctre.phoenix6.swerve.SwerveModule.SteerRequestType.MotionMagicExpo)
+        // .withDesaturateWheelSpeeds(true);
     }
 
     // private double[] previousVelocities = new double[4]; // To store previous velocity for each module

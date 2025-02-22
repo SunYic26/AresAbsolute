@@ -37,13 +37,13 @@ public class Elevator extends SubsystemBase {
   }
 
   public enum ElevatorState {
-    GROUND(0.3),
+    GROUND(0.1),
     L1(15),
     L2(30),
     L3(45),
-    L4(64.375),
-    SOURCE(37.700684);
-    //62.1 should be max
+    L4(60),
+    SOURCE(10);
+    //48.1 should be max
     private double encoderPosition;
     private ElevatorState(double encoderPosition){
       this.encoderPosition = encoderPosition;
@@ -82,6 +82,8 @@ public class Elevator extends SubsystemBase {
     config.CurrentLimits = currentLimitsConfigs;
     motor.getConfigurator().apply(config);
     motor.getPosition().setUpdateFrequency(50);
+    motor.getStatorCurrent().setUpdateFrequency(50);
+    motor.optimizeBusUtilization();
   
      // motor.optimizeBusUtilization();
   }
@@ -136,5 +138,6 @@ public class Elevator extends SubsystemBase {
   public void periodic() {
     SmartDashboard.putNumber("elevator position", getPosition());
     SmartDashboard.putBoolean("beam break result", getBeamResult());
+    SmartDashboard.putNumber("elevator stator current", getCurrent());
   }
 }

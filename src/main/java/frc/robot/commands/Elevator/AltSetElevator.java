@@ -54,13 +54,7 @@ public class AltSetElevator extends Command {
   public void initialize() {
     timer.restart();
     controller.disableContinuousInput();
-    if(goalPosition > s_Elevator.getPosition()){
-    initialState = new State(s_Elevator.getPosition(), Constants.elevatorMaxVelocity);
-  }else{
-    initialState = new State(s_Elevator.getPosition(), -Constants.elevatorMaxVelocity);
-  }
-    // timer.restart();
-    // initialState = new State(s_Elevator.getPosition(), s_Elevator.getVelocity());
+    initialState = new State(s_Elevator.getPosition(), s_Elevator.getVelocity());
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -77,7 +71,8 @@ public class AltSetElevator extends Command {
     // System.out.println("pid output: " + pidoutput);
     // s_Elevator.setVoltage(controller.calculate(s_Elevator.getPosition(), setpoint.position) + feedforward.calculate(setpoint.velocity));
     // SmartDashboard.putNumber("elevator follower voltage", s_Elevator.getFollowerVoltage());
-    error = Math.abs(s_Elevator.getPosition() - setpoint.position);
+    error = s_Elevator.getPosition() - setpoint.position;
+    SmartDashboard.putNumber("current error", error);
     // System.out.println(s_Elevator.getFollowerVoltage());
     System.out.println("current setpoint error " + error);
   }
