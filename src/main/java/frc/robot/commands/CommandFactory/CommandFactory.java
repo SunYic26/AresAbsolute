@@ -12,10 +12,13 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Subsystems.Slapdown.PivotState;
 import frc.robot.Constants.FieldConstants.ReefConstants;
+import frc.robot.Subsystems.Elevator;
 import frc.robot.Subsystems.Slapdown;
+import frc.robot.Subsystems.Elevator.ElevatorState;
 import frc.robot.Subsystems.Slapdown.RollerState;
 import frc.robot.commands.CancelableCommand;
 import frc.robot.commands.Autos.FollowChoreoTrajectory;
+import frc.robot.commands.Elevator.AltSetElevator;
 import frc.robot.commands.Pivot.SetSlapdownPivot;
 import frc.robot.commands.Pivot.SmartIntake;
 import frc.robot.commands.SwerveCommands.DriveToPose;
@@ -62,9 +65,15 @@ public class CommandFactory {
             
     }
 
-    public static Command AutoScoreCoral(ReefPoleLevel level, ReefPoleSide side, CommandXboxController controller){
+    public static Command algeaOuttake() {
+        return new SequentialCommandGroup(
+            new InstantCommand()
+         );
+     }
+
+    public static Command AutoScoreCoral(ElevatorState level, ReefPoleSide side, CommandXboxController controller){
         return new ParallelCommandGroup(
-            //align elevator to reef level
+            new AltSetElevator(level),
             new DriveToPose(side)
         ).raceWith(new CancelableCommand(controller));
     }
