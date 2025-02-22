@@ -71,7 +71,8 @@ public class AltSetElevator extends Command {
     // System.out.println("pid output: " + pidoutput);
     // s_Elevator.setVoltage(controller.calculate(s_Elevator.getPosition(), setpoint.position) + feedforward.calculate(setpoint.velocity));
     // SmartDashboard.putNumber("elevator follower voltage", s_Elevator.getFollowerVoltage());
-    error = Math.abs(s_Elevator.getPosition() - setpoint.position);
+    error = s_Elevator.getPosition() - setpoint.position;
+    SmartDashboard.putNumber("current error", error);
     // System.out.println(s_Elevator.getFollowerVoltage());
     System.out.println("current setpoint error " + error);
   }

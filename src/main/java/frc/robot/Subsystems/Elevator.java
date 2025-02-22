@@ -37,13 +37,13 @@ public class Elevator extends SubsystemBase {
   }
 
   public enum ElevatorState {
-    GROUND(0.3),
-    L1(15),
-    L2(30),
-    L3(45),
-    L4(62),
-    SOURCE(37.700684);
-    //62.1 should be max
+    GROUND(0.1),
+    L1(12),
+    L2(24),
+    L3(36),
+    L4(48),
+    SOURCE(10);
+    //48.1 should be max
     private double encoderPosition;
     private ElevatorState(double encoderPosition){
       this.encoderPosition = encoderPosition;
