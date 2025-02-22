@@ -148,7 +148,7 @@ public class RobotContainer {
     // driverDpadUp.onTrue(new InstantCommand(()-> endEffector.setSpeed(0.5)));
    //  driverDpadDown.onTrue(new InstantCommand(()-> endEffector.setSpeed(-0.5)));
     // driverDpadLeft.onTrue(new InstantCommand(()-> endEffector.setSpeed(0)));
-
+    driverDpadRight.onTrue(new SetSlapdownPivot(PivotState.UP));
     // driver.a().onTrue(new InstantCommand(() -> elevator.zeroPosition()));
     driver.a().onTrue(new AltSetElevator(ElevatorState.L4));
     driver.povUp().onTrue(new AltSetElevator(ElevatorState.L1));
