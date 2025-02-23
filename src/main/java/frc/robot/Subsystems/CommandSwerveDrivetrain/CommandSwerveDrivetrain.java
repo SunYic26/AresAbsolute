@@ -89,7 +89,6 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
 
     // private DriveControlSystems controlSystem  = new DriveControlSystems(); //only for trajectory following
 
-    StructArrayPublisher<SwerveModuleState> publisher = NetworkTableInstance.getDefault().getStructArrayTopic("MyStates", SwerveModuleState.struct).publish();
 
     private static CommandSwerveDrivetrain s_Swerve;
 
@@ -414,8 +413,6 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
             s_Swerve.getModule(2).getCurrentState(),
             s_Swerve.getModule(3).getCurrentState()
         };
-        // StructArrayPublisher<SwerveModuleState> publisher = NetworkTableInstance.getDefault().getStructArrayTopic("MyStates", SwerveModuleState.struct).publish();
-        publisher.set(states);
 
         //allows driver to see if resetting worked
         // SmartDashboard.putBoolean("Odo Reset (last 5 sec)", lastTimeReset != -1 && Timer.getFPGATimestamp() - lastTimeReset < 5);
