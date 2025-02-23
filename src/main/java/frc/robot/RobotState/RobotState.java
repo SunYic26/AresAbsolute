@@ -234,7 +234,7 @@ public class RobotState { //will estimate pose with odometry and correct drift w
     }
 
     public synchronized ITranslation2d getInitialFieldToOdom() {
-        if (initialFieldToOdo.isEmpty()) return ITranslation2d.identity();
+        if (initialFieldToOdo.isEmpty()) { return ITranslation2d.identity(); }
         return initialFieldToOdo.get();
     }
 
@@ -276,12 +276,12 @@ public class RobotState { //will estimate pose with odometry and correct drift w
         return getInterpolatedValue(robotIMUVelocity, robotIMUVelocity.lastKey().value, ITwist2d.identity());
     }
 
-    public synchronized IChassisSpeeds getLatestOdomRobotVelocity() {
-        return getInterpolatedValue(robotOdomVelocity, robotOdomVelocity.lastKey().value, IChassisSpeeds.identity());
+    public synchronized ITwist2d getIMURobotVelocity(double timestamp) { // DONT USE
+        return getInterpolatedValue(robotIMUVelocity, timestamp, ITwist2d.identity());
     }
 
-    public synchronized ITwist2d getIMURobotVelocity(double timestamp) { //DONT USE
-        return getInterpolatedValue(robotIMUVelocity, timestamp, ITwist2d.identity());
+    public synchronized IChassisSpeeds getLatestOdomRobotVelocity() {
+        return getInterpolatedValue(robotOdomVelocity, robotOdomVelocity.lastKey().value, IChassisSpeeds.identity());
     }
 
     public synchronized IChassisSpeeds getOdomRobotVelocity(double timestamp) {
@@ -299,11 +299,12 @@ public class RobotState { //will estimate pose with odometry and correct drift w
         return Math.signum(Math.atan2(latestVelocity.getVy(), latestVelocity.getVx())) * latestVelocity.toMagnitude();
     }
 
+    @AutoLogOutput(key = "RobotState/CurrentFilteredPose2d")
     public Pose2d getCurrentPose2d() {
         return new Pose2d(getLatestFilteredPose().getX(), getLatestFilteredPose().getY(), drivetrain.getRotation3d().toRotation2d());
     }
 
-    /// / =======---===[⚙ Pigeon2.0]===---========
+    // / =======---===[⚙ Pigeon2.0]===---========
 
     public void updateSensors() {
         double[] newAccel = accelFilter.filterAcceleration(rawRobotAcceleration());
