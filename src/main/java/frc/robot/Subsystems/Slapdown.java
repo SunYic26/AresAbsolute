@@ -74,9 +74,9 @@ public class Slapdown extends SubsystemBase {
 
     Slot1Configs position = new Slot1Configs();
     position.GravityType = GravityTypeValue.Arm_Cosine;
-    position.kP = 6;
-    position.kI = 1.5;
-    position.kG = 1;
+    position.kP = 7.2;
+    position.kI = 2.3;
+    position.kG = 1.3;
 
 
     motor.getConfigurator().apply(config);
@@ -102,16 +102,20 @@ public class Slapdown extends SubsystemBase {
     config.CurrentLimits = currentLimitsConfigs;
 
     Slot1Configs position = new Slot1Configs();
-    position.kP = 1.4;
+    position.kP = 2.4;
     position.kG = 1;
+    motor.getSupplyCurrent().setUpdateFrequency(50);
+    motor.getStatorCurrent().setUpdateFrequency(50);
+    motor.getVelocity().setUpdateFrequency(50);
+
 
     motor.getConfigurator().apply(config);
     motor.getConfigurator().apply(position);
   }
-
+;
   public enum PivotState{
-    UP(-0.145),
-    HOLD(-0.095),
+    UP(0),
+    HOLD(0.06),
     DOWN(0.8125);
 
     private double position;
@@ -124,8 +128,8 @@ public class Slapdown extends SubsystemBase {
   }
 
   public enum RollerState{
-    INTAKE(0.5425),
-    OUTTAKE(-0.5425),
+    INTAKE(0.45),
+    OUTTAKE(-0.35),
     OFF(0);
     private double motorSpeed;
     private RollerState(double motorSpeed){
@@ -161,6 +165,9 @@ public class Slapdown extends SubsystemBase {
   public double getPivotCurrent(){
     return leader.getStatorCurrent().getValueAsDouble();
   }
+  public double getRollerVelocity(){
+    return roller.getVelocity().getValueAsDouble();
+  }
 
   public void brakePivot(){
     leader.setControl(
@@ -188,7 +195,7 @@ public class Slapdown extends SubsystemBase {
     leader.setControl(new PositionVoltage(state.getPosition()));
   }
 
-  public double getResistiveCurrent(){
+  public double getSupplyCurrent(){
     return roller.getSupplyCurrent().getValueAsDouble();
   }
   

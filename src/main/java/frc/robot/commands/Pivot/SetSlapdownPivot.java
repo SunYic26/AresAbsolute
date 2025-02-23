@@ -17,7 +17,7 @@ public class SetSlapdownPivot extends Command {
   private Slapdown s_Slapdown;
   private double angleSetpoint;
   private PivotState state;
-  private PIDController controller = new PIDController(3, 0, 0.3);
+  private PIDController controller = new PIDController(4.1, 2.3, 0.3);
 
   public SetSlapdownPivot(PivotState state) {
     s_Slapdown = Slapdown.getInstance();
@@ -43,6 +43,8 @@ public class SetSlapdownPivot extends Command {
 
     if(state != PivotState.DOWN)
       s_Slapdown.brakePivot(state);
+
+    System.out.println("ended slapdown pivot");
   }
 
   // Returns true when the command should end.

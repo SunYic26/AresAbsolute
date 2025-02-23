@@ -44,7 +44,7 @@ public class EndEffector extends SubsystemBase {
   }
 
   public EndEffector() {
-    coral = new TalonFX(Constants.HardwarePorts.outtakeID);
+    coral = new TalonFX(Constants.HardwarePorts.outtakeID, "mechbus");
     aligner = new LaserCan(Constants.HardwarePorts.laserID);
     configLaser();
     // config(roller, InvertedValue.Clockwise_Positive, NeutralModeValue.Brake);

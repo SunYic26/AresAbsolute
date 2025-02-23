@@ -196,19 +196,20 @@ public class RobotContainer {
     driver.x().onTrue(new SetFunnel(FunnelState.OFF));
     driver.b().onTrue(new SetFunnel(FunnelState.INTAKING));
     driver.a().onTrue(new outtakeCoral());
-    driver.a().onTrue(new indexCoral());
+    driver.y().onTrue(new indexCoral());
+    driverStart.onTrue(new InstantCommand(()-> intake.resetPivotPosition()));
 
-    driver.povCenter().onTrue(new ZeroElevator());
-    driver.povDown().onTrue(new AltSetElevator(ElevatorState.L4));
-    driver.povRight().onTrue(new AltSetElevator(ElevatorState.L1));
-    driver.povUp().onTrue(new AltSetElevator(ElevatorState.L3));
-    driver.povLeft().onTrue(new AltSetElevator(ElevatorState.L2));
+    // driver.povCenter().onTrue(new ZeroElevator());
+    // driver.povDown().onTrue(new AltSetElevator(ElevatorState.L4));
+    // driver.povRight().onTrue(new AltSetElevator(ElevatorState.L1));
+    // driver.povUp().onTrue(new AltSetElevator(ElevatorState.L3));
+    // driver.povLeft().onTrue(new AltSetElevator(ElevatorState.L2));
 
 
 
-    // driver.povUp().onTrue(CommandFactory.smartAlgeaIntake());
-    // driver.povLeft().onTrue(new setRoller(RollerState.OUTTAKE));
-    // driver.povRight().onTrue(new setRoller(RollerState.OFF));
+    driver.povUp().onTrue(CommandFactory.smartAlgeaIntake());
+    driver.povLeft().onTrue(new setRoller(RollerState.OUTTAKE));
+    driver.povRight().onTrue(new setRoller(RollerState.OFF));
 
   }
 

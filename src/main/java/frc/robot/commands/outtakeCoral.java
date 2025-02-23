@@ -18,27 +18,25 @@ public class outtakeCoral extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    timer.reset();
-    s_EndEffector.setOuttakeSpeed(0.4);
+    timer.restart();
+    s_EndEffector.setOuttakeSpeed(-0.4);
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    if(timer.hasElapsed(0.5)) {
-      finished = true;
-    }
+    System.out.println(timer.get());
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    s_EndEffector.setOuttakeSpeed(0.2);
+    s_EndEffector.setOuttakeSpeed(0);
   }
 
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return finished;
+    return timer.hasElapsed(0.5);
   }
 }
