@@ -4,47 +4,46 @@
 
 package frc.robot.commands.Slapdown.Pivot;
 
-import frc.robot.Constants;
 import frc.robot.Subsystems.Slapdown;
 import frc.robot.Subsystems.Slapdown.PivotState;
+
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj2.command.Command;
 
-public class SeekPivotState extends Command { // Dont Use
+public class SetPivotState extends Command {
   private Slapdown s_Slapdown;
   private double angleSetpoint;
-  private double speed;
   private PivotState state;
-  private PIDController controller = new PIDController(2.8, 0, 0);
-  
-  public SeekPivotState(PivotState state) {
+  private PIDController controller = new PIDController(4.1, 2.3, 0.3);
+
+  public SetPivotState(PivotState state) {
     s_Slapdown = Slapdown.getInstance();
     angleSetpoint = state.getPosition();
     this.state = state;
+    addRequirements(s_Slapdown);
   }
 
   @Override
   public void initialize() {
-    if(state != PivotState.DOWN){
-      s_Slapdown.setPivotSpeed(-0.35);
-    } else{
-      s_Slapdown.setPivotSpeed(0.3);
-    }
   }
-
+  
   @Override
   public void execute() {
     s_Slapdown.setPivotVoltage(controller.calculate(s_Slapdown.getPivotPosition(), angleSetpoint));
-
   }
 
   @Override
   public void end(boolean interrupted) {
-    s_Slapdown.brakePivot();
+    s_Slapdown.setPivotVoltage(0);
+
+    if(state != PivotState.DOWN)
+      s_Slapdown.brakePivot(state);
+
+    System.out.println("SetPivotState Ended");
   }
 
   @Override
   public boolean isFinished() {
-    return Math.abs(s_Slapdown.getPivotPosition() - angleSetpoint) < 0.1 || s_Slapdown.getPivotStatorCurrent() > Constants.intakePivotCurrentThreshold;
+    return Math.abs(s_Slapdown.getPivotPosition() - angleSetpoint) < 0.1;
   }
 }

@@ -9,18 +9,15 @@ import com.ctre.phoenix6.configs.Slot1Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.PositionVoltage;
-import com.ctre.phoenix6.controls.TorqueCurrentFOC;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.controls.VoltageOut;
 
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import org.littletonrobotics.junction.AutoLogOutput;
-import org.littletonrobotics.junction.Logger;
 
 public class Slapdown extends SubsystemBase {
   
@@ -50,7 +47,7 @@ public class Slapdown extends SubsystemBase {
     configPivot(follower, NeutralModeValue.Brake, InvertedValue.CounterClockwise_Positive);
     configRoller(roller, NeutralModeValue.Brake, InvertedValue.CounterClockwise_Positive);
 
-    torqueOutput = new TorqueCurrentFOC(0);
+//    torqueOutput = new TorqueCurrentFOC(0);
   }
 
   private void configPivot(TalonFX motor, NeutralModeValue neutralMode, InvertedValue direction){
@@ -73,15 +70,13 @@ public class Slapdown extends SubsystemBase {
     
     motor.optimizeBusUtilization();
 
-    motor.getStatorCurrent().setUpdateFrequency(50);
-    motor.getPosition().setUpdateFrequency(50);
-    motor.getSupplyCurrent().setUpdateFrequency(50);
+    motor.getStatorCurrent().setUpdateFrequency(Constants.dtMs);
+    motor.getPosition().setUpdateFrequency(Constants.dtMs);
+    motor.getSupplyCurrent().setUpdateFrequency(Constants.dtMs);
 
     motor.getConfigurator().apply(config);
     motor.getConfigurator().apply(position);
   }
-
-
   private void configRoller(TalonFX motor, NeutralModeValue neutralMode, InvertedValue direction){
     TalonFXConfiguration config = new TalonFXConfiguration();
     CurrentLimitsConfigs currentLimitsConfigs = new CurrentLimitsConfigs();
@@ -100,14 +95,14 @@ public class Slapdown extends SubsystemBase {
     
     motor.optimizeBusUtilization();
     
-    motor.getSupplyCurrent().setUpdateFrequency(50);
-    motor.getStatorCurrent().setUpdateFrequency(50);
-    motor.getVelocity().setUpdateFrequency(50);
+    motor.getSupplyCurrent().setUpdateFrequency(Constants.dtMs);
+    motor.getStatorCurrent().setUpdateFrequency(Constants.dtMs);
+    motor.getVelocity().setUpdateFrequency(Constants.dtMs);
     
     motor.getConfigurator().apply(config);
     motor.getConfigurator().apply(position);
   }
-;
+
   public enum PivotState{
     UP(0),
     HOLD(0.06), //TODO Test if we actually need this or if we can just use UP state instead - ie UP doesnt push the ball out
@@ -121,7 +116,6 @@ public class Slapdown extends SubsystemBase {
       return position; 
     }
   }
-
   public enum RollerState{
     INTAKE(0.45),
     OUTTAKE(-0.35),
@@ -154,19 +148,17 @@ public class Slapdown extends SubsystemBase {
   public void setRollerVoltage(double voltage){
     roller.setControl(new VoltageOut(voltage));
   }
+  @AutoLogOutput(key = "Slapdown/Roller/Velocity")
+  public double getRollerVelocity(){
+    return roller.getVelocity().getValueAsDouble();
+  }
   @AutoLogOutput(key = "Slapdown/Roller/SupplyCurrent")
-
   public double getRollerSupplyCurrent(){
     return roller.getSupplyCurrent().getValueAsDouble();
   }
   @AutoLogOutput(key = "Slapdown/Roller/StatorCurrent")
-
   public double getRollerStatorCurrent(){
     return roller.getStatorCurrent().getValueAsDouble();
-  }
-  @AutoLogOutput(key = "Slapdown/Roller/Velocity")
-  public double getRollerVelocity(){
-    return roller.getVelocity().getValueAsDouble();
   }
   
   /**
@@ -206,17 +198,22 @@ public class Slapdown extends SubsystemBase {
     leader.setControl(new VoltageOut(voltage));
   }
 
-  public void haltPivot(){
+  public void stopPivot(){
     leader.set(0);
+  }
+  public void stopRoller(){
+    roller.set(0);
+  }
+  public void stop(){
+    stopPivot();
+    stopRoller();
   }
 
   @AutoLogOutput(key = "Slapdown/Pivot/Position")
-
   public double getPivotPosition(){
     return leader.getPosition().getValueAsDouble();
   }
   @AutoLogOutput(key = "Slapdown/Pivot/StatorCurrent")
-
   public double getPivotStatorCurrent(){
     return leader.getStatorCurrent().getValueAsDouble();
   }
