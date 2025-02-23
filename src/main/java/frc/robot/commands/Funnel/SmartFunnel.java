@@ -11,30 +11,30 @@ import frc.robot.Subsystems.Funnel;
 import frc.robot.Subsystems.Funnel.FunnelState;
 
 public class SmartFunnel extends Command {
-  private Funnel s_Funnel;
-  private EndEffector s_EndEffector;
-  Timer timer = new Timer();
-  
+    private Funnel s_Funnel;
+    private EndEffector s_EndEffector;
+    Timer timer = new Timer(); // Maybe used later for timeout
 
-  public SmartFunnel(){
-    s_Funnel = Funnel.getInstance();
-    s_EndEffector = EndEffector.getInstance();
-    addRequirements(s_Funnel);
-  }
 
-  @Override
-  public void initialize() {
-    s_Funnel.setState(FunnelState.INTAKE);
-  }
-  
-  @Override
-  public void end(boolean interrupted) {
-    s_Funnel.setState(FunnelState.OFF);
-    System.out.println("SmartCoralIntake Ended");
-  }
+    public SmartFunnel() {
+        s_Funnel = Funnel.getInstance();
+        s_EndEffector = EndEffector.getInstance();
+        addRequirements(s_Funnel);
+    }
 
-  @Override
-  public boolean isFinished() {
-    return s_EndEffector.getLaserMeasurement().distance_mm < 30;// 3 cm
-  }
+    @Override
+    public void initialize() {
+        s_Funnel.setState(FunnelState.INTAKE);
+    }
+
+    @Override
+    public void end(boolean interrupted) {
+        s_Funnel.setState(FunnelState.OFF);
+        System.out.println("SmartCoralIntake Ended");
+    }
+
+    @Override
+    public boolean isFinished() {
+        return s_EndEffector.getLaserMeasurement().distance_mm < 30;// 3 cm
+    }
 }

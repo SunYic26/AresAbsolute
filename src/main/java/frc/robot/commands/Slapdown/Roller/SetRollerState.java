@@ -8,34 +8,30 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Subsystems.Slapdown;
 import frc.robot.Subsystems.Slapdown.RollerState;
 
-/* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
 public class SetRollerState extends Command {
-  private Slapdown s_Slapdown;
-  private RollerState state;
-  
-  public SetRollerState(RollerState state) {
-    s_Slapdown = Slapdown.getInstance();
-    this.state = state;
-  }
+    private Slapdown s_Slapdown;
+    private RollerState state;
 
-  // Called when the command is initially scheduled.
-  @Override
-  public void initialize() {
-    s_Slapdown.setRollerSpeed(state.getRollerSpeed());
-  }
+    public SetRollerState(RollerState state) {
+        s_Slapdown = Slapdown.getInstance();
+        this.state = state;
+    }
 
-  // Called every time the scheduler runs while the command is scheduled.
-  @Override
-  public void execute() {}
+    @Override
+    public void initialize() {
+        s_Slapdown.setRollerSpeed(state.getRollerSpeed());
+    }
 
-  // Called once the command ends or is interrupted.
-  @Override
-  public void end(boolean interrupted) {
-  }
+    @Override
+    public void execute() {
+    }
 
-  // Returns true when the command should end.
-  @Override
-  public boolean isFinished() {
-    return true;
-  }
+    @Override
+    public void end(boolean interrupted) {
+    }
+
+    @Override
+    public boolean isFinished() {
+        return true;
+    }
 }

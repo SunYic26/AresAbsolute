@@ -9,26 +9,26 @@ import frc.robot.Subsystems.Funnel;
 import frc.robot.Subsystems.Funnel.FunnelState;
 
 public class SetFunnelState extends Command {
-  private Funnel s_Funnel;
-  private FunnelState state;
+    private Funnel s_Funnel;
+    private FunnelState state;
 
-  public SetFunnelState(FunnelState state){
-    s_Funnel = Funnel.getInstance();
-    this.state = state;
-    addRequirements(s_Funnel);
-  }
+    public SetFunnelState(FunnelState state) {
+        s_Funnel = Funnel.getInstance();
+        this.state = state;
+        addRequirements(s_Funnel);
+    }
 
-  @Override
-  public void initialize() {
-    s_Funnel.setState(state);
-  }
+    @Override
+    public void initialize() {
+        s_Funnel.setState(state);
+    }
 
-  public void end(boolean interrupted) {
-    System.out.println("SetFunnelState Ended");
-  }
+    public void end(boolean interrupted) {
+        System.out.println("SetFunnelState Ended");
+    }
 
-  @Override
-  public boolean isFinished() {
-    return true;
-  }
+    @Override
+    public boolean isFinished() {
+        return true;
+    }
 }

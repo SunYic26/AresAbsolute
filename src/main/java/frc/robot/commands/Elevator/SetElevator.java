@@ -15,67 +15,68 @@ import frc.robot.Subsystems.Elevator.ElevatorState;
 import org.littletonrobotics.junction.Logger;
 
 public class SetElevator extends Command {
-  private TrapezoidProfile.Constraints constraints = new TrapezoidProfile.Constraints(Constants.elevatorMaxVelocity, Constants.elevatorMaxAcceleration);
-  private double goalPosition;
-  private double error;
-  private double pidoutput;
-  private State initialState;
-  private State setpoint;
-  private Timer timer;
-  private TrapezoidProfile profile = new TrapezoidProfile(constraints);
-  private PIDController controller = new PIDController(1.5, 0.5, 0.04);
-  private Elevator s_Elevator;
-  public SetElevator(ElevatorState state) {
-    this(state.getEncoderPosition());
-  }
+    private TrapezoidProfile.Constraints constraints = new TrapezoidProfile.Constraints(Constants.elevatorMaxVelocity, Constants.elevatorMaxAcceleration);
+    private double goalPosition;
+    private double error;
+    private double pidoutput;
+    private State initialState;
+    private State setpoint;
+    private Timer timer;
+    private TrapezoidProfile profile = new TrapezoidProfile(constraints);
+    private PIDController controller = new PIDController(1.5, 0.5, 0.04);
+    private Elevator s_Elevator;
 
-  public SetElevator(double goalPosition){
-    this.goalPosition = goalPosition;
-    timer = new Timer();
-    
-    s_Elevator = Elevator.getInstance();
-    addRequirements(s_Elevator);
-  }
+    public SetElevator(ElevatorState state) {
+        this(state.getEncoderPosition());
+    }
 
-  @Override
-  public void initialize() {
-    timer.restart();
-    controller.disableContinuousInput();
-    initialState = new State(s_Elevator.getPosition(), s_Elevator.getVelocity());
-  }
+    public SetElevator(double goalPosition) {
+        this.goalPosition = goalPosition;
+        timer = new Timer();
 
-  @Override
-  public void execute() {
-    setpoint = profile.calculate(timer.get(), initialState, new State(goalPosition, 0));
-    pidoutput = controller.calculate(s_Elevator.getPosition(), setpoint.position); 
-    s_Elevator.setVoltage(pidoutput); // used to tune feedforward
+        s_Elevator = Elevator.getInstance();
+        addRequirements(s_Elevator);
+    }
 
-    error = s_Elevator.getPosition() - setpoint.position;
-    Logger.recordOutput("Elevator/Error", error);
-    Logger.recordOutput("Elevator/PIDOutputVoltage", pidoutput);
-    Logger.recordOutput("Elevator/TrapezoidSetpoint", setpoint.position);
-    Logger.recordOutput("Elevator/PIDSetpoint", controller.getSetpoint());
-  }
+    @Override
+    public void initialize() {
+        timer.restart();
+        controller.disableContinuousInput();
+        initialState = new State(s_Elevator.getPosition(), s_Elevator.getVelocity());
+    }
 
-  @Override
-  public void end(boolean interrupted) {
+    @Override
+    public void execute() {
+        setpoint = profile.calculate(timer.get(), initialState, new State(goalPosition, 0));
+        pidoutput = controller.calculate(s_Elevator.getPosition(), setpoint.position);
+        s_Elevator.setVoltage(pidoutput); // used to tune feedforward
 
-    System.out.println("Elevator Stats");
-    System.out.println("Total Time: " + timer.get());
-    System.out.println("Expected Time: " + profile.totalTime());
-    timer.stop();
-    s_Elevator.stop();
-    System.out.println("Final Error: " + (Math.abs(goalPosition - s_Elevator.getPosition())));
+        error = s_Elevator.getPosition() - setpoint.position;
+        Logger.recordOutput("Elevator/Error", error);
+        Logger.recordOutput("Elevator/PIDOutputVoltage", pidoutput);
+        Logger.recordOutput("Elevator/TrapezoidSetpoint", setpoint.position);
+        Logger.recordOutput("Elevator/PIDSetpoint", controller.getSetpoint());
+    }
 
-    Logger.recordOutput("Elevator/TotalTime", timer.get());
-    Logger.recordOutput("Elevator/ExpectedTime", profile.totalTime());
-    Logger.recordOutput("Elevator/FinalError", Math.abs(goalPosition - s_Elevator.getPosition()));
-    
-    System.out.println("SetElevator Ended");
-  }
+    @Override
+    public void end(boolean interrupted) {
 
-  @Override
-  public boolean isFinished() {
-    return Math.abs(s_Elevator.getPosition() - goalPosition) < 0.1;
-  }
+        System.out.println("Elevator Stats");
+        System.out.println("Total Time: " + timer.get());
+        System.out.println("Expected Time: " + profile.totalTime());
+        timer.stop();
+        s_Elevator.stop();
+        System.out.println("Final Error: " + (Math.abs(goalPosition - s_Elevator.getPosition())));
+
+        Logger.recordOutput("Elevator/TotalTime", timer.get());
+        Logger.recordOutput("Elevator/ExpectedTime", profile.totalTime());
+        Logger.recordOutput("Elevator/FinalError", Math.abs(goalPosition - s_Elevator.getPosition()));
+
+        System.out.println("SetElevator Ended");
+    }
+
+    @Override
+    public boolean isFinished() {
+        return Math.abs(s_Elevator.getPosition() - goalPosition) < 0.1;
+    }
 }

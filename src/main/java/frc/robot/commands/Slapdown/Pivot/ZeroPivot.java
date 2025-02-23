@@ -4,15 +4,12 @@
 
 package frc.robot.commands.Slapdown.Pivot;
 
-import frc.robot.Constants;
 import frc.robot.Subsystems.Slapdown;
-import frc.robot.Subsystems.Slapdown.PivotState;
-import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj2.command.Command;
 
-public class ZeroPivot extends Command { 
+public class ZeroPivot extends Command {
     private Slapdown s_Slapdown;
-    
+
     public ZeroPivot() {
         s_Slapdown = Slapdown.getInstance();
         addRequirements(s_Slapdown);

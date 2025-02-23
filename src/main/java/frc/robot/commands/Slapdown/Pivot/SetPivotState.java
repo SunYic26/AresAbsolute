@@ -11,39 +11,39 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj2.command.Command;
 
 public class SetPivotState extends Command {
-  private Slapdown s_Slapdown;
-  private double angleSetpoint;
-  private PivotState state;
-  private PIDController controller = new PIDController(4.1, 2.3, 0.3);
+    private Slapdown s_Slapdown;
+    private double angleSetpoint;
+    private PivotState state;
+    private PIDController controller = new PIDController(4.1, 2.3, 0.3);
 
-  public SetPivotState(PivotState state) {
-    s_Slapdown = Slapdown.getInstance();
-    angleSetpoint = state.getPosition();
-    this.state = state;
-    addRequirements(s_Slapdown);
-  }
+    public SetPivotState(PivotState state) {
+        s_Slapdown = Slapdown.getInstance();
+        angleSetpoint = state.getPosition();
+        this.state = state;
+        addRequirements(s_Slapdown);
+    }
 
-  @Override
-  public void initialize() {
-  }
-  
-  @Override
-  public void execute() {
-    s_Slapdown.setPivotVoltage(controller.calculate(s_Slapdown.getPivotPosition(), angleSetpoint));
-  }
+    @Override
+    public void initialize() {
+    }
 
-  @Override
-  public void end(boolean interrupted) {
-    s_Slapdown.setPivotVoltage(0);
+    @Override
+    public void execute() {
+        s_Slapdown.setPivotVoltage(controller.calculate(s_Slapdown.getPivotPosition(), angleSetpoint));
+    }
 
-    if(state != PivotState.DOWN)
-      s_Slapdown.brakePivot(state);
+    @Override
+    public void end(boolean interrupted) {
+        s_Slapdown.setPivotVoltage(0);
 
-    System.out.println("SetPivotState Ended");
-  }
+        if (state != PivotState.DOWN)
+            s_Slapdown.brakePivot(state);
 
-  @Override
-  public boolean isFinished() {
-    return Math.abs(s_Slapdown.getPivotPosition() - angleSetpoint) < 0.1;
-  }
+        System.out.println("SetPivotState Ended");
+    }
+
+    @Override
+    public boolean isFinished() {
+        return Math.abs(s_Slapdown.getPivotPosition() - angleSetpoint) < 0.1;
+    }
 }

@@ -13,64 +13,67 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import org.littletonrobotics.junction.AutoLogOutput;
 
-public class Funnel extends SubsystemBase { 
-  private static Funnel instance;
-  
-  private TalonFX roller;
-  
-  private FunnelState state;
+public class Funnel extends SubsystemBase {
+    private static Funnel instance;
 
-  public static Funnel getInstance(){
-    if(instance == null){
-      instance = new Funnel();
+    private TalonFX roller;
+
+    private FunnelState state;
+
+    public static Funnel getInstance() {
+        if (instance == null) {
+            instance = new Funnel();
+        }
+        return instance;
     }
-    return instance;
-  }
 
-  public enum FunnelState{
-    INTAKE(0.5),
-    OFF(0);
-    private double speed;
-    private FunnelState(double speed){
-      this.speed = speed;
+    public enum FunnelState {
+        INTAKE(0.5),
+        OFF(0);
+        private double speed;
+
+        private FunnelState(double speed) {
+            this.speed = speed;
+        }
+
+        private double getSpeed() {
+            return speed;
+        }
     }
-    private double getSpeed(){
-      return speed;
+
+
+    public Funnel() {
+        roller = new TalonFX(Constants.HardwarePorts.funnelID, "mechbus");
+        configMotor(InvertedValue.Clockwise_Positive, NeutralModeValue.Coast);
     }
-  }
 
+    public void configMotor(InvertedValue direction, NeutralModeValue neutralMode) {
+        TalonFXConfiguration config = new TalonFXConfiguration();
 
-  public Funnel() {
-    roller = new TalonFX(Constants.HardwarePorts.funnelID, "mechbus");
-    configMotor(InvertedValue.Clockwise_Positive, NeutralModeValue.Coast);
-  }
+        config.MotorOutput.NeutralMode = neutralMode;
+        config.MotorOutput.Inverted = direction;
 
-  public void configMotor(InvertedValue direction, NeutralModeValue neutralMode){
-    TalonFXConfiguration config = new TalonFXConfiguration();
-
-    config.MotorOutput.NeutralMode = neutralMode;
-    config.MotorOutput.Inverted = direction;
-
-    roller.optimizeBusUtilization();
-    roller.getVelocity().setUpdateFrequency(Constants.dtMs);
+        roller.optimizeBusUtilization();
+        roller.getVelocity().setUpdateFrequency(Constants.dtMs);
     
-    roller.getConfigurator().apply(config);
-  }
+        roller.getConfigurator().apply(config);
+    }
 
-  public void setSpeed(double speed){
-    roller.set(speed);
-  }
+    public void setSpeed(double speed) {
+        roller.set(speed);
+    }
 
-  public void setState(FunnelState desiredState){
-    state = desiredState;
-    roller.set(state.getSpeed());
-  }
-  @AutoLogOutput(key = "Funnel/Velocity")
-  public double getVelocity(){
-    return roller.getVelocity().getValueAsDouble();
-  }
+    public void setState(FunnelState desiredState) {
+        state = desiredState;
+        roller.set(state.getSpeed());
+    }
 
-  @Override
-  public void periodic() {
-  }
+    @AutoLogOutput(key = "Funnel/Velocity")
+    public double getVelocity() {
+        return roller.getVelocity().getValueAsDouble();
+    }
+
+    @Override
+    public void periodic() {
+    }
 }
