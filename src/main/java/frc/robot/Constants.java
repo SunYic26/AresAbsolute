@@ -43,6 +43,7 @@ public final class Constants {
     public static double MOI = 0.14782; //sum of kg * m^2 to center of rotation
     public static double CoF = 1; // coefficient of friction TODO get better one
     public static double wheelRadiusInches = 1.9125; //inches
+    
 
     public static DCMotor motorConfig = new DCMotor(
         Constants.KrakenConstants.nominalVoltageVolts,
@@ -110,6 +111,8 @@ public final class Constants {
     }
 
     public static final double dt = 0.02; // 3/4 of a rotation per second max angular velocity
+    public static int dtMs = 20; //20ms
+    
     
     public static final int timeOutMs = 10;
 
@@ -322,10 +325,11 @@ public final class Constants {
             }
 
 
-            public enum ReefPoleLevel { //We can also leave these empty and just use for display
+            public enum ReefPoleLevel { // Unused
                 L1(0.0),
                 L2(0.0),
-                L3(0.0); //wont be using l4
+                L3(0.0),
+                L4(0.0);
 
                 private final double elevatorLevel;
 

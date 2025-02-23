@@ -14,11 +14,12 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Subsystems.Elevator;
 import frc.robot.Subsystems.CommandSwerveDrivetrain.CommandSwerveDrivetrain;
-        import frc.robot.commands.indexCoral;
-import frc.robot.commands.outtakeCoral;
+import frc.robot.commands.Elevator.AltSetElevator;
+import frc.robot.commands.EndEffector.IndexCoral;
+import frc.robot.commands.EndEffector.OuttakeCoral;
         import frc.robot.commands.CommandFactory.CommandFactory;
-        import frc.robot.commands.Funnel.SetFunnel;
-        import frc.robot.commands.Slapdown.Roller.setRoller;
+        import frc.robot.commands.Funnel.SetFunnelState;
+        import frc.robot.commands.Slapdown.Roller.SetRollerState;
         import frc.robot.Subsystems.CommandSwerveDrivetrain.DriveControlSystems;
 import frc.robot.Subsystems.Elevator.ElevatorState;
 import frc.robot.Subsystems.Funnel.FunnelState;
@@ -99,8 +100,6 @@ public class RobotContainer {
     //bindings
     
     driver.leftTrigger().onTrue(CommandFactory.OffEverything());
-    // driver.a().onTrue(new InstantCommand(()->intake.testUnbrake()));
-    // driver.b().onTrue(new InstantCommand(()->intake.testBrake()));
 
     // driver.a().onTrue(new SetIntakePivot(PivotState.UP));
     // driver.b().onTrue(new SetIntakePivot(PivotState.DOWN));
@@ -131,7 +130,7 @@ public class RobotContainer {
     // driver.x().onTrue(new InstantCommand(()-> elevator.setTorqueOutput(0)));
     // driver.x().onTrue(new InstantCommand(()-> elevator.setSpeed(0.1)));
     // driver.b().onTrue(new InstantCommand(()-> elevator.setSpeed(-0.1)));
-    // driver.a().onTrue(new InstantCommand(()-> elevator.stop()));
+    // driver.a().onTrue(new InstantCommand(()-> elevator.stopPivot()));
 
 
     // driver.x().onTrue(new FollowChoreoTrajectory("halfmeter"));
@@ -153,7 +152,7 @@ public class RobotContainer {
 
     // driver.x().onTrue(CommandFactory.AutoScoreCoral(reefPoleLevel, ReefPoleSide.LEFT, driver));
     // driver.b().onTrue(CommandFactory.AutoScoreCoral(reefPoleLevel, ReefPoleSide.RIGHT, driver));
-    // driver.povDown().onTrue(CommandFactory.smartAlgaeIntake());
+    // driver.povDown().onTrue(CommandFactory.SmartAlgaeIntake());
     // operatorLeftBumper.onTrue(new InstantCommand(()-> operatorPoleLevel = operatorPoleLevel.raiseLevel()));
 
     // final binds (not really)
@@ -163,23 +162,22 @@ public class RobotContainer {
     // driver.leftBumper().onTrue(new InstantCommand(() -> reefPoleLevel = reefPoleLevel.decreaseLevel()));
 
     // driver.a().onTrue(new AltSetElevator(reefPoleLevel));
-    driver.x().onTrue(new SetFunnel(FunnelState.OFF));
-    driver.b().onTrue(new SetFunnel(FunnelState.INTAKING));
-    driver.a().onTrue(new outtakeCoral());
-    driver.y().onTrue(new indexCoral());
-    driverStart.onTrue(new InstantCommand(()-> intake.zeroPivotPosition()));
+    driver.leftTrigger().onTrue(new SetFunnelState(FunnelState.OFF));
+    driver.leftBumper().onTrue(new SetFunnelState(FunnelState.INTAKE));
+    driver.rightTrigger().onTrue(new OuttakeCoral());
+    driver.rightBumper().onTrue(new IndexCoral());
+    driverStart.onTrue(CommandFactory.ZeroAll());
 
-    // driver.povCenter().onTrue(new ZeroElevator());
-    // driver.povDown().onTrue(new AltSetElevator(ElevatorState.L4));
-    // driver.povRight().onTrue(new AltSetElevator(ElevatorState.L1));
-    // driver.povUp().onTrue(new AltSetElevator(ElevatorState.L3));
-    // driver.povLeft().onTrue(new AltSetElevator(ElevatorState.L2));
-
+     driver.povDown().onTrue(new AltSetElevator(ElevatorState.L1));
+     driver.povRight().onTrue(new AltSetElevator(ElevatorState.L2));
+     driver.povLeft().onTrue(new AltSetElevator(ElevatorState.L3));
+    driver.povUp().onTrue(new AltSetElevator(ElevatorState.L4));
 
 
-    driver.povUp().onTrue(CommandFactory.smartAlgaeIntake());
-    driver.povLeft().onTrue(new setRoller(RollerState.OUTTAKE));
-    driver.povRight().onTrue(new setRoller(RollerState.OFF));
+
+    driver.a().onTrue(CommandFactory.SmartAlgaeIntake());
+    driver.b().onTrue(new SetRollerState(RollerState.OUTTAKE));
+    driver.x().onTrue(new SetRollerState(RollerState.OFF));
 
   }
 
