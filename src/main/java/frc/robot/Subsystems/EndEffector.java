@@ -145,6 +145,11 @@ public class EndEffector extends SubsystemBase {
         return laserCAN.getMeasurement();
     }
 
+    @AutoLogOutput(key = "EndEffector/LaserCAN/Distance")
+    public double getLaserDistance(){
+        return getLaserMeasurement().distance_mm;
+    }
+
 
     @Override
     public void periodic() {
