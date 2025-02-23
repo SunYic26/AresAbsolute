@@ -87,6 +87,8 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     private double lastTimeReset = -1;
 
     RobotState robotState;
+    Field2d field = new Field2d();
+    
 
     private Pose2d autoStartPose = new Pose2d(2.0, 2.0, new Rotation2d());
     
@@ -409,11 +411,12 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
             Logger.recordOutput("RobotState/FilteredPose X", currFilteredPose.getX());
             Logger.recordOutput("RobotState/FilteredPose Y", currFilteredPose.getY());
             
-            SmartDashboard.putNumber("FILT X", currFilteredPose.getX());
-            SmartDashboard.putNumber("FILT Y", currFilteredPose.getY());
         }else{
             robotState = RobotState.getInstance();
         }
+
+        field.setRobotPose(robotState.getCurrentPose2d()); 
+        SmartDashboard.putData("RobotState/Field2d", field); // cant this be done in logger?
         
         Pose2d currentPose = getPose();
         Logger.recordOutput("Swerve/Odometry X", currentPose.getX());
