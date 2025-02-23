@@ -17,17 +17,17 @@ import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import org.littletonrobotics.junction.AutoLogOutput;
 
 public class Elevator extends SubsystemBase {
   
-  private static Elevator instance;
 
   private TalonFX follower;
   private TalonFX leader;
   private VoltageOut voltOutput;
   private TorqueCurrentFOC torqueOutput;
-
-  private DigitalInput beam;
+  private DigitalInput beamBreak;
+  private static Elevator instance;
 
   public static Elevator getInstance(){
     if(instance == null){
@@ -57,20 +57,19 @@ public class Elevator extends SubsystemBase {
   public Elevator() {
     leader = new TalonFX(Constants.HardwarePorts.elevatorLeaderId, "mechbus");
     follower = new TalonFX(Constants.HardwarePorts.elevatorFollowerId, "mechbus");
-    leader.setNeutralMode(NeutralModeValue.Brake);
-    follower.setNeutralMode(NeutralModeValue.Brake);
+    follower.setControl(new Follower(Constants.HardwarePorts.elevatorLeaderId, false));
+    beamBreak = new DigitalInput(Constants.HardwarePorts.beamPort);
+//    leader.setNeutralMode(NeutralModeValue.Brake);
+//    follower.setNeutralMode(NeutralModeValue.Brake); // does this way actually work? if so we need to use this not the config in the config method
+
     configMotor(leader, InvertedValue.CounterClockwise_Positive, NeutralModeValue.Brake);
     configMotor(follower, InvertedValue.CounterClockwise_Positive, NeutralModeValue.Brake);
-
-    follower.setControl(new Follower(Constants.HardwarePorts.elevatorLeaderId, false));
-
-    beam = new DigitalInput(Constants.HardwarePorts.beamPort);
+    
     voltOutput = new VoltageOut(0).withEnableFOC(true);
     torqueOutput = new TorqueCurrentFOC(0);
   }
 
   private void configMotor(TalonFX motor, InvertedValue direction, NeutralModeValue neutralMode){
-    // motor.setNeutralMode(neutralMode);
     TalonFXConfiguration config = new TalonFXConfiguration();
     CurrentLimitsConfigs currentLimitsConfigs = new CurrentLimitsConfigs();
     config.MotorOutput.Inverted = direction;
@@ -78,66 +77,71 @@ public class Elevator extends SubsystemBase {
     currentLimitsConfigs.SupplyCurrentLimitEnable = true;
     currentLimitsConfigs.StatorCurrentLimit = Constants.CurrentLimits.elevatorPeakCurrentLimit;
     currentLimitsConfigs.StatorCurrentLimitEnable = true;
-    config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+    config.MotorOutput.NeutralMode = neutralMode;
+    
     config.CurrentLimits = currentLimitsConfigs;
-    motor.getConfigurator().apply(config);
+
+    motor.optimizeBusUtilization();
+    
     motor.getPosition().setUpdateFrequency(50);
     motor.getStatorCurrent().setUpdateFrequency(50);
-    motor.optimizeBusUtilization();
-  
-     // motor.optimizeBusUtilization();
-  }
 
-  public double getPosition(){
-    return leader.getPosition().getValueAsDouble();
-  }
-
-  public void setTorqueOutput(double output){
-    leader.setControl(torqueOutput.withOutput(output));
-  }
-
-  public double getCurrent(){
-    return leader.getStatorCurrent().getValueAsDouble();
+    motor.getConfigurator().apply(config);
   }
 
   public void stop(){
     leader.set(0);
   }
-
-  public void setSpeed(double speed){
-    leader.set(speed);
-  }
-  
-
-
-  public double getVelocity(){
-    return leader.getVelocity().getValueAsDouble();
-  }
-
-  public double getFollowerVoltage(){
-    return follower.getMotorVoltage().getValueAsDouble();
-  }
-
-  public double getAcceleration() {
-    return leader.getAcceleration().getValueAsDouble();
-  }
-
   public void zeroPosition() {
     leader.setPosition(0);
   }
-
+  public void setSpeed(double speed){
+    leader.set(speed);
+  }
   public void setVoltage(double voltage){
     leader.setControl(voltOutput.withOutput(voltage));
   }
+  public void setTorqueOutput(double output){
+    leader.setControl(torqueOutput.withOutput(output));
+  }
 
+  @AutoLogOutput(key = "Elevator/StatorCurrent")
+  public double getStatorCurrent(){
+    return leader.getStatorCurrent().getValueAsDouble();
+  }
+  @AutoLogOutput(key = "Elevator/SupplyCurrent")
+  public double getSupplyCurrent(){
+    return leader.getSupplyCurrent().getValueAsDouble();
+  }
+    
+  @AutoLogOutput(key = "Elevator/Position")
+  public double getPosition(){
+    return leader.getPosition().getValueAsDouble();
+  }
+  @AutoLogOutput(key = "Elevator/Velocity")
+  public double getVelocity(){
+    return leader.getVelocity().getValueAsDouble();
+  }
+  @AutoLogOutput(key = "Elevator/Acceleration")
+  public double getAcceleration() {
+    return leader.getAcceleration().getValueAsDouble();
+  }
+  
+  @AutoLogOutput(key = "Elevator/LeaderVoltage")
+  public double getVoltage(){
+    return leader.getMotorVoltage().getValueAsDouble();
+  }
+  @AutoLogOutput(key = "Elevator/FollowerVoltage")
+  public double getFollowerVoltage(){
+    return follower.getMotorVoltage().getValueAsDouble();
+  }
+  
+  @AutoLogOutput(key = "Elevator/BeamBroken")
   public boolean getBeamResult(){
-    return beam.get();
+    return beamBreak.get();
   }
 
   @Override
   public void periodic() {
-    SmartDashboard.putNumber("elevator position", getPosition());
-    SmartDashboard.putBoolean("beam break result", getBeamResult());
-    SmartDashboard.putNumber("elevator stator current", getCurrent());
   }
 }
