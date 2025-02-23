@@ -5,30 +5,24 @@
 package frc.robot.commands.CommandFactory;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Subsystems.Slapdown.PivotState;
-import frc.robot.Constants.FieldConstants.ReefConstants;
-import frc.robot.Subsystems.Elevator;
 import frc.robot.Subsystems.Slapdown;
 import frc.robot.Subsystems.Elevator.ElevatorState;
 import frc.robot.Subsystems.Slapdown.RollerState;
 import frc.robot.commands.CancelableCommand;
 import frc.robot.commands.Autos.FollowChoreoTrajectory;
 import frc.robot.commands.Elevator.AltSetElevator;
-import frc.robot.commands.Pivot.SetSlapdownPivot;
-import frc.robot.commands.Pivot.SmartIntake;
+import frc.robot.commands.Slapdown.Pivot.SetSlapdownPivot;
+import frc.robot.commands.Slapdown.Pivot.SmartIntake;
 import frc.robot.commands.SwerveCommands.DriveToPose;
-import frc.robot.Constants;
-import frc.robot.Constants.FieldConstants;
 import frc.robot.Constants.FieldConstants.ReefConstants.ReefPoleSide;
 import frc.robot.Constants.FieldConstants.ReefConstants.SourceNumber;
 import frc.robot.Constants.FieldConstants.ReefConstants.ReefNumber;
 import frc.robot.Constants.FieldConstants.ReefConstants.ReefPoleLevel;
-import frc.robot.RobotState.RobotState;
 
 /** Add your docs here. */
 public class CommandFactory {
@@ -54,7 +48,7 @@ public class CommandFactory {
             );
     }
 
-    public static Command smartAlgeaIntake() {
+    public static Command smartAlgaeIntake() {
         return new SequentialCommandGroup(
             new ParallelCommandGroup(
                 new SetSlapdownPivot(PivotState.DOWN),
@@ -65,7 +59,7 @@ public class CommandFactory {
             
     }
 
-    public static Command algeaOuttake() {
+    public static Command algaeOuttake() {
         return new SequentialCommandGroup(
             new InstantCommand()
          );
