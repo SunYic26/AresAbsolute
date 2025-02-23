@@ -8,14 +8,13 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.State;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants;
 import frc.robot.Subsystems.Elevator;
 import frc.robot.Subsystems.Elevator.ElevatorState;
 import org.littletonrobotics.junction.Logger;
 
-public class AltSetElevator extends Command {
+public class SetElevator extends Command {
   private TrapezoidProfile.Constraints constraints = new TrapezoidProfile.Constraints(Constants.elevatorMaxVelocity, Constants.elevatorMaxAcceleration);
   private double goalPosition;
   private double error;
@@ -26,11 +25,11 @@ public class AltSetElevator extends Command {
   private TrapezoidProfile profile = new TrapezoidProfile(constraints);
   private PIDController controller = new PIDController(1.5, 0.5, 0.04);
   private Elevator s_Elevator;
-  public AltSetElevator(ElevatorState state) {
+  public SetElevator(ElevatorState state) {
     this(state.getEncoderPosition());
   }
 
-  public AltSetElevator(double goalPosition){
+  public SetElevator(double goalPosition){
     this.goalPosition = goalPosition;
     timer = new Timer();
     
@@ -72,7 +71,7 @@ public class AltSetElevator extends Command {
     Logger.recordOutput("Elevator/ExpectedTime", profile.totalTime());
     Logger.recordOutput("Elevator/FinalError", Math.abs(goalPosition - s_Elevator.getPosition()));
     
-    System.out.println("AltSetElevator Ended");
+    System.out.println("SetElevator Ended");
   }
 
   @Override

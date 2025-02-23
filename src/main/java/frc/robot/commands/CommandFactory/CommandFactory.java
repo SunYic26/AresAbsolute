@@ -17,7 +17,7 @@ import frc.robot.Subsystems.Slapdown;
 import frc.robot.Subsystems.Elevator.ElevatorState;
 import frc.robot.commands.CancelableCommand;
 import frc.robot.commands.Autos.FollowChoreoTrajectory;
-import frc.robot.commands.Elevator.AltSetElevator;
+import frc.robot.commands.Elevator.SetElevator;
 import frc.robot.commands.Elevator.ZeroElevator;
 import frc.robot.commands.Funnel.SetFunnelState;
 import frc.robot.commands.Funnel.SmartFunnel;
@@ -71,13 +71,13 @@ public class CommandFactory {
     public static Command SmartCoralIntake(){
         return new ParallelCommandGroup(
                 new SmartFunnel(),
-                new AltSetElevator(ElevatorState.SOURCE)
+                new SetElevator(ElevatorState.SOURCE)
         );
     }
     
     public static Command AutoScoreCoral(ElevatorState level, ReefPoleSide side, CommandXboxController controller){
         return new ParallelCommandGroup(
-            new AltSetElevator(level),
+            new SetElevator(level),
             new DriveToPose(side)
         ).raceWith(new CancelableCommand(controller));
     }

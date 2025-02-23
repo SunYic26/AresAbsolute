@@ -14,7 +14,7 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Subsystems.Elevator;
 import frc.robot.Subsystems.CommandSwerveDrivetrain.CommandSwerveDrivetrain;
-import frc.robot.commands.Elevator.AltSetElevator;
+import frc.robot.commands.Elevator.SetElevator;
 import frc.robot.commands.EndEffector.IndexCoral;
 import frc.robot.commands.EndEffector.OuttakeCoral;
         import frc.robot.commands.CommandFactory.CommandFactory;
@@ -168,10 +168,10 @@ public class RobotContainer {
     driver.rightBumper().onTrue(new IndexCoral());
     driverStart.onTrue(CommandFactory.ZeroAll());
 
-     driver.povDown().onTrue(new AltSetElevator(ElevatorState.L1));
-     driver.povRight().onTrue(new AltSetElevator(ElevatorState.L2));
-     driver.povLeft().onTrue(new AltSetElevator(ElevatorState.L3));
-    driver.povUp().onTrue(new AltSetElevator(ElevatorState.L4));
+     driver.povDown().onTrue(new SetElevator(ElevatorState.L1));
+     driver.povRight().onTrue(new SetElevator(ElevatorState.L2));
+     driver.povLeft().onTrue(new SetElevator(ElevatorState.L3));
+    driver.povUp().onTrue(new SetElevator(ElevatorState.L4));
 
 
 
