@@ -74,7 +74,7 @@ public class DriveToPose extends Command {
 
         thetaController.reset(currentPose.getRotation().getRadians(),
                 robotState.getLatestFilteredVelocity().getOmega());
-
+                
         lastSetpointTranslation = robotState.getCurrentPose2d().getTranslation();
     }
 

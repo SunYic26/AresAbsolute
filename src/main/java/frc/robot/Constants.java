@@ -262,7 +262,7 @@ public final class Constants {
 
                 //BLUE SIDE
                 LEFT(new Pose2d[]{ //these are wrong obvi
-                    new Pose2d(temp, temp, new Rotation2d(0.0)), // Point A
+                    new Pose2d(3.61677, 2.5978, Rotation2d.fromRadians(1.0483)), // Point A
                     new Pose2d(temp, temp, new Rotation2d(0.0)), // Point C
                     new Pose2d(temp, temp, new Rotation2d(0.0)), // Point E
                     new Pose2d(temp, temp, new Rotation2d(0.0)), // Point G
@@ -331,29 +331,6 @@ public final class Constants {
 
                 ReefPoleLevel(double height) {
                     this.elevatorLevel = height;
-                }
-
-                public ReefPoleLevel raiseLevel() {
-                    System.out.println(this.ordinal());
-
-
-                    if(this.ordinal() == 2)
-                        return this;
-                    else {
-                        SmartDashboard.putString("Selected Pole Level", ReefPoleLevel.values()[this.ordinal() + 1].name());
-                        return ReefPoleLevel.values()[this.ordinal() + 1];
-                    }
-                }
-
-                public ReefPoleLevel decreaseLevel() {
-                    System.out.println(this.ordinal());
-
-                    if(this.ordinal() == 0)
-                        return this;
-                    else {
-                        SmartDashboard.putString("Selected Pole Level", ReefPoleLevel.values()[this.ordinal() - 1].name());
-                        return ReefPoleLevel.values()[this.ordinal() - 1];
-                    }
                 }
 
                 public double getElevatorLevel() {
