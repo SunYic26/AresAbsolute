@@ -11,9 +11,9 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import org.littletonrobotics.junction.AutoLogOutput;
 
-public class Funnel extends SubsystemBase {
-  /** Creates a new Funnel. */
+public class Funnel extends SubsystemBase { 
   private static Funnel instance;
   
   private TalonFX roller;
@@ -28,14 +28,14 @@ public class Funnel extends SubsystemBase {
   }
 
   public enum FunnelState{
-    INTAKING(0.5),
+    INTAKE(0.5),
     OFF(0);
-    private double rollerSpeed;
-    private FunnelState(double rollerSpeed){
-      this.rollerSpeed = rollerSpeed;
+    private double speed;
+    private FunnelState(double speed){
+      this.speed = speed;
     }
-    private double getRollerSpeed(){
-      return rollerSpeed;
+    private double getSpeed(){
+      return speed;
     }
   }
 
@@ -51,8 +51,10 @@ public class Funnel extends SubsystemBase {
     config.MotorOutput.NeutralMode = neutralMode;
     config.MotorOutput.Inverted = direction;
 
-    roller.getConfigurator().apply(config);
     roller.optimizeBusUtilization();
+    roller.getVelocity().setUpdateFrequency(Constants.dtMs);
+    
+    roller.getConfigurator().apply(config);
   }
 
   public void setSpeed(double speed){
@@ -61,11 +63,14 @@ public class Funnel extends SubsystemBase {
 
   public void setState(FunnelState desiredState){
     state = desiredState;
-    roller.set(state.getRollerSpeed());
+    roller.set(state.getSpeed());
+  }
+  @AutoLogOutput(key = "Funnel/Velocity")
+  public double getVelocity(){
+    return roller.getVelocity().getValueAsDouble();
   }
 
   @Override
   public void periodic() {
-    // This method will be called once per scheduler run
   }
 }
