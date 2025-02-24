@@ -7,6 +7,7 @@ package frc.robot.commands.Elevator;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants;
 import frc.robot.Subsystems.Elevator;
+import org.littletonrobotics.junction.Logger;
 
 public class ZeroElevator extends Command {
     private Elevator s_Elevator;
@@ -19,6 +20,7 @@ public class ZeroElevator extends Command {
     @Override
     public void initialize() {
         s_Elevator.setSpeed(-0.05);
+        Logger.recordOutput("Elevator/Zeroing", true);
     }
 
 
@@ -31,6 +33,7 @@ public class ZeroElevator extends Command {
         } else {
             System.out.println("ZeroElevatorInterrupted");
         }
+        Logger.recordOutput("Elevator/Zeroing", false);
 
     }
 

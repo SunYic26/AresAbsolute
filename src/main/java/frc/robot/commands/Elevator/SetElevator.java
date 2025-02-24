@@ -28,6 +28,7 @@ public class SetElevator extends Command {
 
     public SetElevator(ElevatorState state) {
         this(state.getEncoderPosition());
+        Logger.recordOutput("Elevator/TargetState", state.toString());
     }
 
     public SetElevator(double goalPosition) {
@@ -43,6 +44,8 @@ public class SetElevator extends Command {
         timer.restart();
         controller.disableContinuousInput();
         initialState = new State(s_Elevator.getPosition(), s_Elevator.getVelocity());
+        
+        
     }
 
     @Override
@@ -56,23 +59,26 @@ public class SetElevator extends Command {
         Logger.recordOutput("Elevator/PIDOutputVoltage", pidoutput);
         Logger.recordOutput("Elevator/TrapezoidSetpoint", setpoint.position);
         Logger.recordOutput("Elevator/PIDSetpoint", controller.getSetpoint());
+        Logger.recordOutput("Elevator/Running", true);
+        
     }
 
     @Override
     public void end(boolean interrupted) {
-
+        timer.stop();
+        s_Elevator.stop();
+                
         System.out.println("Elevator Stats");
         System.out.println("Total Time: " + timer.get());
         System.out.println("Expected Time: " + profile.totalTime());
-        timer.stop();
-        s_Elevator.stop();
         System.out.println("Final Error: " + (Math.abs(goalPosition - s_Elevator.getPosition())));
 
-        Logger.recordOutput("Elevator/TotalTime", timer.get());
-        Logger.recordOutput("Elevator/ExpectedTime", profile.totalTime());
+Logger.recordOutput("Elevator/TotalTime", Math.round(timer.get() * 10.0) / 10.0);
+Logger.recordOutput("Elevator/ExpectedTime", Math.round(profile.totalTime() * 10.0) / 10.0);
         Logger.recordOutput("Elevator/FinalError", Math.abs(goalPosition - s_Elevator.getPosition()));
 
         System.out.println("SetElevator Ended");
+        Logger.recordOutput("Elevator/Running", false);
     }
 
     @Override

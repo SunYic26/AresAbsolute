@@ -123,9 +123,11 @@ public class RobotState { //will estimate pose with odometry and correct drift w
             IDouble robotAngularMagnitude = getInterpolatedValue(robotAngularVelocity, timestamp, new IDouble(0.0));
             ITwist2d robotAcceleration = getInterpolatedValue(robotAccelerations, timestamp, ITwist2d.identity());
 
-            SmartDashboard.putNumber("Accel", robotAcceleration.toMagnitude());
-            SmartDashboard.putNumber("velocity", OdomVelocity.toMagnitude());
 
+            Logger.recordOutput("RobotState/Robot Angular Magnitude", robotAngularMagnitude.value);
+            Logger.recordOutput("RobotState/Robot Acceleration", robotAcceleration.toMagnitude());
+            Logger.recordOutput("RobotState/Robot Velocity", OdomVelocity.toMagnitude());
+            
             //We use velocity because its more accurate than our acceleration
             if (OdomVelocity.toMagnitude() > 0) { //manually increase P (our predicted error in position)
                 Matrix<N2, N2> P = UKF.getP();
@@ -144,7 +146,7 @@ public class RobotState { //will estimate pose with odometry and correct drift w
                         + ka * Math.pow(acceleration, 2) * (1 + Math.exp(-velocity))
                         + ktheta * robotAngularMagnitude.value * acceleration;
 
-                org.littletonrobotics.junction.Logger.recordOutput("Error", error);
+                Logger.recordOutput("P Matrix Increment", error);
 
                 double newP = P.get(0, 0) + error;
 

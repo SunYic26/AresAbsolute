@@ -55,6 +55,10 @@ public final class Constants {
             4
     );
 
+    
+    public static class LaserCANConstants {
+        public static final double discardDistanceMM = 30; // Distance for which results should be discarded. in mm
+    }
     public static class LimelightConstants {
         public static final String cameraName = "limelight"; // required for all LimelightHelpers method calls - or pass a blank string if the name is the default (limelight)
 

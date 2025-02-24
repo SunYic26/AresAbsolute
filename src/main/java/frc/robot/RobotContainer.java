@@ -19,7 +19,8 @@ import frc.robot.commands.EndEffector.IndexCoral;
 import frc.robot.commands.EndEffector.OuttakeCoral;
         import frc.robot.commands.CommandFactory.CommandFactory;
         import frc.robot.commands.Funnel.SetFunnelState;
-        import frc.robot.commands.Slapdown.Roller.SetRollerState;
+import frc.robot.commands.Slapdown.Pivot.SetPivotState;
+import frc.robot.commands.Slapdown.Roller.SetRollerState;
         import frc.robot.Subsystems.CommandSwerveDrivetrain.DriveControlSystems;
 import frc.robot.Subsystems.Elevator.ElevatorState;
 import frc.robot.Subsystems.Funnel.FunnelState;
@@ -141,8 +142,8 @@ public class RobotContainer {
 
 
 
-    // driver.a().onTrue(new SetSlapdownPivot(PivotState.UP));
-    // driver.b().onTrue(new SetSlapdownPivot(PivotState.DOWN));
+     driver.a().onTrue(new SetPivotState(Slapdown.PivotState.UP));
+     driver.b().onTrue(new SetPivotState(Slapdown.PivotState.DOWN));
 
 
     // driver.a().onTrue(CommandFactory.AutoScoreCoral(reefPoleLevel, ReefPoleSide.LEFT, driver));
@@ -166,7 +167,7 @@ public class RobotContainer {
     driver.leftBumper().onTrue(new SetFunnelState(FunnelState.INTAKE));
     driver.rightTrigger().onTrue(new OuttakeCoral());
     driver.rightBumper().onTrue(new IndexCoral());
-    driverStart.onTrue(CommandFactory.ZeroAll());
+    driverRightTrigger.onTrue(CommandFactory.ZeroAll());
 
      driver.povDown().onTrue(new SetElevator(ElevatorState.L1));
      driver.povRight().onTrue(new SetElevator(ElevatorState.L2));
@@ -175,9 +176,9 @@ public class RobotContainer {
 
 
 
-    driver.a().onTrue(CommandFactory.SmartAlgaeIntake());
-    driver.b().onTrue(new SetRollerState(RollerState.OUTTAKE));
-    driver.x().onTrue(new SetRollerState(RollerState.OFF));
+//    driver.a().onTrue(CommandFactory.SmartAlgaeIntake());
+//    driver.b().onTrue(new SetRollerState(RollerState.OUTTAKE));
+//    driver.x().onTrue(new SetRollerState(RollerState.OFF));
 
   }
 

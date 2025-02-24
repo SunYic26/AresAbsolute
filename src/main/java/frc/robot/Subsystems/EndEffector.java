@@ -150,18 +150,25 @@ public class EndEffector extends SubsystemBase {
         return getLaserMeasurement().distance_mm;
     }
 
+    @AutoLogOutput(key = "EndEffector/LaserCAN/CoralDetected")
+    public boolean isCoralDetected() {
+        return getLaserMeasurement().distance_mm < Constants.LaserCANConstants.discardDistanceMM;
+    }
 
     @Override
     public void periodic() {
-        if (getLaserMeasurement() != null) {
-            if (getLaserMeasurement().status == LaserCan.LASERCAN_STATUS_VALID_MEASUREMENT) {
-                Logger.recordOutput("EndEffector/LaserCAN/Measurement", getLaserMeasurement().distance_mm);
+        Measurement measurement = getLaserMeasurement();
+        if (measurement != null) {
+            if (measurement.status == LaserCan.LASERCAN_STATUS_VALID_MEASUREMENT) {
+                Logger.recordOutput("EndEffector/LaserCAN/Measurement", measurement.distance_mm);
                 Logger.recordOutput("EndEffector/LaserCAN/Working", true);
+                
             } else {
                 Logger.recordOutput("EndEffector/LaserCAN/Working", false);
                 Logger.recordOutput("EndEffector/LaserCAN/Measurement", -1);
-                Logger.recordOutput("EndEffector/LaserCAN/Status", getLaserMeasurement().status);
+                Logger.recordOutput("EndEffector/LaserCAN/Status", measurement.status);
             }
         }
+        
     }
 }

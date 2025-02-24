@@ -9,6 +9,7 @@ import frc.robot.Subsystems.Slapdown.PivotState;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj2.command.Command;
+import org.littletonrobotics.junction.Logger;
 
 public class SetPivotState extends Command {
     private Slapdown s_Slapdown;
@@ -25,21 +26,26 @@ public class SetPivotState extends Command {
 
     @Override
     public void initialize() {
+        Logger.recordOutput("Slapdown/Pivot/TargetState", state.toString());
+        
     }
 
     @Override
     public void execute() {
         s_Slapdown.setPivotVoltage(controller.calculate(s_Slapdown.getPivotPosition(), angleSetpoint));
+        Logger.recordOutput("Slapdown/Pivot/Running", true);
     }
 
     @Override
     public void end(boolean interrupted) {
         s_Slapdown.setPivotVoltage(0);
 
-        if (state != PivotState.DOWN)
-            s_Slapdown.brakePivot(state);
+        if (state != PivotState.DOWN){
+            s_Slapdown.brakePivot(state);}
 
         System.out.println("SetPivotState Ended");
+        Logger.recordOutput("Slapdown/Pivot/Running", false);
+
     }
 
     @Override

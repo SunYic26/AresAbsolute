@@ -6,6 +6,7 @@ package frc.robot.commands.Slapdown.Pivot;
 
 import frc.robot.Subsystems.Slapdown;
 import edu.wpi.first.wpilibj2.command.Command;
+import org.littletonrobotics.junction.Logger;
 
 public class ZeroPivot extends Command {
     private Slapdown s_Slapdown;
@@ -18,6 +19,7 @@ public class ZeroPivot extends Command {
     @Override
     public void initialize() {
         s_Slapdown.setPivotSpeed(-0.3); // TODO tune number
+        Logger.recordOutput("Slapdown/Zeroing", true);
     }
 
     @Override
@@ -30,6 +32,8 @@ public class ZeroPivot extends Command {
         s_Slapdown.zeroPivotPosition();
         s_Slapdown.brakePivot();
         System.out.println("ZeroPivot Ended");
+        Logger.recordOutput("Slapdown/Zeroing", false);
+
     }
 
     @Override
