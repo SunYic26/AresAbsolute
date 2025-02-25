@@ -168,12 +168,14 @@ public class RobotContainer {
     driver.rightTrigger().onTrue(new OuttakeCoral());
     driver.rightBumper().onTrue(new IndexCoral());
     driverRightTrigger.onTrue(CommandFactory.ZeroAll());
+    //wtf is this why r there two righttriggers
 
-     driver.povDown().onTrue(new SetElevator(ElevatorState.L1));
-     driver.povRight().onTrue(new SetElevator(ElevatorState.L2));
-     driver.povLeft().onTrue(new SetElevator(ElevatorState.L3));
+    driver.povDown().onTrue(new SetElevator(ElevatorState.L1));
+    driver.povRight().onTrue(new SetElevator(ElevatorState.L2));
+    driver.povLeft().onTrue(new SetElevator(ElevatorState.L3));
     driver.povUp().onTrue(new SetElevator(ElevatorState.L4));
 
+    
 
 
 //    driver.a().onTrue(CommandFactory.SmartAlgaeIntake());
